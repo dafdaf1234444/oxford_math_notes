@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A11 Quantum Theory — Márk Mezei</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    macros: {
+      bra: ['\\langle #1|', 1],
+      ket: ['|#1\\rangle', 1],
+      braket: ['\\langle #1|#2\\rangle', 2],
+      abs: ['|#1|', 1],
+      norm: ['\\|#1\\|', 1],
+      tr: '\\operatorname{tr}',
+      Re: '\\operatorname{Re}',
+      Im: '\\operatorname{Im}'
+    }
+  },
+  startup: {
+    pageReady: function() {
+      return MathJax.startup.defaultPageReady().then(function() {
+        initApp();
+      });
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+@import url('https://cdn.jsdelivr.net/npm/computer-modern/cmsans.css');
+@import url('https://cdn.jsdelivr.net/npm/computer-modern/cmserif.css');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Computer Modern Serif", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #111;
+  background: #fff;
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 200px) 1fr var(--panel-width, 450px);
+  grid-template-rows: 100vh;
+  overflow: hidden;
+}
+
+/* ── Left Sidebar ── */
+#sidebar {
+  grid-column: 1;
+  height: 100vh;
+  border-right: 1px solid #d1d5db;
+  font-size: 12px;
+  line-height: 1.35;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#sidebar-filters {
+  flex-shrink: 0;
+  padding: 0.6rem 0.6rem 0.3rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.filter-tabs {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.filter-tab {
+  font-size: 10px;
+  padding: 1px 5px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  color: #4b5563;
+  line-height: 1.3;
+}
+.filter-tab:hover { background: #f3f4f6; }
+.filter-tab.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+#sidebar-toc {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0.6rem;
+  min-height: 0;
+}
+#sidebar .toc-items a .type-badge {
+  font-size: 8px;
+  color: #9ca3af;
+  margin-right: 2px;
+}
+#sidebar .toc-items li.filtered-out { display: none; }
+#sidebar-resize {
+  position: absolute;
+  top: 0; right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 20;
+  background: transparent;
+}
+#sidebar-resize:hover, #sidebar-resize.dragging { background: rgba(30,64,175,0.2); }
+#sidebar h2 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  padding: 0 0.3rem;
+  color: #333;
+}
+#sidebar ul { list-style: none; }
+#sidebar .toc-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 3px 0.3rem;
+  user-select: none;
+  border-radius: 3px;
+  margin-top: 0.4rem;
+}
+#sidebar .toc-section-head:hover { background: #f3f4f6; }
+#sidebar .toc-section-head .arrow {
+  display: inline-block;
+  font-size: 9px;
+  transition: transform 0.15s;
+  flex-shrink: 0;
+  width: 10px;
+}
+#sidebar .toc-section-head.expanded .arrow { transform: rotate(90deg); }
+#sidebar .toc-items {
+  display: none;
+  padding-left: 0.9rem;
+}
+#sidebar .toc-items.visible { display: block; }
+#sidebar .toc-items li { margin: 1px 0; }
+#sidebar .toc-items a {
+  color: #4b5563;
+  text-decoration: none;
+  display: block;
+  padding: 1px 0.3rem;
+  border-radius: 3px;
+  font-size: 11.5px;
+}
+#sidebar .toc-items a:hover { background: #e5e7eb; color: #111; }
+#sidebar .toc-items a.active {
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 600;
+}
+#sidebar .toc-items a .toc-name { color: #9ca3af; font-weight: 400; font-size: 10px; }
+
+/* ── Center Content ── */
+#content {
+  grid-column: 2;
+  height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: 2.5rem 2.5rem 6rem;
+  max-width: none;
+}
+
+/* Title */
+.doc-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.2rem;
+}
+.doc-author {
+  font-size: 1.1rem;
+  text-align: center;
+  color: #555;
+  margin-bottom: 2.5rem;
+}
+
+/* Section headings */
+h2.section-heading {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+}
+
+/* Theorem-like environments — monochrome LaTeX style */
+.env {
+  margin: 1.2rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  border-left: 2px solid #d1d5db;
+  background: transparent;
+  border-radius: 0;
+}
+.env-head {
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.1rem;
+  cursor: pointer;
+}
+.env-head:hover { color: #1e40af; }
+.env-name { font-style: italic; font-weight: 400; }
+
+/* Remove all type-specific coloring */
+.env.definition, .env.theorem, .env.lemma, .env.proposition,
+.env.corollary, .env.example, .env.remark, .env.notation, .env.warning {
+  border-color: #d1d5db;
+  background: transparent;
+}
+.env.definition .env-head, .env.theorem .env-head, .env.lemma .env-head,
+.env.proposition .env-head, .env.corollary .env-head, .env.example .env-head,
+.env.remark .env-head, .env.notation .env-head, .env.warning .env-head {
+  color: #111;
+}
+
+/* Highlight selected env */
+.env.panel-active {
+  background: #f8fafc;
+  border-left-color: #1e40af;
+  border-left-width: 3px;
+}
+
+/* Proofs */
+.proof {
+  margin: 0.5rem 0 1.2rem;
+  padding: 0.4rem 0 0.4rem 1rem;
+  border-left: none;
+  cursor: pointer;
+  position: relative;
+}
+.proof-head {
+  font-style: italic;
+  font-weight: 400;
+  color: #111;
+  user-select: none;
+}
+.proof-head::after {
+  content: ' ▾';
+  font-size: 0.7em;
+  color: #9ca3af;
+}
+.proof.collapsed .proof-head::after { content: ' ▸'; }
+.proof.collapsed .proof-body { display: none; }
+.proof-body { margin-top: 0.3rem; }
+.qed {
+  text-align: right;
+  font-size: 1em;
+  margin-top: 0.1rem;
+}
+
+/* Cross-references — dark blue, no underline */
+a.ref {
+  color: #1e40af;
+  text-decoration: none;
+  border-bottom: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+a.ref:hover { color: #1d4ed8; background: #eff6ff; border-radius: 2px; }
+a.ref .ref-name { color: #9ca3af; font-size: 0.88em; font-weight: 400; white-space: nowrap; }
+
+/* Character tables — booktabs style */
+table.char-table {
+  border-collapse: collapse;
+  margin: 1rem auto;
+  font-size: 15px;
+}
+table.char-table th, table.char-table td {
+  border: none;
+  padding: 3px 12px;
+  text-align: center;
+}
+table.char-table { border-top: 2px solid #111; border-bottom: 2px solid #111; }
+table.char-table th {
+  background: transparent;
+  font-weight: 600;
+  border-bottom: 1px solid #111;
+}
+
+/* ── Right Panel ── */
+#ref-panel {
+  grid-column: 3;
+  height: 100vh;
+  border-left: 1px solid #d1d5db;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  overflow: hidden;
+  position: relative;
+}
+#ref-panel .panel-empty {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #9ca3af;
+  font-size: 14px;
+  font-style: italic;
+  padding: 1rem;
+  text-align: center;
+}
+
+/* Resize handle */
+#resize-handle {
+  position: absolute;
+  top: 0; left: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 20;
+  background: transparent;
+}
+#resize-handle:hover, #resize-handle.dragging { background: rgba(30,64,175,0.2); }
+
+/* Nav bar */
+#panel-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 12px;
+  flex-shrink: 0;
+  min-height: 32px;
+}
+#panel-nav button {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #4b5563;
+  line-height: 1;
+}
+#panel-nav button:hover:not(:disabled) { background: #f3f4f6; color: #111; }
+#panel-nav button:disabled { opacity: 0.3; cursor: default; }
+#panel-nav .nav-label {
+  flex: 1;
+  font-weight: 600;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+/* Graph container */
+#graph-container {
+  flex-shrink: 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.6rem;
+  min-height: 100px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+#graph-container svg { display: block; margin: 0 auto; }
+
+/* Panel content area */
+#panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  position: relative;
+}
+
+/* Section labels in panel content */
+.panel-section {
+  padding: 0.4rem 0.8rem 0;
+}
+.panel-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel-section-controls {
+  display: inline-flex; gap: 6px; margin-left: auto; font-weight: 400;
+}
+.panel-section-controls button {
+  background: none; border: none; cursor: pointer;
+  font-size: 10px; color: #6b7280; text-decoration: underline;
+  text-transform: none; letter-spacing: 0;
+}
+.panel-section-controls button:hover { color: #1e40af; }
+.panel-section .stacked-item {
+  margin-bottom: 0.6rem;
+  padding: 0 0 0.6rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.panel-section .stacked-item:last-child { border-bottom: none; }
+.stacked-header {
+  font-weight: 700;
+  font-size: 12.5px;
+  color: #1e40af;
+  cursor: pointer;
+  margin-bottom: 0.2rem;
+  padding: 0 0.8rem 0 1.6rem;
+  position: relative;
+}
+.stacked-header:hover { text-decoration: underline; }
+.stacked-header .toggle-icon {
+  position: absolute; left: 0.5rem; top: 1px;
+  font-size: 9px; color: #6b7280;
+  transition: transform 0.15s;
+}
+.stacked-item.expanded .toggle-icon { transform: rotate(90deg); }
+.stacked-body {
+  display: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafbfc;
+}
+.stacked-item.expanded .stacked-body { display: block; }
+.stacked-body .env { margin: 0; padding: 4px 0; border: none; background: transparent; }
+.stacked-body .env-head { font-size: 13px; }
+.stacked-body p { font-size: 13.5px; line-height: 1.5; }
+.stacked-body .display-math { font-size: 14px; }
+.stacked-summary {
+  font-size: 11.5px;
+  color: #4b5563;
+  padding: 3px 10px 5px 22px;
+  line-height: 1.4;
+  border-bottom: 1px solid #e5e7eb;
+}
+.panel-section-empty {
+  color: #9ca3af;
+  font-size: 12px;
+  font-style: italic;
+  padding: 0.3rem 0.8rem;
+}
+
+/* Floating peek popover — appears near hovered reference */
+#peek-popover {
+  position: fixed;
+  width: 380px;
+  max-height: 420px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  z-index: 100;
+  font-size: 14px;
+}
+#peek-popover.visible { display: flex; }
+#peek-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e40af;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 6px 6px 0 0;
+  flex-shrink: 0;
+}
+#peek-popover-header button {
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; color: #6b7280; padding: 0 2px;
+}
+#peek-popover-header button:hover { color: #111; }
+#peek-popover-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0.8rem;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+#peek-popover-body .env {
+  margin: 0;
+  padding: 0.2rem 0 0.2rem 0.6rem;
+  border-left: 2px solid #d1d5db;
+  font-size: 13.5px;
+}
+#peek-resize-handle {
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 16px; height: 16px;
+  cursor: nwse-resize;
+  z-index: 101;
+}
+#peek-resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 3px; bottom: 3px;
+  width: 8px; height: 8px;
+  border-right: 2px solid #c4c8cf;
+  border-bottom: 2px solid #c4c8cf;
+}
+#peek-resize-handle:hover::after { border-color: #6b7280; }
+.peek-zoom-controls {
+  display: inline-flex;
+  gap: 1px;
+  margin-left: auto;
+}
+.peek-zoom-controls button {
+  background: none; border: 1px solid #e5e7eb; cursor: pointer;
+  font-size: 11px; color: #6b7280; padding: 0 4px;
+  border-radius: 2px; line-height: 1.4;
+}
+.peek-zoom-controls button:hover { background: #f3f4f6; color: #111; }
+
+/* Minimap overview */
+#minimap-container {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 6px 8px;
+  overflow: auto;
+  flex-shrink: 0;
+  position: relative;
+  max-height: 300px;
+}
+#minimap-container.hidden { display: none; }
+#minimap-zoom-controls {
+  position: absolute; top: 4px; right: 6px; z-index: 5;
+  display: flex; gap: 2px;
+}
+#minimap-zoom-controls button {
+  width: 20px; height: 20px; border: 1px solid #d1d5db; border-radius: 3px;
+  background: #f9fafb; cursor: pointer; font-size: 12px; line-height: 1;
+  display: flex; align-items: center; justify-content: center; color: #374151;
+}
+#minimap-zoom-controls button:hover { background: #e5e7eb; }
+#minimap-svg { transform-origin: 0 0; }
+.minimap-node { cursor: pointer; }
+.minimap-node rect { transition: opacity 0.15s, filter 0.15s; }
+.minimap-node.dimmed rect { opacity: 0.12; }
+.minimap-node.scroll-active rect { stroke: #111; stroke-width: 2; }
+.minimap-node.active rect { stroke: #1e40af; stroke-width: 2.5; filter: drop-shadow(0 0 3px rgba(30,64,175,0.5)); }
+.minimap-node.dep-highlight rect { stroke: #2563eb; stroke-width: 2; filter: drop-shadow(0 0 2px rgba(37,99,235,0.6)); }
+.minimap-node.usedby-highlight rect { stroke: #dc2626; stroke-width: 2; filter: drop-shadow(0 0 2px rgba(220,38,38,0.6)); }
+.minimap-node.panel-selected rect { stroke: #1e40af; stroke-width: 2; }
+#nav-label.minimap-hover { color: #6b7280; font-style: italic; }
+.minimap-legend {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 4px 0 2px; font-size: 9px; color: #6b7280;
+}
+.minimap-legend span::before {
+  content: ''; display: inline-block;
+  width: 8px; height: 8px; border-radius: 1px;
+  margin-right: 2px; vertical-align: middle;
+}
+
+/* Map toggle button */
+#panel-nav .btn-map { margin-left: auto; font-size: 10px; }
+#panel-nav .btn-map.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+
+/* Close panel button */
+#panel-nav .btn-close-panel { font-size: 13px; padding: 1px 5px; }
+
+/* Graph node styling */
+.graph-node { cursor: pointer; }
+.graph-node rect { rx: 4; ry: 4; }
+.graph-node:hover rect { filter: brightness(0.92); }
+.graph-node text { font-family: "Computer Modern Serif", Georgia, serif; font-size: 10.5px; }
+.graph-label { font-family: "Computer Modern Serif", Georgia, serif; }
+
+/* Guide tab */
+#tab-guide { background: #fff; }
+#guide-search {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  margin: 6px 12px;
+  box-sizing: border-box;
+}
+#guide-search:focus { outline: none; border-color: #93c5fd; }
+#guide-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+/* Guide: section groups */
+.guide-section {
+  border-bottom: 1px solid #f3f4f6;
+}
+.guide-section-head {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.3px;
+  padding: 6px 12px 2px;
+  background: #fafbfc;
+  cursor: pointer;
+}
+.guide-section-head:hover { color: #374151; }
+.guide-section-outline {
+  padding: 2px 12px 5px;
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.4;
+  font-style: italic;
+}
+/* Guide: entries */
+.guide-entry {
+  padding: 5px 12px;
+  border-bottom: 1px solid #f9fafb;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.guide-entry:hover { background: #eff6ff; }
+.guide-entry .guide-label {
+  font-weight: 600;
+  color: #1e40af;
+}
+.guide-entry .guide-type-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.guide-entry .guide-desc { display: none; }
+.guide-entry.filtered-out { display: none; }
+
+/* Glossary tab */
+#tab-glossary { background: #fff; }
+#glossary-search {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  margin: 6px 12px;
+  box-sizing: border-box;
+}
+#glossary-search:focus { outline: none; border-color: #93c5fd; }
+.glossary-type-filters {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  padding: 0 12px 6px;
+}
+.glossary-type-filter {
+  font-size: 9px;
+  padding: 1px 5px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  color: #4b5563;
+  line-height: 1.3;
+}
+.glossary-type-filter:hover { background: #f3f4f6; }
+.glossary-type-filter.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+#glossary-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+.glossary-letter-group {
+  border-bottom: 1px solid #e5e7eb;
+}
+.glossary-letter-head {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e40af;
+  padding: 6px 12px 2px;
+  background: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.glossary-term {
+  padding: 5px 12px 5px 20px;
+  border-bottom: 1px solid #f9fafb;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.glossary-term:hover { background: #eff6ff; }
+.glossary-term .glossary-term-name {
+  font-weight: 600;
+  color: #111;
+}
+.glossary-term .glossary-term-ref {
+  color: #6b7280;
+  font-size: 11px;
+  margin-left: 4px;
+}
+.glossary-term .glossary-term-type-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.glossary-term .glossary-term-desc { display: none; }
+.glossary-term.filtered-out { display: none; }
+
+p { margin: 0.5rem 0; }
+.display-math { margin: 0.8rem 0; text-align: center; }
+.important-convention { background: #fefce8; border: 1px solid #fbbf24; border-radius: 0; padding: 0.8rem 1rem; margin: 1rem 0; }
+
+/* ── Panel Tab System ── */
+.panel-tabs { display: flex; gap: 2px; flex: 1; justify-content: center; }
+.panel-tab {
+  font-size: 11px; padding: 3px 10px; border: 1px solid #d1d5db; border-radius: 4px;
+  background: #fff; cursor: pointer; color: #6b7280; font-weight: 500; transition: all 0.15s;
+}
+.panel-tab:hover { background: #f3f4f6; color: #374151; }
+.panel-tab.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; font-weight: 600; }
+.panel-tab-content { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+.panel-tab-content.active { display: flex; }
+#nav-label-bar { padding: 5px 10px; font-size: 12px; font-weight: 600; color: #1f2937; border-bottom: 1px solid #e5e7eb; background: #f9fafb; flex-shrink: 0; }
+#nav-label-bar #nav-label:empty + #nav-label-bar { display: none; }
+
+/* ── Sidebar Controls ── */
+.sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 0 0.3rem; margin-bottom: 0.4rem; }
+.sidebar-header h2 { margin-bottom: 0; }
+.sidebar-controls { display: flex; gap: 3px; }
+.sidebar-controls button { font-size: 9px; padding: 2px 6px; border: 1px solid #d1d5db; border-radius: 3px; background: #fff; cursor: pointer; color: #6b7280; font-family: inherit; }
+.sidebar-controls button:hover { background: #f3f4f6; color: #111; }
+#sidebar .toc-section-head.current { background: #eff6ff; color: #1e40af; }
+
+/* ── Expandable Entries ── */
+.entry-chevron { display: inline-block; font-size: 8px; margin-right: 3px; transition: transform 0.15s; color: #9ca3af; width: 10px; flex-shrink: 0; }
+.guide-entry.expanded .entry-chevron, .glossary-term.expanded .entry-chevron { transform: rotate(90deg); color: #374151; }
+.guide-entry-detail, .glossary-term-detail {
+  display: none; margin-top: 4px; padding: 6px 10px; background: #fafbfc; border-radius: 4px;
+  border: 1px solid #f3f4f6; font-size: 13px; line-height: 1.5;
+}
+.guide-entry.expanded .guide-entry-detail, .glossary-term.expanded .glossary-term-detail { display: block; }
+.entry-math-content .env { margin: 0; padding: 4px 0; border: none; background: transparent; }
+.entry-math-content .env-head { font-size: 12px; }
+.entry-math-content p { font-size: 13px; line-height: 1.45; }
+.entry-desc-text { font-size: 11.5px; color: #4b5563; margin-top: 4px; padding-top: 4px; border-top: 1px solid #e5e7eb; font-style: italic; }
+
+/* ── Stacked Item Description Toggle ── */
+.stacked-desc-toggle { font-size: 10px; color: #6b7280; cursor: pointer; padding: 2px 10px 4px 22px; user-select: none; }
+.stacked-desc-toggle:hover { color: #1e40af; }
+.stacked-summary.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar Table of Contents -->
+<nav id="sidebar">
+<div id="sidebar-filters">
+  <div class="filter-tabs" id="filter-tabs"></div>
+</div>
+<div id="sidebar-toc">
+<div class="sidebar-header">
+  <h2>Contents</h2>
+  <div class="sidebar-controls">
+    <button id="btn-expand-all" title="Expand all sections">Expand</button>
+    <button id="btn-collapse-all" title="Collapse all sections">Collapse</button>
+  </div>
+</div>
+<ul>
+<li>
+  <div class="toc-section-head" data-section="sec0"><span class="arrow">&#9656;</span> 0. Classical particles and waves</div>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec1"><span class="arrow">&#9656;</span> 1. Physical background</div>
+  <ul class="toc-items" data-section="sec1">
+    <li><a href="#def-1.1" data-id="def-1.1">Def. 1.1</a></li>
+    <li><a href="#def-1.2" data-id="def-1.2">Def. 1.2</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec2"><span class="arrow">&#9656;</span> 2. Wave mechanics</div>
+  <ul class="toc-items" data-section="sec2">
+    <li><a href="#def-2.1" data-id="def-2.1">Def. 2.1</a></li>
+    <li><a href="#def-2.2" data-id="def-2.2">Def. 2.2</a></li>
+    <li><a href="#def-2.3" data-id="def-2.3">Def. 2.3</a></li>
+    <li><a href="#def-2.4" data-id="def-2.4">Def. 2.4</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec3"><span class="arrow">&#9656;</span> 3. The Born interpretation</div>
+  <ul class="toc-items" data-section="sec3">
+    <li><a href="#def-3.1" data-id="def-3.1">Def. 3.1</a></li>
+    <li><a href="#def-3.2" data-id="def-3.2">Def. 3.2</a></li>
+    <li><a href="#def-3.3" data-id="def-3.3">Def. 3.3</a></li>
+    <li><a href="#prop-3.1" data-id="prop-3.1">Prop. 3.1</a></li>
+    <li><a href="#prop-3.2" data-id="prop-3.2">Prop. 3.2</a></li>
+    <li><a href="#def-3.4" data-id="def-3.4">Def. 3.4</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec4"><span class="arrow">&#9656;</span> 4. The harmonic oscillator</div>
+  <ul class="toc-items" data-section="sec4">
+    <li><a href="#def-4.1" data-id="def-4.1">Def. 4.1</a></li>
+    <li><a href="#thm-4.1" data-id="thm-4.1">Thm. 4.1</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec5"><span class="arrow">&#9656;</span> 5. Mathematical structure</div>
+  <ul class="toc-items" data-section="sec5">
+    <li><a href="#def-5.1" data-id="def-5.1">Def. 5.1</a></li>
+    <li><a href="#def-5.2" data-id="def-5.2">Def. 5.2</a></li>
+    <li><a href="#def-5.3" data-id="def-5.3">Def. 5.3</a></li>
+    <li><a href="#def-5.4" data-id="def-5.4">Def. 5.4</a></li>
+    <li><a href="#lem-5.1" data-id="lem-5.1">Lem. 5.1</a></li>
+    <li><a href="#def-5.5" data-id="def-5.5">Def. 5.5</a></li>
+    <li><a href="#def-5.6" data-id="def-5.6">Def. 5.6</a></li>
+    <li><a href="#prop-5.2" data-id="prop-5.2">Prop. 5.2</a></li>
+    <li><a href="#thm-5.3" data-id="thm-5.3">Thm. 5.3</a></li>
+    <li><a href="#def-5.7" data-id="def-5.7">Def. 5.7</a></li>
+    <li><a href="#def-5.8" data-id="def-5.8">Def. 5.8</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec6"><span class="arrow">&#9656;</span> 6. Statistical aspects</div>
+  <ul class="toc-items" data-section="sec6">
+    <li><a href="#def-6.1" data-id="def-6.1">Def. 6.1</a></li>
+    <li><a href="#def-6.2" data-id="def-6.2">Def. 6.2</a></li>
+    <li><a href="#prop-6.1" data-id="prop-6.1">Prop. 6.1</a></li>
+    <li><a href="#def-6.3" data-id="def-6.3">Def. 6.3</a></li>
+    <li><a href="#prop-6.2" data-id="prop-6.2">Prop. 6.2</a></li>
+    <li><a href="#def-6.4" data-id="def-6.4">Def. 6.4</a></li>
+    <li><a href="#prop-6.3" data-id="prop-6.3">Prop. 6.3</a></li>
+    <li><a href="#prop-6.4" data-id="prop-6.4">Prop. 6.4</a></li>
+    <li><a href="#prop-6.5" data-id="prop-6.5">Prop. 6.5</a></li>
+    <li><a href="#cor-6.6" data-id="cor-6.6">Cor. 6.6</a></li>
+    <li><a href="#cor-6.7" data-id="cor-6.7">Cor. 6.7</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec7"><span class="arrow">&#9656;</span> 7. Harmonic oscillator revisited</div>
+  <ul class="toc-items" data-section="sec7">
+    <li><a href="#def-7.1" data-id="def-7.1">Def. 7.1</a></li>
+    <li><a href="#lem-7.1" data-id="lem-7.1">Lem. 7.1</a></li>
+    <li><a href="#def-7.2" data-id="def-7.2">Def. 7.2</a></li>
+    <li><a href="#prop-7.2" data-id="prop-7.2">Prop. 7.2</a></li>
+    <li><a href="#lem-7.3" data-id="lem-7.3">Lem. 7.3</a></li>
+    <li><a href="#thm-7.4" data-id="thm-7.4">Thm. 7.4</a></li>
+    <li><a href="#prop-7.6" data-id="prop-7.6">Prop. 7.6</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec8"><span class="arrow">&#9656;</span> 8. Angular momentum</div>
+  <ul class="toc-items" data-section="sec8">
+    <li><a href="#def-8.1" data-id="def-8.1">Def. 8.1</a></li>
+    <li><a href="#prop-8.1" data-id="prop-8.1">Prop. 8.1</a></li>
+    <li><a href="#def-8.2" data-id="def-8.2">Def. 8.2</a></li>
+    <li><a href="#def-8.3" data-id="def-8.3">Def. 8.3</a></li>
+    <li><a href="#prop-8.2" data-id="prop-8.2">Prop. 8.2</a></li>
+    <li><a href="#thm-8.3" data-id="thm-8.3">Thm. 8.3</a></li>
+    <li><a href="#def-8.4" data-id="def-8.4">Def. 8.4</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec9"><span class="arrow">&#9656;</span> 9. The hydrogen atom</div>
+  <ul class="toc-items" data-section="sec9">
+    <li><a href="#def-9.1" data-id="def-9.1">Def. 9.1</a></li>
+    <li><a href="#thm-9.1" data-id="thm-9.1">Thm. 9.1</a></li>
+  </ul>
+</li>
+<li>
+  <div class="toc-section-head" data-section="sec10"><span class="arrow">&#9656;</span> 10. Quantum key distribution</div>
+</li>
+</ul>
+</div>
+<div id="sidebar-resize"></div>
+</nav>
+
+<main id="content">
+<div class="doc-title">Quantum Theory</div>
+<div class="doc-author">Márk Mezei, Michaelmas Term 2024</div>
+
+<h2 class="section-heading" id="sec0">0. Classical particles and waves</h2>
+<p>A point particle has position \(\mathbf{x}(t)\) obeying Newton's second law. Conservative force \(\mathbf{F} = -\nabla V\). Total energy \(E = \frac{1}{2}m|\dot{\mathbf{x}}|^2 + V\). The classical wave equation \(\frac{1}{v^2}\frac{\partial^2 \phi}{\partial t^2} = \nabla^2 \phi\) admits plane wave solutions \(\phi = A e^{i(\mathbf{k}\cdot\mathbf{x} - \omega t)}\).</p>
+
+<h2 class="section-heading" id="sec1">1. Physical background and wave-particle duality</h2>
+<p>The photoelectric effect and atomic spectra show classical physics fails at atomic scales. Wave-particle duality emerges from these experiments, motivating a new theoretical framework.</p>
+
+<div class="env definition" id="def-1.1">
+<div class="env-head">Definition 1.1.</div>
+<p>Light of angular frequency \(\omega\) exists in quanta (photons) of energy
+\[E = \hbar\omega.\]
+The photoelectric effect gives \(E_{\text{kinetic}} = -E_0 + \hbar\omega\), where \(E_0\) is the binding energy. No electrons are emitted when \(\omega < E_0/\hbar\).</p>
+</div>
+
+<div class="env definition" id="def-1.2">
+<div class="env-head">Definition 1.2.</div>
+<p>A free particle of energy \(E\) and momentum \(\mathbf{p}\) is associated with a wave of angular frequency \(\omega\) and wave vector \(\mathbf{k}\) via the de Broglie relations:
+\[E = \hbar\omega, \qquad \mathbf{p} = \hbar\mathbf{k}.\]
+The wavelength is \(\lambda = 2\pi\hbar/|\mathbf{p}| = h/|\mathbf{p}|\).</p>
+</div>
+
+<h2 class="section-heading" id="sec2">2. Wave mechanics</h2>
+<p>The de Broglie relations lead to the Schrödinger equation governing quantum matter-waves.</p>
+
+<div class="env definition" id="def-2.1">
+<div class="env-head">Definition 2.1.</div>
+<p>A single non-relativistic particle of mass \(m\) in potential \(V(\mathbf{x})\) is governed by the Schrödinger equation:
+\[i\hbar\frac{\partial\Psi}{\partial t} = -\frac{\hbar^2}{2m}\nabla^2\Psi + V\Psi.\]
+This is a linear complex PDE for the wave function \(\Psi(\mathbf{x},t)\). Cf. <a class="ref" data-ref="def-1.2">Definition 1.2</a>.</p>
+</div>
+
+<div class="env definition" id="def-2.2">
+<div class="env-head">Definition 2.2.</div>
+<p>Writing \(\Psi(\mathbf{x},t) = \psi(\mathbf{x})e^{-iEt/\hbar}\), the time-independent Schrödinger equation is:
+\[-\frac{\hbar^2}{2m}\nabla^2\psi + V\psi = E\psi.\]
+Solutions are stationary states with definite energy \(E\). Cf. <a class="ref" data-ref="def-2.1">Definition 2.1</a>.</p>
+</div>
+
+<div class="env definition" id="def-2.3">
+<div class="env-head">Definition 2.3.</div>
+<p>When energies are discrete and bounded below, the lowest energy is the ground state (zero-point) energy. Higher energies are the first, second, etc. excited states. For example, a particle in a box \([0,a]\) has energies \(E_n = \frac{n^2\pi^2\hbar^2}{2ma^2}\) for \(n = 1,2,3,\ldots\).</p>
+</div>
+
+<div class="env definition" id="def-2.4">
+<div class="env-head">Definition 2.4.</div>
+<p>An energy level \(E\) is \(d\)-fold degenerate if the space of stationary states with that energy has dimension \(d > 1\). Non-degenerate means \(d = 1\). For example, a particle in a 3D box has degeneracies due to different combinations of quantum numbers giving the same energy.</p>
+</div>
+
+<h2 class="section-heading" id="sec3">3. The Born interpretation</h2>
+<p>The Born interpretation gives physical meaning to the wave function in terms of probability.</p>
+
+<div class="env definition" id="def-3.1">
+<div class="env-head">Definition 3.1.</div>
+<p>The probability density is \(\rho(\mathbf{x},t) = |\Psi(\mathbf{x},t)|^2\). The probability of finding the particle in a region \(D\) at time \(t\) is:
+\[P_\Psi(D) = \iiint_D |\Psi(\mathbf{x},t)|^2\,d^3x.\]</p>
+</div>
+
+<div class="env definition" id="def-3.2">
+<div class="env-head">Definition 3.2.</div>
+<p>A wave function \(\Psi\) is normalizable if \(0 < \iiint_{\mathbb{R}^3} |\Psi|^2\,d^3x < \infty\). It is normalized if \(\iiint_{\mathbb{R}^3} |\Psi|^2\,d^3x = 1\). The Born interpretation requires normalization. Cf. <a class="ref" data-ref="def-3.1">Definition 3.1</a>.</p>
+</div>
+
+<div class="env definition" id="def-3.3">
+<div class="env-head">Definition 3.3.</div>
+<p>The expectation value of a function of position \(f(\mathbf{x})\) in state \(\Psi\) is:
+\[E_\Psi(f(\mathbf{x})) = \iiint_{\mathbb{R}^3} f(\mathbf{x})|\Psi(\mathbf{x},t)|^2\,d^3x.\]
+This gives the average value of repeated position-dependent measurements. Cf. <a class="ref" data-ref="def-3.1">Definition 3.1</a>.</p>
+</div>
+
+<div class="env proposition" id="prop-3.1">
+<div class="env-head">Proposition 3.1.</div>
+<p>The <a class="ref" data-ref="def-2.1">Schrödinger equation</a> implies the continuity equation:
+\[\frac{\partial\rho}{\partial t} + \nabla\cdot\mathbf{j} = 0,\]
+where \(\mathbf{j} = \frac{i\hbar}{2m}(\Psi\nabla\bar{\Psi} - \bar{\Psi}\nabla\Psi)\) is the probability current.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-3.1">
+<div class="proof-head">Proof.</div>
+<div class="proof-body">
+<p>Direct computation: \(\frac{\partial}{\partial t}|\Psi|^2 = \bar{\Psi}\frac{\partial\Psi}{\partial t} + \Psi\frac{\partial\bar{\Psi}}{\partial t}\). Substituting the <a class="ref" data-ref="def-2.1">Schrödinger equation</a> and its conjugate, the potential terms cancel (since \(V\) is real), leaving \(-\nabla\cdot\mathbf{j}\).</p>
+</div>
+<div class="qed">□</div>
+</div>
+
+<div class="env proposition" id="prop-3.2">
+<div class="env-head">Proposition 3.2.</div>
+<p>If the probability current \(\mathbf{j}\) decays sufficiently fast at infinity, then \(\iiint_{\mathbb{R}^3}|\Psi|^2\,d^3x\) is independent of \(t\). In particular, if \(\Psi\) is normalized at some time \(t_0\), it remains normalized for all \(t\). Cf. <a class="ref" data-ref="prop-3.1">Proposition 3.1</a>, <a class="ref" data-ref="def-3.2">Definition 3.2</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-3.2">
+<div class="proof-head">Proof.</div>
+<div class="proof-body">
+<p>Integrate the continuity equation over \(\mathbb{R}^3\) and apply the divergence theorem. The surface integral vanishes by the decay condition on \(\mathbf{j}\).</p>
+</div>
+<div class="qed">□</div>
+</div>
+
+<div class="env definition" id="def-3.4">
+<div class="env-head">Definition 3.4.</div>
+<p>For a state \(\Psi = \sum_n c_n \psi_n e^{-iE_nt/\hbar}\), the probability of measuring energy \(E_n\) is \(|c_n|^2\). This follows from orthonormality of stationary states. Cf. <a class="ref" data-ref="def-2.2">Definition 2.2</a>.</p>
+</div>
+
+<h2 class="section-heading" id="sec4">4. The harmonic oscillator</h2>
+<p>Near any potential minimum, physics is described by a harmonic oscillator. This section solves it via the Schrödinger equation.</p>
+
+<div class="env definition" id="def-4.1">
+<div class="env-head">Definition 4.1.</div>
+<p>A 1D stationary state with \(\psi(-x) = \psi(x)\) has even parity; with \(\psi(-x) = -\psi(x)\) it has odd parity. For symmetric potentials \(V(-x) = V(x)\), stationary states can always be chosen to have definite parity.</p>
+</div>
+
+<div class="env theorem" id="thm-4.1">
+<div class="env-head">Theorem 4.1.</div>
+<p>The 1D quantum harmonic oscillator with potential \(V(x) = \frac{1}{2}m\omega^2 x^2\) has energies:
+\[E_n = \left(n + \tfrac{1}{2}\right)\hbar\omega, \qquad n \in \mathbb{Z}_{\geq 0}.\]
+The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}\) where \(\xi = \sqrt{m\omega/\hbar}\,x\) and \(H_n\) are the Hermite polynomials. The ground state energy is \(\frac{1}{2}\hbar\omega\) (zero-point energy). Cf. <a class="ref" data-ref="def-2.2">Definition 2.2</a>, <a class="ref" data-ref="def-2.3">Definition 2.3</a>.</p>
+</div>
+
+<h2 class="section-heading" id="sec5">5. The mathematical structure of quantum theory</h2>
+
+<p>The postulates of quantum mechanics are formalized using Hilbert spaces and self-adjoint operators.</p>
+
+<div class="env definition" id="def-5.1">
+  <div class="env-head">Definition 5.1.</div>
+  <p>The states of a quantum system are elements of a complex inner product space \(\mathcal{H}\). Proportional vectors \(\psi\) and \(\lambda\psi\) (for \(\lambda \neq 0\)) represent the same physical state.</p>
+</div>
+
+<div class="env definition" id="def-5.2">
+  <div class="env-head">Definition 5.2.</div>
+  <p>A <em>Hilbert space</em> is a complete complex inner product space. Completeness ensures that infinite sums (superpositions) converge to elements of \(\mathcal{H}\). The inner product is denoted \(\langle\phi|\psi\rangle\), antilinear in the first argument and linear in the second.</p>
+</div>
+
+<div class="env definition" id="def-5.3">
+  <div class="env-head">Definition 5.3.</div>
+  <p>Observables (measurable quantities) correspond to self-adjoint (Hermitian) linear operators \(A\) on \(\mathcal{H}\), satisfying \(\langle\phi|A\psi\rangle = \langle A\phi|\psi\rangle\) for all states \(\phi, \psi \in \mathcal{H}\). Ref: <a class="ref" data-ref="def-5.2">Definition 5.2</a>.</p>
+</div>
+
+<div class="env definition" id="def-5.4">
+  <div class="env-head">Definition 5.4.</div>
+  <p><em>Position:</em> \((X_i\psi)(\mathbf{x}) = x_i\psi(\mathbf{x})\). <em>Momentum:</em> \((P_i\psi)(\mathbf{x}) = -i\hbar\frac{\partial\psi}{\partial x_i}\). Both are self-adjoint on suitable domains. Ref: <a class="ref" data-ref="def-5.3">Definition 5.3</a>.</p>
+</div>
+
+<div class="env lemma" id="lem-5.1">
+  <div class="env-head">Lemma 5.1.</div>
+  <p>If \(A, B\) are self-adjoint operators on \(\mathcal{H}\), then so are \(A + B\), \(\alpha A\) (for real \(\alpha\)), and \(A^2\). This allows construction of observables like the Hamiltonian from position and momentum. Ref: <a class="ref" data-ref="def-5.3">Definition 5.3</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-lem-5.1">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>For \(A+B\): \(\langle\phi|(A+B)\psi\rangle = \langle\phi|A\psi\rangle + \langle\phi|B\psi\rangle = \langle A\phi|\psi\rangle + \langle B\phi|\psi\rangle = \langle(A+B)\phi|\psi\rangle\). Similarly for scalar multiples. For \(A^2\): \(\langle\phi|A^2\psi\rangle = \langle A\phi|A\psi\rangle = \langle A^2\phi|\psi\rangle\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env definition" id="def-5.5">
+  <div class="env-head">Definition 5.5.</div>
+  <p>The <em>Hamiltonian</em> \(H = \frac{|\mathbf{P}|^2}{2m} + V(\mathbf{X})\) is the energy observable. Acting on wave functions: \((H\psi)(\mathbf{x}) = -\frac{\hbar^2}{2m}\nabla^2\psi + V\psi\). Refs: <a class="ref" data-ref="def-5.4">Definition 5.4</a>, <a class="ref" data-ref="lem-5.1">Lemma 5.1</a>.</p>
+</div>
+
+<div class="env definition" id="def-5.6">
+  <div class="env-head">Definition 5.6.</div>
+  <p>An <em>eigenstate</em> of observable \(A\) satisfies \(A\psi = \alpha\psi\) for eigenvalue \(\alpha\). The set of all eigenvalues is the <em>spectrum</em> of \(A\). Ref: <a class="ref" data-ref="def-5.3">Definition 5.3</a>.</p>
+</div>
+
+<div class="env proposition" id="prop-5.2">
+  <div class="env-head">Proposition 5.2.</div>
+  <p>Eigenvalues of self-adjoint operators are real. Eigenstates with distinct eigenvalues are orthogonal: \(\langle\psi_1|\psi_2\rangle = 0\) when \(\alpha_1 \neq \alpha_2\). Refs: <a class="ref" data-ref="def-5.3">Definition 5.3</a>, <a class="ref" data-ref="def-5.6">Definition 5.6</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-5.2">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>\(\alpha\|\psi\|^2 = \langle\psi|A\psi\rangle = \langle A\psi|\psi\rangle = \bar{\alpha}\|\psi\|^2\), so \(\alpha = \bar{\alpha}\) is real. For orthogonality: \(\alpha_1\langle\psi_1|\psi_2\rangle = \langle A\psi_1|\psi_2\rangle = \langle\psi_1|A\psi_2\rangle = \alpha_2\langle\psi_1|\psi_2\rangle\), so \((\alpha_1 - \alpha_2)\langle\psi_1|\psi_2\rangle = 0\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env theorem" id="thm-5.3">
+  <div class="env-head">Theorem 5.3.</div>
+  <p>If \(A\) is self-adjoint on a finite-dimensional \(\mathcal{H}\), there exists a complete orthonormal basis of eigenvectors. This generalises to infinite dimensions under suitable conditions: any \(\psi \in \mathcal{H}\) can be expanded as \(\psi = \sum_n c_n\psi_n\) where \(A\psi_n = \alpha_n\psi_n\). Refs: <a class="ref" data-ref="prop-5.2">Proposition 5.2</a>, <a class="ref" data-ref="def-5.6">Definition 5.6</a>.</p>
+</div>
+
+<div class="env definition" id="def-5.7">
+  <div class="env-head">Definition 5.7.</div>
+  <p>Measuring observable \(A\) in state \(\psi = \sum_n c_n\psi_n\) yields eigenvalue \(\alpha_n\) with probability \(|c_n|^2\). Only eigenvalues can be observed as measurement outcomes. Refs: <a class="ref" data-ref="thm-5.3">Theorem 5.3</a>, <a class="ref" data-ref="def-5.6">Definition 5.6</a>.</p>
+</div>
+
+<div class="env definition" id="def-5.8">
+  <div class="env-head">Definition 5.8.</div>
+  <p>After measuring \(A\) and obtaining eigenvalue \(\alpha_n\), the state instantaneously <em>collapses</em> to the eigenstate \(\psi_n\). All prior superposition information is lost. Ref: <a class="ref" data-ref="def-5.7">Definition 5.7</a>.</p>
+</div>
+
+<h2 class="section-heading" id="sec6">6. Statistical aspects of quantum theory</h2>
+
+<p>Expectation values, commutators, and the uncertainty principle.</p>
+
+<div class="env definition" id="def-6.1">
+  <div class="env-head">Definition 6.1.</div>
+  <p>The <em>expectation value</em> of observable \(A\) in normalized state \(\psi\) is:
+  \[E_\psi(A) = \langle\psi|A\psi\rangle = \sum_n \alpha_n|c_n|^2.\]
+  It equals the average over repeated measurements. Refs: <a class="ref" data-ref="def-5.7">Definition 5.7</a>, <a class="ref" data-ref="thm-5.3">Theorem 5.3</a>.</p>
+</div>
+
+<div class="env definition" id="def-6.2">
+  <div class="env-head">Definition 6.2.</div>
+  <p>The <em>identity operator</em> \(\mathbf{1}\) satisfies \(\mathbf{1}\psi = \psi\). An operator \(A\) is <em>non-negative</em> if \(\langle\psi|A\psi\rangle \geq 0\) for all \(\psi \in \mathcal{H}\).</p>
+</div>
+
+<div class="env proposition" id="prop-6.1">
+  <div class="env-head">Proposition 6.1.</div>
+  <p>Expectation is linear: \(E(A+B) = E(A) + E(B)\), \(E(\alpha A) = \alpha E(A)\). For non-negative \(A\), \(E(A) \geq 0\). Also \(E(\mathbf{1}) = 1\). Refs: <a class="ref" data-ref="def-6.1">Definition 6.1</a>, <a class="ref" data-ref="def-6.2">Definition 6.2</a>.</p>
+</div>
+
+<div class="env definition" id="def-6.3">
+  <div class="env-head">Definition 6.3.</div>
+  <p>The <em>dispersion</em> of observable \(A\) in state \(\psi\) is:
+  \[\Delta_\psi(A) = \sqrt{E_\psi(A^2) - (E_\psi(A))^2}.\]
+  It measures the spread of measurement outcomes. Ref: <a class="ref" data-ref="def-6.1">Definition 6.1</a>.</p>
+</div>
+
+<div class="env proposition" id="prop-6.2">
+  <div class="env-head">Proposition 6.2.</div>
+  <p>\(\Delta_\psi(A) = 0\) if and only if \(\psi\) is an eigenstate of \(A\). In that case the eigenvalue equals \(E_\psi(A)\) and measurement is certain. Refs: <a class="ref" data-ref="def-6.3">Definition 6.3</a>, <a class="ref" data-ref="def-5.6">Definition 5.6</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-6.2">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>\(\Delta_\psi(A)^2 = \|(A - E_\psi(A)\mathbf{1})\psi\|^2\) by self-adjointness. This is zero if and only if \(A\psi = E_\psi(A)\psi\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env definition" id="def-6.4">
+  <div class="env-head">Definition 6.4.</div>
+  <p>The <em>commutator</em> of operators \(A\) and \(B\) is \([A,B] = AB - BA\). It measures non-commutativity of operators.</p>
+</div>
+
+<div class="env proposition" id="prop-6.3">
+  <div class="env-head">Proposition 6.3.</div>
+  <p>In 1D: \([X,P] = i\hbar\mathbf{1}\). In 3D: \([X_i,P_j] = i\hbar\delta_{ij}\mathbf{1}\), \([X_i,X_j] = 0 = [P_i,P_j]\). Refs: <a class="ref" data-ref="def-5.4">Definition 5.4</a>, <a class="ref" data-ref="def-6.4">Definition 6.4</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-6.3">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>\((XP - PX)\psi = x(-i\hbar\psi') - (-i\hbar)(x\psi)' = -i\hbar x\psi' + i\hbar\psi + i\hbar x\psi' = i\hbar\psi\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env proposition" id="prop-6.4">
+  <div class="env-head">Proposition 6.4.</div>
+  <p>The commutator is: (i) antisymmetric: \([A,B] = -[B,A]\); (ii) linear; (iii) satisfies the Leibniz rule: \([A,BC] = B[A,C] + [A,B]C\); (iv) satisfies the Jacobi identity: \([A,[B,C]] + [B,[C,A]] + [C,[A,B]] = 0\); (v) if \([A,B] = iC\) with \(A,B\) self-adjoint, then \(C\) is self-adjoint. Ref: <a class="ref" data-ref="def-6.4">Definition 6.4</a>.</p>
+</div>
+
+<div class="env proposition" id="prop-6.5">
+  <div class="env-head">Proposition 6.5.</div>
+  <p>For self-adjoint \(A, B\) with \([A,B] = iC\):
+  \[E_\psi(A^2)E_\psi(B^2) \geq \frac{1}{4}(E_\psi(C))^2.\]
+  Equality holds if and only if \((A - is_0 B)\psi = 0\) for some real \(s_0\). Refs: <a class="ref" data-ref="def-6.4">Definition 6.4</a>, <a class="ref" data-ref="def-6.1">Definition 6.1</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-6.5">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>\(\|(A - isB)\psi\|^2 = E(A^2) + sE(C) + s^2E(B^2) \geq 0\) for all real \(s\). This quadratic in \(s\) has non-positive discriminant: \((E(C))^2 - 4E(A^2)E(B^2) \leq 0\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env corollary" id="cor-6.6">
+  <div class="env-head">Corollary 6.6.</div>
+  <p>For normalized \(\psi\):
+  \[\Delta_\psi(X)\Delta_\psi(P) \geq \frac{\hbar}{2}.\]
+  Equality holds for Gaussian wave functions \(\psi \propto e^{-(x-\mu)^2/2\sigma^2}\) (minimum uncertainty states). Refs: <a class="ref" data-ref="prop-6.5">Proposition 6.5</a>, <a class="ref" data-ref="prop-6.3">Proposition 6.3</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-cor-6.6">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>Set \(A = X - E(X)\mathbf{1}\), \(B = P - E(P)\mathbf{1}\). Then \([A,B] = [X,P] = i\hbar\mathbf{1}\), so \(C = \hbar\mathbf{1}\). Apply <a class="ref" data-ref="prop-6.5">Proposition 6.5</a> with \(E(A^2) = \Delta(X)^2\) and \(E(B^2) = \Delta(P)^2\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env corollary" id="cor-6.7">
+  <div class="env-head">Corollary 6.7.</div>
+  <p>For any self-adjoint \(A, B\):
+  \[\Delta_\psi(A)\Delta_\psi(B) \geq \frac{1}{2}|E_\psi([A,B])|.\]
+  Non-commuting observables cannot both be measured with arbitrary precision. Refs: <a class="ref" data-ref="prop-6.5">Proposition 6.5</a>, <a class="ref" data-ref="def-6.4">Definition 6.4</a>.</p>
+</div>
+
+<h2 class="section-heading" id="sec7">7. The harmonic oscillator revisited</h2>
+
+<p>Algebraic approach using raising and lowering operators. The Hamiltonian is \(H = \frac{P^2}{2m} + \frac{1}{2}m\omega^2 X^2\).</p>
+
+<div class="env definition" id="def-7.1">
+  <div class="env-head">Definition 7.1.</div>
+  <p>The <em>raising and lowering operators</em> are:
+  \[a_\pm = \frac{1}{\sqrt{2m\omega\hbar}}(\mp iP + m\omega X).\]
+  Since \(X\) and \(P\) are self-adjoint, \(a_+ = (a_-)^*\). Ref: <a class="ref" data-ref="def-5.4">Definition 5.4</a>.</p>
+</div>
+
+<div class="env lemma" id="lem-7.1">
+  <div class="env-head">Lemma 7.1.</div>
+  <p>The Hamiltonian factorizes as \(H = (N + \frac{1}{2})\hbar\omega\), where \(N = a_+a_-\) is the self-adjoint number operator. Refs: <a class="ref" data-ref="def-7.1">Definition 7.1</a>, <a class="ref" data-ref="prop-6.3">Proposition 6.3</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-lem-7.1">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>\(N = a_+a_- = \frac{1}{2m\omega\hbar}(P^2 + m^2\omega^2 X^2 + im\omega[X,P]) = \frac{1}{\hbar\omega}\!\left(\frac{P^2}{2m} + \frac{1}{2}m\omega^2 X^2\right) - \frac{1}{2}\). Rearranging gives the result.</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env definition" id="def-7.2">
+  <div class="env-head">Definition 7.2.</div>
+  <p>The <em>number operator</em> \(N = a_+a_-\) counts the excitation level. Its eigenvalue on \(\psi_n\) is \(n\), giving energy \(E_n = (n + \frac{1}{2})\hbar\omega\). Refs: <a class="ref" data-ref="def-7.1">Definition 7.1</a>, <a class="ref" data-ref="lem-7.1">Lemma 7.1</a>.</p>
+</div>
+
+<div class="env proposition" id="prop-7.2">
+  <div class="env-head">Proposition 7.2.</div>
+  <p>(i) \([a_-, a_+] = 1\). (ii) \([N, a_\pm] = \pm a_\pm\). (iii) \(\|a_-\psi\|^2 = \langle\psi|N\psi\rangle\). (iv) \(\|a_+\psi\|^2 = \langle\psi|(N+1)\psi\rangle\). Refs: <a class="ref" data-ref="def-7.1">Definition 7.1</a>, <a class="ref" data-ref="def-7.2">Definition 7.2</a>, <a class="ref" data-ref="prop-6.3">Proposition 6.3</a>.</p>
+</div>
+
+<div class="env lemma" id="lem-7.3">
+  <div class="env-head">Lemma 7.3.</div>
+  <p>If \(N\psi = \lambda\psi\) with \(\psi \neq 0\): (a) \(a_\pm\psi\) are eigenstates of \(N\) with eigenvalue \(\lambda \pm 1\) (if non-zero); (b) \(\lambda \geq 0\) with equality if and only if \(a_-\psi = 0\). Refs: <a class="ref" data-ref="def-7.2">Definition 7.2</a>, <a class="ref" data-ref="prop-7.2">Proposition 7.2</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-lem-7.3">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>(a) \(N(a_\pm\psi) = ([N,a_\pm] + a_\pm N)\psi = (\pm a_\pm + \lambda a_\pm)\psi = (\lambda\pm 1)a_\pm\psi\). (b) \(\lambda = \langle\psi|N\psi\rangle/\|\psi\|^2 = \|a_-\psi\|^2/\|\psi\|^2 \geq 0\), with equality if and only if \(a_-\psi = 0\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env theorem" id="thm-7.4">
+  <div class="env-head">Theorem 7.4.</div>
+  <p>The spectrum of \(N\) is \(\mathbb{Z}_{\geq 0}\). If the ground state \(\psi_0\) is unique, the full set of eigenstates is \(\{a_+^n\psi_0 : n \geq 0\}\), each with eigenvalue \(n\). Refs: <a class="ref" data-ref="lem-7.3">Lemma 7.3</a>, <a class="ref" data-ref="prop-7.2">Proposition 7.2</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-thm-7.4">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>If \(N\psi = \mu\psi\), applying \(a_-\) repeatedly gives eigenstates with eigenvalues \(\mu, \mu-1, \ldots\). Since eigenvalues \(\geq 0\), this terminates at some \(a_-^n\psi = 0\) with \(\mu - n = 0\). Hence \(\mu \in \mathbb{Z}_{\geq 0}\). Conversely, \(a_+^n\psi_0\) has eigenvalue \(n\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env proposition" id="prop-7.6">
+  <div class="env-head">Proposition 7.6.</div>
+  <p>The normalized stationary states are:
+  \[\psi_n = \frac{1}{\sqrt{n!}}a_+^n\psi_0,\]
+  forming an orthonormal set \(\langle\psi_m|\psi_n\rangle = \delta_{mn}\). Refs: <a class="ref" data-ref="thm-7.4">Theorem 7.4</a>, <a class="ref" data-ref="prop-5.2">Proposition 5.2</a>.</p>
+</div>
+
+<h2 class="section-heading" id="sec8">8. Angular momentum</h2>
+
+<p>In classical mechanics, angular momentum \(\mathbf{L} = \mathbf{x} \wedge \mathbf{p}\). Conservation of angular momentum plays a key role in the hydrogen atom.</p>
+
+<div class="env definition" id="def-8.1">
+  <div class="env-head">Definition 8.1.</div>
+  <p>The <strong>angular momentum operator</strong> \(\mathbf{L} = (L_1, L_2, L_3)\) has components:
+  \[L_i = \sum_{j,k} \epsilon_{ijk} X_j P_k,\]
+  where \(\epsilon_{ijk}\) is the Levi-Civita alternating symbol. See <a class="ref" data-ref="def-5.4">Definition 5.4</a>.</p>
+</div>
+
+<div class="env proposition" id="prop-8.1">
+  <div class="env-head">Proposition 8.1.</div>
+  <p>The angular momentum components satisfy the following commutation relations:</p>
+  <p>(i) \([L_i, X_j] = i\hbar \sum_k \epsilon_{ijk} X_k\).</p>
+  <p>(ii) \([L_i, P_j] = i\hbar \sum_k \epsilon_{ijk} P_k\).</p>
+  <p>(iii) \([L_i, L_j] = i\hbar \sum_k \epsilon_{ijk} L_k\).</p>
+  <p>The last relation shows that angular momentum components do not commute. See <a class="ref" data-ref="def-8.1">Definition 8.1</a>, <a class="ref" data-ref="prop-6.3">Proposition 6.3</a>, <a class="ref" data-ref="prop-6.4">Proposition 6.4</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-8.1">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>For (i): \([L_i, X_j] = \sum_{m,n}\epsilon_{imn}[X_mP_n, X_j] = \sum_{m,n}\epsilon_{imn}X_m[P_n,X_j] = -i\hbar\sum_m \epsilon_{imj}X_m = i\hbar\sum_k\epsilon_{ijk}X_k\). Parts (ii) and (iii) are similar, using the Leibniz rule and the canonical commutation relations.</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env definition" id="def-8.2">
+  <div class="env-head">Definition 8.2.</div>
+  <p>A <strong>general angular momentum operator</strong> is any self-adjoint vector operator \(\mathbf{J} = (J_1, J_2, J_3)\) satisfying:
+  \[[J_i, J_j] = i\hbar \sum_k \epsilon_{ijk} J_k.\]
+  This includes orbital angular momentum \(\mathbf{L}\) and spin. See <a class="ref" data-ref="prop-8.1">Proposition 8.1</a>.</p>
+</div>
+
+<div class="env definition" id="def-8.3">
+  <div class="env-head">Definition 8.3.</div>
+  <p>The <strong>total angular momentum squared</strong> operator is \(J^2 = J_1^2 + J_2^2 + J_3^2\). It measures the total angular momentum magnitude, and is self-adjoint and non-negative. See <a class="ref" data-ref="def-8.2">Definition 8.2</a>, <a class="ref" data-ref="lem-5.1">Lemma 5.1</a>.</p>
+</div>
+
+<div class="env proposition" id="prop-8.2">
+  <div class="env-head">Proposition 8.2.</div>
+  <p>\([J^2, J_i] = 0\) for all \(i\). Hence \(J^2\) and any single component \(J_i\) can be simultaneously measured — they share a common set of eigenstates. See <a class="ref" data-ref="def-8.3">Definition 8.3</a>, <a class="ref" data-ref="def-8.2">Definition 8.2</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-prop-8.2">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>Using the Leibniz rule and <a class="ref" data-ref="def-8.2">Definition 8.2</a>:
+    \[[J^2, J_3] = [J_1^2, J_3] + [J_2^2, J_3] = J_1[J_1,J_3] + [J_1,J_3]J_1 + J_2[J_2,J_3] + [J_2,J_3]J_2\]
+    \[= -i\hbar(J_1J_2 + J_2J_1) + i\hbar(J_2J_1 + J_1J_2) = 0.\]
+    The cases \(i = 1, 2\) are analogous by symmetry.</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env theorem" id="thm-8.3">
+  <div class="env-head">Theorem 8.3.</div>
+  <p>The simultaneous eigenvalues of \(J^2\) and \(J_3\) are \(j(j+1)\hbar^2\) and \(m\hbar\), where \(j \in \frac{1}{2}\mathbb{Z}_{\geq 0}\) and \(m \in \{-j, -j+1, \ldots, j\}\). For orbital angular momentum \(\mathbf{L}\), only integer values \(j = l \in \mathbb{Z}_{\geq 0}\) occur. See <a class="ref" data-ref="prop-8.2">Proposition 8.2</a>, <a class="ref" data-ref="def-8.2">Definition 8.2</a>.</p>
+</div>
+
+<div class="proof collapsed" id="proof-thm-8.3">
+  <div class="proof-head">Proof.</div>
+  <div class="proof-body">
+    <p>Define raising and lowering operators \(J_\pm = J_1 \pm iJ_2\). One verifies \([J_3, J_\pm] = \pm\hbar J_\pm\) and \([J_+, J_-] = 2\hbar J_3\). If \(\psi\) is an eigenstate of \(J_3\) with eigenvalue \(m\hbar\), then \(J_\pm\psi\) (when nonzero) is an eigenstate with eigenvalue \((m\pm 1)\hbar\). By the same ladder argument as for the <a class="ref" data-ref="thm-7.4">harmonic oscillator</a>, the spectrum of \(J_3\) is bounded above and below; the ladder must terminate, which forces \(m\) to range from \(-j\) to \(j\) in integer steps for some \(j \in \frac{1}{2}\mathbb{Z}_{\geq 0}\). Using \(J^2 = J_-J_+ + J_3^2 + \hbar J_3\) gives the eigenvalue \(j(j+1)\hbar^2\).</p>
+  </div>
+  <div class="qed">□</div>
+</div>
+
+<div class="env definition" id="def-8.4">
+  <div class="env-head">Definition 8.4.</div>
+  <p>The <strong>spherical harmonics</strong> \(Y_l^m(\theta,\phi)\) are the simultaneous eigenstates of \(L^2\) and \(L_3\) for orbital angular momentum:
+  \[L^2 Y_l^m = l(l+1)\hbar^2 Y_l^m, \qquad L_3 Y_l^m = m\hbar Y_l^m,\]
+  where \(l \in \mathbb{Z}_{\geq 0}\) and \(m \in \{-l, \ldots, l\}\). They form a complete orthonormal set on the sphere \(S^2\). See <a class="ref" data-ref="thm-8.3">Theorem 8.3</a>, <a class="ref" data-ref="def-8.1">Definition 8.1</a>.</p>
+</div>
+
+<h2 class="section-heading" id="sec9">9. The hydrogen atom</h2>
+
+<p>The hydrogen atom consists of an electron orbiting a proton under the Coulomb potential \(V(r) = -e^2/r\).</p>
+
+<div class="env definition" id="def-9.1">
+  <div class="env-head">Definition 9.1.</div>
+  <p>A <strong>central potential</strong> is a potential \(V = V(r)\) depending only on the distance \(r = |\mathbf{x}|\). The <a class="ref" data-ref="def-2.2">stationary Schrödinger equation</a> separates in spherical coordinates: the angular part is solved by <a class="ref" data-ref="def-8.4">spherical harmonics</a> \(Y_l^m\), and the radial part becomes:
+  \[-\frac{\hbar^2}{2m}\left(\frac{d^2u}{dr^2} - \frac{l(l+1)}{r^2}u\right) + V(r)u = Eu,\]
+  where \(\psi(r,\theta,\phi) = \frac{u(r)}{r}Y_l^m(\theta,\phi)\).</p>
+</div>
+
+<div class="env theorem" id="thm-9.1">
+  <div class="env-head">Theorem 9.1.</div>
+  <p>For the Coulomb potential \(V(r) = -e^2/r\), the bound-state energy levels of the hydrogen atom are:
+  \[E_n = -\frac{m_e e^4}{2\hbar^2 n^2}, \qquad n \in \mathbb{Z}_{>0}.\]
+  Each energy level \(E_n\) has degeneracy \(n^2\), with \(l = 0, 1, \ldots, n-1\) and \(m = -l, \ldots, l\). This reproduces the Rydberg formula \(\omega_{n_1,n_2} = 2\pi R_0 c\left(\frac{1}{n_1^2} - \frac{1}{n_2^2}\right)\). See <a class="ref" data-ref="def-9.1">Definition 9.1</a>, <a class="ref" data-ref="def-8.4">Definition 8.4</a>, <a class="ref" data-ref="def-1.1">Definition 1.1</a>.</p>
+</div>
+
+<h2 class="section-heading" id="sec10">10. Quantum key distribution</h2>
+
+<p>Quantum mechanics has applications beyond physics. The BB84 protocol, developed by Bennett and Brassard in 1984, uses the <a class="ref" data-ref="def-5.7">quantum measurement postulate</a> and the no-cloning theorem to establish secure communication channels. Any eavesdropping attempt disturbs the quantum states being transmitted, making interception detectable. This is a direct consequence of the <a class="ref" data-ref="def-5.8">collapse of the wave function</a>: measuring a quantum state inevitably changes it.</p>
+
+<p>The security of quantum key distribution rests on fundamental quantum mechanical principles rather than computational assumptions, unlike classical cryptographic methods such as RSA. The <a class="ref" data-ref="cor-6.7">uncertainty principle</a> ensures that an eavesdropper cannot simultaneously determine all properties of the transmitted quantum states.</p>
+
+</main>
+
+<!-- Right Context Panel -->
+<aside id="ref-panel">
+<div id="resize-handle"></div>
+<div id="panel-nav">
+  <button id="nav-back" disabled title="Back">&#9664;</button>
+  <button id="nav-forward" disabled title="Forward">&#9654;</button>
+  <div class="panel-tabs">
+    <button class="panel-tab active" data-tab="deps">Deps</button>
+    <button class="panel-tab" data-tab="guide">Guide</button>
+    <button class="panel-tab" data-tab="glossary">Glossary</button>
+  </div>
+  <button class="btn-map" id="btn-map" title="Toggle overview map">Map</button>
+  <button class="btn-close-panel" id="btn-close-panel" title="Close panel">&times;</button>
+</div>
+<div id="minimap-container"></div>
+<div id="tab-deps" class="panel-tab-content active">
+  <div id="nav-label-bar"><span id="nav-label"></span></div>
+  <div id="graph-container"></div>
+  <div id="panel-content"></div>
+</div>
+<div id="tab-guide" class="panel-tab-content">
+  <input type="text" id="guide-search" placeholder="Search guide...">
+  <div id="guide-body"></div>
+</div>
+<div id="tab-glossary" class="panel-tab-content">
+  <input type="text" id="glossary-search" placeholder="Search glossary...">
+  <div class="glossary-type-filters" id="glossary-type-filters"></div>
+  <div id="glossary-body"></div>
+</div>
+</aside>
+
+<!-- Floating peek popover (positioned near hovered reference) -->
+<div id="peek-popover">
+  <div id="peek-popover-header">
+    <span id="peek-label"></span>
+    <span class="peek-zoom-controls">
+      <button id="peek-zoom-out" title="Zoom out">&minus;</button>
+      <button id="peek-zoom-reset" title="Reset zoom">100%</button>
+      <button id="peek-zoom-in" title="Zoom in">+</button>
+    </span>
+    <button id="peek-close" title="Close">&times;</button>
+  </div>
+  <div id="peek-popover-body"></div>
+  <div id="peek-resize-handle"></div>
+</div>
+
+
+<!-- JavaScript -->
+<script>
+var graph = {}, labelMap = {};
+var navHistory = [], navIndex = -1, currentPanelId = null;
+var peekTimeout = null, minimapBuilt = false, currentScrollId = null;
+var peekWidth = 380, peekHeight = 420, peekZoom = 100;
+var MAX_DEPTH = 2, MAX_PER_COL = 8;
+
+var ENV_NAMES = {
+  "def-1.1": "Einstein\u2013Planck relation",
+  "def-1.2": "De Broglie relations",
+  "def-2.1": "Schr\u00f6dinger equation",
+  "def-2.2": "Stationary state Schr\u00f6dinger equation",
+  "def-2.3": "Ground state energy",
+  "def-2.4": "Degeneracy",
+  "def-3.1": "Born rule",
+  "def-3.2": "Normalizable wave function",
+  "def-3.3": "Expectation value of position",
+  "prop-3.1": "Continuity equation",
+  "prop-3.2": "Conservation of probability",
+  "def-3.4": "Energy measurement probability",
+  "def-4.1": "Parity state",
+  "thm-4.1": "Harmonic oscillator energies",
+  "def-5.1": "Quantum states",
+  "def-5.2": "Hilbert space",
+  "def-5.3": "Observables",
+  "def-5.4": "Position and momentum operators",
+  "lem-5.1": "Self-adjoint operator construction",
+  "def-5.5": "Hamiltonian operator",
+  "def-5.6": "Eigenstate and spectrum",
+  "prop-5.2": "Real eigenvalues and orthogonality",
+  "thm-5.3": "Spectral theorem",
+  "def-5.7": "Quantum measurement postulate",
+  "def-5.8": "Collapse of the wave function",
+  "def-6.1": "Expectation value",
+  "def-6.2": "Identity and non-negative operators",
+  "prop-6.1": "Expectation value properties",
+  "def-6.3": "Dispersion",
+  "prop-6.2": "Dispersion and eigenstates",
+  "def-6.4": "Commutator",
+  "prop-6.3": "Canonical commutation relations",
+  "prop-6.4": "Commutator properties",
+  "prop-6.5": "Uncertainty inequality",
+  "cor-6.6": "Heisenberg uncertainty principle",
+  "cor-6.7": "General uncertainty relation",
+  "def-7.1": "Raising and lowering operators",
+  "lem-7.1": "Hamiltonian factorization",
+  "def-7.2": "Number operator",
+  "prop-7.2": "Ladder operator commutation",
+  "lem-7.3": "Number operator eigenvalue properties",
+  "thm-7.4": "Spectrum of the number operator",
+  "prop-7.6": "Normalized stationary states",
+  "def-8.1": "Angular momentum operator",
+  "prop-8.1": "Angular momentum commutation relations",
+  "def-8.2": "General angular momentum operator",
+  "def-8.3": "Total angular momentum squared",
+  "prop-8.2": "J\u00b2 commutes with components",
+  "thm-8.3": "Spectrum of angular momentum",
+  "def-8.4": "Spherical harmonics",
+  "def-9.1": "Central potential",
+  "thm-9.1": "Hydrogen atom spectrum"
+};
+var GUIDE_DESCS = {
+    // Section 1
+    "def-1.1": "Light of angular frequency \\(\\omega\\) exists in quanta of energy \\(E = \\hbar\\omega\\). These photon packets explain the photoelectric effect, where electrons are emitted only when \\(\\omega > E_0/\\hbar\\).",
+    "def-1.2": "A free particle of energy \\(E\\) and momentum \\(\\mathbf{p}\\) is associated with a wave via \\(E = \\hbar\\omega\\) and \\(\\mathbf{p} = \\hbar\\mathbf{k}\\). This extends Einstein\u2019s photon relation to all particles, underpinning wave mechanics.",
+    // Section 2
+    "def-2.1": "A non-relativistic particle of mass \\(m\\) in potential \\(V(\\mathbf{x})\\) is governed by \\(i\\hbar\\frac{\\partial\\Psi}{\\partial t} = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V\\Psi\\). This complex linear PDE replaces Newton\u2019s second law at quantum scales.",
+    "def-2.2": "Separating \\(\\Psi = \\psi(\\mathbf{x})e^{-iEt/\\hbar}\\) yields the time-independent equation \\(-\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi = E\\psi\\). Solutions are stationary states with definite energy \\(E\\).",
+    "def-2.3": "When energies are discrete and bounded below, the lowest energy is the ground state (zero point) energy. Higher energies are the first, second, etc. excited states.",
+    "def-2.4": "An energy level \\(E\\) is \\(d\\)-fold degenerate if the space of stationary states with that energy has dimension \\(d > 1\\). Non-degenerate means \\(d = 1\\).",
+    // Section 3
+    "def-3.1": "The probability density is \\(\\rho = |\\Psi(\\mathbf{x},t)|^2\\). The probability of finding the particle in a region \\(D\\) is \\(\\int_D |\\Psi|^2 d^3x\\). This is the Born interpretation of the wave function.",
+    "def-3.2": "A wave function is normalizable if \\(0 < \\int |\\Psi|^2 d^3x < \\infty\\) and normalized if the integral equals 1. The Born interpretation requires normalization.",
+    "def-3.3": "The expectation value of \\(f(\\mathbf{x})\\) in state \\(\\Psi\\) is \\(E_\\Psi(f) = \\int f(\\mathbf{x})|\\Psi|^2 d^3x\\). This gives the average value of repeated position-dependent measurements.",
+    "prop-3.1": "The Schr\u00f6dinger equation implies \\(\\partial\\rho/\\partial t + \\nabla\\cdot\\mathbf{j} = 0\\) where \\(\\mathbf{j} = \\frac{i\\hbar}{2m}(\\Psi\\nabla\\bar\\Psi - \\bar\\Psi\\nabla\\Psi)\\) is the probability current. This is a conservation law for probability.",
+    "prop-3.2": "If the probability current decays sufficiently fast at infinity, then \\(\\int|\\Psi|^2 d^3x\\) is independent of time. A wave function normalized at one time stays normalized forever.",
+    "def-3.4": "For a state \\(\\Psi = \\sum c_n \\psi_n e^{-iE_nt/\\hbar}\\), the probability of measuring energy \\(E_n\\) is \\(|c_n|^2\\). This follows from orthonormality of stationary states.",
+    // Section 4
+    "def-4.1": "A 1D stationary state with \\(\\psi(-x) = \\psi(x)\\) has even parity; with \\(\\psi(-x) = -\\psi(x)\\) it has odd parity. For symmetric potentials, stationary states can always be chosen to have definite parity.",
+    "thm-4.1": "The 1D harmonic oscillator with angular frequency \\(\\omega\\) has energies \\(E_n = (n + \\tfrac{1}{2})\\hbar\\omega\\) for \\(n \\in \\mathbb{Z}_{\\geq 0}\\). Wave functions are \\(\\psi_n \\propto H_n(\\xi)e^{-\\xi^2/2}\\) with Hermite polynomials \\(H_n\\).",
+    // Section 5
+    "def-5.1": "The states of a quantum system are elements of a complex inner product space \\(\\mathcal{H}\\). Proportional vectors represent the same physical state.",
+    "def-5.2": "A complete complex inner product space is a Hilbert space. Completeness ensures infinite sums (superpositions) converge to elements of \\(\\mathcal{H}\\).",
+    "def-5.3": "Observables (measurable quantities) correspond to self-adjoint linear operators \\(A\\) on \\(\\mathcal{H}\\), satisfying \\(\\langle\\phi|A\\psi\\rangle = \\langle A\\phi|\\psi\\rangle\\) for all states.",
+    "def-5.4": "Position: \\((X_i\\psi)(\\mathbf{x}) = x_i\\psi(\\mathbf{x})\\). Momentum: \\((P_i\\psi)(\\mathbf{x}) = -i\\hbar\\frac{\\partial\\psi}{\\partial x_i}\\). Both are self-adjoint on suitable domains.",
+    "lem-5.1": "If \\(A, B\\) are self-adjoint, so are \\(A + B\\), \\(\\alpha A\\) (\\(\\alpha\\) real), and \\(A^2\\). This lets us build observables like the Hamiltonian from position and momentum.",
+    "def-5.5": "The Hamiltonian \\(H = \\frac{|\\mathbf{P}|^2}{2m} + V(\\mathbf{X})\\) is the energy observable. Acting on wave functions: \\((H\\psi)(\\mathbf{x}) = -\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi\\).",
+    "def-5.6": "An eigenstate of observable \\(A\\) satisfies \\(A\\psi = \\alpha\\psi\\) for eigenvalue \\(\\alpha\\). The set of all eigenvalues is the spectrum of \\(A\\).",
+    "prop-5.2": "Eigenvalues of self-adjoint operators are real. Eigenstates with distinct eigenvalues are orthogonal: \\(\\langle\\psi_1|\\psi_2\\rangle = 0\\) when \\(\\alpha_1 \\neq \\alpha_2\\).",
+    "thm-5.3": "If \\(A\\) is self-adjoint on a finite-dimensional \\(\\mathcal{H}\\), there exists a complete orthonormal basis of eigenvectors. This generalizes to infinite dimensions under suitable conditions.",
+    "def-5.7": "Measuring observable \\(A\\) yields eigenvalue \\(\\alpha_n\\) with probability \\(|c_n|^2\\) where \\(\\psi = \\sum c_n\\psi_n\\) in the eigenbasis. Only eigenvalues can be observed.",
+    "def-5.8": "After measuring \\(A\\) and obtaining eigenvalue \\(\\alpha_n\\), the state instantaneously collapses to the eigenstate \\(\\psi_n\\). All prior superposition information is lost.",
+    // Section 6
+    "def-6.1": "The expectation value of observable \\(A\\) in normalized state \\(\\psi\\) is \\(E_\\psi(A) = \\langle\\psi|A\\psi\\rangle = \\sum \\alpha_n|c_n|^2\\). It equals the average over repeated measurements.",
+    "def-6.2": "The identity operator \\(\\mathbf{1}\\) satisfies \\(\\mathbf{1}\\psi = \\psi\\). An operator \\(A\\) is non-negative if \\(\\langle\\psi|A\\psi\\rangle \\geq 0\\) for all \\(\\psi\\).",
+    "prop-6.1": "Expectation is linear: \\(E(A+B) = E(A) + E(B)\\), \\(E(\\alpha A) = \\alpha E(A)\\). For non-negative \\(A\\), \\(E(A) \\geq 0\\). Also \\(E(\\mathbf{1}) = 1\\).",
+    "def-6.3": "The dispersion \\(\\Delta_\\psi(A) = \\sqrt{E_\\psi(A^2) - (E_\\psi(A))^2}\\) measures the spread of measurement outcomes around the mean. It is the quantum analogue of standard deviation.",
+    "prop-6.2": "The dispersion \\(\\Delta_\\psi(A) = 0\\) if and only if \\(\\psi\\) is an eigenstate of \\(A\\). In that case the eigenvalue equals \\(E_\\psi(A)\\) and measurement is certain.",
+    "def-6.4": "The commutator \\([A,B] = AB - BA\\) measures non-commutativity of operators. It is central to the algebraic structure of quantum mechanics.",
+    "prop-6.3": "In 1D: \\([X,P] = i\\hbar\\mathbf{1}\\). In 3D: \\([X_i,P_j] = i\\hbar\\delta_{ij}\\mathbf{1}\\), \\([X_i,X_j] = 0 = [P_i,P_j]\\). The canonical commutation relations encode the fundamental quantum structure.",
+    "prop-6.4": "The commutator is antisymmetric (\\([A,B] = -[B,A]\\)), linear, satisfies the Leibniz rule (\\([A,BC] = B[A,C] + [A,B]C\\)), and the Jacobi identity. If \\([A,B] = iC\\) with \\(A,B\\) self-adjoint, then \\(C\\) is self-adjoint.",
+    "prop-6.5": "For self-adjoint \\(A,B\\) with \\([A,B] = iC\\): \\(E(A^2)E(B^2) \\geq \\tfrac{1}{4}(E(C))^2\\). Equality holds iff \\((A - is_0B)\\psi = 0\\) for some real \\(s_0\\).",
+    "cor-6.6": "Heisenberg\u2019s uncertainty principle: \\(\\Delta_\\psi(X)\\Delta_\\psi(P) \\geq \\frac{\\hbar}{2}\\). Equality holds for Gaussian wave functions (minimum uncertainty states). This is a direct consequence of \\([X,P] = i\\hbar\\).",
+    "cor-6.7": "For any self-adjoint \\(A,B\\): \\(\\Delta_\\psi(A)\\Delta_\\psi(B) \\geq \\frac{1}{2}|E_\\psi([A,B])|\\). Non-commuting observables cannot both be measured with arbitrary precision.",
+    // Section 7
+    "def-7.1": "The raising and lowering operators \\(a_\\pm = \\frac{1}{\\sqrt{2m\\omega\\hbar}}(\\mp iP + m\\omega X)\\) satisfy \\(a_+ = (a_-)^*\\). They provide an algebraic approach to the harmonic oscillator.",
+    "lem-7.1": "The Hamiltonian factorizes as \\(H = (N + \\tfrac{1}{2})\\hbar\\omega\\) where \\(N = a_+a_-\\) is the self-adjoint number operator. This follows from \\([X,P] = i\\hbar\\).",
+    "def-7.2": "The number operator \\(N = a_+a_-\\) counts the excitation level. Its eigenvalue on \\(\\psi_n\\) is \\(n\\), giving energy \\(E_n = (n + \\tfrac{1}{2})\\hbar\\omega\\).",
+    "prop-7.2": "\\([a_-,a_+] = 1\\), \\([N,a_\\pm] = \\pm a_\\pm\\). Also \\(\\|a_-\\psi\\|^2 = \\langle\\psi|N\\psi\\rangle\\) and \\(\\|a_+\\psi\\|^2 = \\langle\\psi|(N+1)\\psi\\rangle\\).",
+    "lem-7.3": "If \\(N\\psi = \\lambda\\psi\\) with \\(\\psi \\neq 0\\): (a) \\(a_\\pm\\psi\\) are eigenstates with eigenvalue \\(\\lambda \\pm 1\\) (if non-zero), and (b) \\(\\lambda \\geq 0\\) with equality iff \\(a_-\\psi = 0\\).",
+    "thm-7.4": "The spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\). If the ground state \\(\\psi_0\\) is unique, the full set of eigenstates is \\(\\{a_+^n\\psi_0 : n \\geq 0\\}\\), each with eigenvalue \\(n\\).",
+    "prop-7.6": "The normalized stationary states are \\(\\psi_n = \\frac{1}{\\sqrt{n!}}a_+^n\\psi_0\\), forming an orthonormal set \\(\\langle\\psi_m|\\psi_n\\rangle = \\delta_{mn}\\).",
+    // Section 8
+    "def-8.1": "The orbital angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\) has components \\(L_i = \\sum \\epsilon_{ijk}X_jP_k\\). It is the quantum analogue of classical angular momentum.",
+    "prop-8.1": "\\([L_i,X_j] = i\\hbar\\sum\\epsilon_{ijk}X_k\\), \\([L_i,P_j] = i\\hbar\\sum\\epsilon_{ijk}P_k\\), and \\([L_i,L_j] = i\\hbar\\sum\\epsilon_{ijk}L_k\\). The last says angular momentum components don\u2019t commute.",
+    "def-8.2": "Any self-adjoint vector operator \\(\\mathbf{J} = (J_1,J_2,J_3)\\) satisfying \\([J_i,J_j] = i\\hbar\\sum\\epsilon_{ijk}J_k\\) is an angular momentum operator. This includes orbital \\(\\mathbf{L}\\) and spin.",
+    "def-8.3": "\\(J^2 = J_1^2 + J_2^2 + J_3^2\\) measures the total angular momentum. It is self-adjoint and non-negative.",
+    "prop-8.2": "\\([J^2, J_i] = 0\\) for all \\(i\\). So \\(J^2\\) and any single component \\(J_i\\) can be simultaneously measured (they share eigenstates).",
+    "thm-8.3": "The simultaneous eigenvalues of \\(J^2\\) and \\(J_3\\) are \\(j(j+1)\\hbar^2\\) and \\(m\\hbar\\), where \\(j \\in \\tfrac{1}{2}\\mathbb{Z}_{\\geq 0}\\) and \\(m \\in \\{-j, -j+1, \\ldots, j\\}\\). For orbital AM, \\(j = l \\in \\mathbb{Z}_{\\geq 0}\\).",
+    "def-8.4": "Spherical harmonics \\(Y_l^m(\\theta,\\phi)\\) are simultaneous eigenstates of \\(L^2\\) and \\(L_3\\) for orbital angular momentum. They form a complete orthonormal set on the sphere.",
+    // Section 9
+    "def-9.1": "A central potential \\(V = V(r)\\) depends only on the distance \\(r = |\\mathbf{x}|\\). The Schr\u00f6dinger equation separates in spherical coordinates, with angular part solved by spherical harmonics.",
+    "thm-9.1": "The hydrogen atom energies are \\(E_n = -\\frac{m_e e^4}{2\\hbar^2 n^2}\\) for \\(n \\in \\mathbb{Z}_{>0}\\). Each level has degeneracy \\(n^2\\), explained by a hidden \\(SO(4)\\) symmetry."
+  };
+var GUIDE_OUTLINE = {
+    "sec0": "Classical particles and waves. Review of point particles (Newton\u2019s second law, conserved energy, momentum) and the wave equation. Sets notation for wave vector, angular frequency, wavelength. Everything here is classical background.",
+    "sec1": "Physical background and wave-particle duality. The photoelectric effect shows light comes in quanta (photons, \\(E = \\hbar\\omega\\)). Atomic spectra reveal discrete energy levels. The double slit experiment shows particles behave as waves. De Broglie\u2019s relations \\(E = \\hbar\\omega\\), \\(\\mathbf{p} = \\hbar\\mathbf{k}\\) unify these observations.",
+    "sec2": "Wave mechanics. The Schr\u00f6dinger equation is motivated from de Broglie\u2019s relations and classical energy. Stationary states separate time and space variables. Key examples: particle in a box (quantized energies \\(\\propto n^2\\)), degeneracy in 3D boxes, particle on a circle. Energy quantization emerges from boundary conditions.",
+    "sec3": "The Born interpretation. The wave function\u2019s absolute value squared gives the probability density. Normalizable/normalized wave functions, expectation values. The continuity equation ensures probability is conserved. Energy measurement: expanding in stationary states gives measurement probabilities \\(|c_n|^2\\).",
+    "sec4": "The harmonic oscillator. Near any potential minimum, physics looks like a harmonic oscillator. Solving the Schr\u00f6dinger equation via power series yields energies \\(E_n = (n + 1/2)\\hbar\\omega\\) with Hermite polynomial wave functions. Higher dimensions: separation of variables gives decoupled oscillators. Quantum tunnelling into classically forbidden regions.",
+    "sec5": "The mathematical structure of quantum theory. States live in a Hilbert space \\(\\mathcal{H}\\). Observables are self-adjoint operators. Key examples: position \\(X\\), momentum \\(P = -i\\hbar\\nabla\\), Hamiltonian \\(H\\). The spectral theorem gives eigenbases. Measurement postulate: outcomes are eigenvalues with probabilities \\(|c_n|^2\\). Wave function collapse after measurement.",
+    "sec6": "Statistical aspects. Expectation value \\(E(A) = \\langle\\psi|A\\psi\\rangle\\) and dispersion \\(\\Delta(A)\\). Zero dispersion iff eigenstate. Commutators encode algebraic structure: canonical \\([X,P] = i\\hbar\\), Leibniz rule, Jacobi identity. Heisenberg uncertainty principle \\(\\Delta(X)\\Delta(P) \\geq \\hbar/2\\) follows directly from the commutation relation. Minimum uncertainty states are Gaussians.",
+    "sec7": "The harmonic oscillator revisited. Algebraic approach using raising/lowering operators \\(a_\\pm\\). The Hamiltonian factors as \\(H = (N + 1/2)\\hbar\\omega\\). Ladder operators move between eigenstates: \\(a_+\\) raises, \\(a_-\\) lowers. Spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\). Normalized states \\(\\psi_n = (1/\\sqrt{n!})a_+^n\\psi_0\\). Derives Hermite polynomial formula.",
+    "sec8": "Angular momentum. Orbital angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\) satisfies \\([L_i,L_j] = i\\hbar\\epsilon_{ijk}L_k\\). General angular momentum operators \\(\\mathbf{J}\\) analyzed algebraically (same raising/lowering technique as harmonic oscillator). Eigenvalues: \\(J^2 \\to j(j+1)\\hbar^2\\), \\(J_3 \\to m\\hbar\\) with \\(m \\in \\{-j,\\ldots,j\\}\\). Orbital case: \\(j = l \\in \\mathbb{Z}_{\\geq 0}\\), spherical harmonics \\(Y_l^m\\).",
+    "sec9": "The hydrogen atom. Central potentials separate in spherical coordinates: angular part gives spherical harmonics, radial part gives the radial Schr\u00f6dinger equation. For Coulomb potential \\(V = -e^2/r\\), energies are \\(E_n = -m_ee^4/(2\\hbar^2n^2)\\), reproducing Rydberg\u2019s empirical formula. Degeneracy \\(n^2\\) from hidden symmetry.",
+    "sec10": "Quantum key distribution. Application of quantum mechanics to cryptography. The BB84 protocol uses the measurement postulate and no-cloning theorem to establish secure communication. Eavesdropping disturbs quantum states, making interception detectable."
+  };
+
+var TYPE_COLORS = {
+  definition:'#93c5fd', theorem:'#fca5a5', lemma:'#86efac', proposition:'#d8b4fe',
+  corollary:'#fdba74', example:'#d1d5db', remark:'#e5e7eb', notation:'#e5e7eb', warning:'#fde68a'
+};
+
+function getType(id) {
+  if (id.indexOf('def-')===0) return 'definition';
+  if (id.indexOf('thm-')===0) return 'theorem';
+  if (id.indexOf('lem-')===0) return 'lemma';
+  if (id.indexOf('prop-')===0) return 'proposition';
+  if (id.indexOf('cor-')===0) return 'corollary';
+  if (id.indexOf('ex-')===0) return 'example';
+  if (id.indexOf('rmk-')===0) return 'remark';
+  if (id.indexOf('not-')===0) return 'notation';
+  if (id.indexOf('warn-')===0) return 'warning';
+  return 'example';
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function buildGraph() {
+  document.querySelectorAll('.env[id]').forEach(function(env) {
+    var id = env.id, head = env.querySelector('.env-head');
+    if (head) labelMap[id] = head.textContent.trim().replace(/\.\s*$/, '');
+    var refs = [], seen = {};
+    function collect(el) { el.querySelectorAll('a.ref').forEach(function(a) { if (a.dataset.ref) refs.push(a.dataset.ref); }); }
+    collect(env);
+    var next = env.nextElementSibling;
+    if (next && next.classList.contains('proof')) collect(next);
+    var unique = [];
+    refs.forEach(function(r) { if (r !== id && !seen[r]) { seen[r] = true; unique.push(r); } });
+    graph[id] = { uses: unique, usedBy: [] };
+  });
+  Object.keys(graph).forEach(function(id) {
+    graph[id].uses.forEach(function(ref) { if (graph[ref]) graph[ref].usedBy.push(id); });
+  });
+}
+
+function shortLabel(id) {
+  if (!labelMap[id]) return id;
+  return labelMap[id].replace(/^Definition\s/,'Def ').replace(/^Theorem\s/,'Thm ')
+    .replace(/^Lemma\s/,'Lem ').replace(/^Proposition\s/,'Prop ').replace(/^Corollary\s/,'Cor ')
+    .replace(/^Examples?\s/,'Ex ').replace(/^Remarks?\s/,'Rmk ').replace(/^Notation\s/,'Not ').replace(/^Warning/,'Warn');
+}
+function fullLabel(id) {
+  var s = shortLabel(id);
+  if (ENV_NAMES[id]) s += ' \u2014 ' + ENV_NAMES[id];
+  return s;
+}
+
+// ── BFS multi-level collection ──
+function collectMultiLevel(centerId) {
+  var dL={}, uL={}, dE=[], uE=[];
+  function bfs(startId, edgeKey, levels, edges) {
+    var vis = {}; vis[startId] = true; var front = [startId];
+    for (var d = 0; d < MAX_DEPTH; d++) {
+      var nf = [];
+      for (var i = 0; i < front.length; i++) {
+        var neighbors = graph[front[i]] ? graph[front[i]][edgeKey] : [];
+        for (var j = 0; j < neighbors.length; j++) {
+          var nb = neighbors[j];
+          if (!graph[nb]) continue;
+          edges.push(edgeKey === 'uses' ? [nb, front[i]] : [front[i], nb]);
+          if (vis[nb]) continue;
+          vis[nb] = true;
+          if (!levels[d+1]) levels[d+1] = [];
+          levels[d+1].push(nb);
+          nf.push(nb);
+        }
+      }
+      front = nf;
+    }
+  }
+  bfs(centerId, 'uses', dL, dE);
+  bfs(centerId, 'usedBy', uL, uE);
+  return { depsLevels:dL, usedByLevels:uL, depsEdges:dE, usedByEdges:uE };
+}
+
+// ── Per-item dependency graph SVG ──
+function renderGraph(centerId) {
+  var ml = collectMultiLevel(centerId), dl = ml.depsLevels, ul = ml.usedByLevels;
+  var columns = [], maxDL = 0, maxUL = 0;
+  for (var k in dl) if (+k > maxDL) maxDL = +k;
+  for (var dd = maxDL; dd >= 1; dd--) { var it = (dl[dd]||[]).slice(0,MAX_PER_COL); if (it.length||dd===1) columns.push(it); }
+  var cci = columns.length;
+  columns.push([centerId]);
+  for (var k2 in ul) if (+k2 > maxUL) maxUL = +k2;
+  for (var uu = 1; uu <= maxUL; uu++) { var it2 = (ul[uu]||[]).slice(0,MAX_PER_COL); if (it2.length||uu===maxUL) columns.push(it2); }
+  var filt=[], nc=0;
+  for (var ci=0; ci<columns.length; ci++) { if (columns[ci].length||ci===cci) { if (ci===cci) nc=filt.length; filt.push(columns[ci]); } }
+  columns=filt; cci=nc;
+  var nW=72, nH=24, pX=12, pY=8, gp=36, numC=columns.length;
+  if (numC<=3){nW=85;gp=44;} else if(numC>=5){nW=62;gp=24;}
+  var mx=1; columns.forEach(function(c){if(c.length>mx)mx=c.length;});
+  var tW=numC*nW+(numC-1)*gp+pX*2, tH=Math.max(mx*(nH+pY)-pY+40,70);
+  var np={};
+  for(var c=0;c<columns.length;c++){var col=columns[c],cx=pX+c*(nW+gp)+nW/2,bH=col.length*(nH+pY)-pY,sY=(tH-16)/2-bH/2;
+    for(var n=0;n<col.length;n++) np[col[n]]={x:cx,y:sY+n*(nH+pY)+nH/2};}
+  var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+tW+'" height="'+tH+'">';
+  function edge(a,b){var p1=np[a],p2=np[b];if(!p1||!p2)return;var x1=p1.x+nW/2,y1=p1.y,x2=p2.x-nW/2,y2=p2.y,mx2=(x1+x2)/2;
+    s+='<path d="M'+x1+','+y1+' C'+mx2+','+y1+' '+mx2+','+y2+' '+x2+','+y2+'" fill="none" stroke="#c4c8cf" stroke-width="1.2"/>';
+    s+='<polygon points="'+x2+','+y2+' '+(x2-5)+','+(y2-3)+' '+(x2-5)+','+(y2+3)+'" fill="#c4c8cf"/>';}
+  ml.depsEdges.forEach(function(e){edge(e[0],e[1]);}); ml.usedByEdges.forEach(function(e){edge(e[0],e[1]);});
+  for(var id in np){var p=np[id],cur=id===centerId;
+    s+='<g class="graph-node" data-id="'+id+'"><rect x="'+(p.x-nW/2)+'" y="'+(p.y-nH/2)+'" width="'+nW+'" height="'+nH+'" rx="4" fill="'+(cur?'#dbeafe':'#f8f9fa')+'" stroke="'+(cur?'#1e40af':'#d1d5db')+'" stroke-width="'+(cur?2:1)+'"/>';
+    s+='<text x="'+p.x+'" y="'+(p.y+4)+'" text-anchor="middle" fill="#111" font-weight="'+(cur?'bold':'normal')+'">'+esc(shortLabel(id))+'</text></g>';}
+  for(var li=0;li<columns.length;li++){var lbl=li<cci?(cci-li===1?'deps':'depth '+(cci-li)):li===cci?'current':(li-cci===1?'used by':'depth '+(li-cci));
+    s+='<text class="graph-label" x="'+(pX+li*(nW+gp)+nW/2)+'" y="'+(tH-3)+'" text-anchor="middle" fill="#9ca3af" font-size="8.5" font-style="italic">'+lbl+'</text>';}
+  s+='</svg>'; return s;
+}
+
+// ── Navigation ──
+function navigateTo(id, addHist) {
+  if (!graph[id]) return;
+  if (addHist !== false) { navHistory = navHistory.slice(0, navIndex+1); navHistory.push(id); navIndex = navHistory.length-1; }
+  currentPanelId = id;
+  switchTab('deps');
+  showPanel(); updatePanel(id); updateNavButtons(); updateMinimapActive(id);
+}
+function navBack() { if(navIndex>0){navIndex--;currentPanelId=navHistory[navIndex];updatePanel(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);updateMinimapActive(currentPanelId);} }
+function navForward() { if(navIndex<navHistory.length-1){navIndex++;currentPanelId=navHistory[navIndex];updatePanel(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);updateMinimapActive(currentPanelId);} }
+function updateNavButtons() {
+  var b=document.getElementById('nav-back'),f=document.getElementById('nav-forward'),l=document.getElementById('nav-label');
+  if(b)b.disabled=(navIndex<=0); if(f)f.disabled=(navIndex>=navHistory.length-1); if(l)l.textContent=shortLabel(currentPanelId);
+}
+function scrollToEnv(id) { var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
+function showPanel() {
+  var p=document.getElementById('ref-panel'); p.style.display='';
+  document.body.style.setProperty('--panel-width', (parseInt(getComputedStyle(document.body).getPropertyValue('--panel-width'))||450)+'px');
+  document.getElementById('panel-nav').style.display='flex';
+}
+function hidePanel() {
+  document.getElementById('ref-panel').style.display='none';
+  document.body.style.setProperty('--panel-width','0px');
+}
+
+// ── Panel content (collapsible items) ──
+function updatePanel(id) {
+  var gC=document.getElementById('graph-container'),
+      cC=document.getElementById('panel-content');
+  gC.style.display='block'; cC.style.display='block';
+  gC.innerHTML = renderGraph(id);
+  gC.querySelectorAll('.graph-node').forEach(function(n){n.addEventListener('click',function(){var nid=n.getAttribute('data-id');if(nid){navigateTo(nid);scrollToEnv(nid);}});});
+
+  var ml=collectMultiLevel(id), html='';
+  function renderSection(label, items) {
+    html+='<div class="panel-section"><div class="panel-section-label"><span>'+label+' ('+items.length+')</span>';
+    if(items.length>0) html+='<span class="panel-section-controls"><button data-action="expand-all">expand all</button><button data-action="collapse-all">collapse all</button></span>';
+    html+='</div>';
+    if(items.length===0) { html+='<div class="panel-section-empty">None.</div>'; }
+    else { items.forEach(function(itemId){ var env=document.getElementById(itemId); if(!env)return;
+      var itemDesc = GUIDE_DESCS[itemId] || '';
+      html+='<div class="stacked-item" data-item-id="'+itemId+'"><div class="stacked-header" data-id="'+itemId+'"><span class="toggle-icon">&#9656;</span>'+esc(fullLabel(itemId))+'</div>';
+      html+='<div class="stacked-body">'+env.outerHTML+'</div>';
+      if (itemDesc) { html+='<div class="stacked-desc-toggle" data-desc-for="'+itemId+'">describe \u25BE</div>'; html+='<div class="stacked-summary hidden">'+itemDesc+'</div>'; }
+      html+='</div>'; }); }
+    html+='</div>';
+  }
+  var allDeps=[], allUB=[];
+  var maxDL=0; for(var k in ml.depsLevels) if(+k>maxDL) maxDL=+k;
+  for(var dd=maxDL;dd>=1;dd--)(ml.depsLevels[dd]||[]).forEach(function(x){allDeps.push(x);});
+  var maxUL=0; for(var k2 in ml.usedByLevels) if(+k2>maxUL) maxUL=+k2;
+  for(var uu=1;uu<=maxUL;uu++)(ml.usedByLevels[uu]||[]).forEach(function(x){allUB.push(x);});
+  renderSection('Prerequisites', allDeps);
+  renderSection('Referenced by', allUB);
+  cC.innerHTML = html;
+
+  // Wire up collapsible items
+  cC.querySelectorAll('.stacked-header').forEach(function(hdr){
+    hdr.addEventListener('click', function(e){ e.stopPropagation();
+      var item=hdr.closest('.stacked-item'); if(!item)return; item.classList.toggle('expanded');
+      if(item.classList.contains('expanded')&&!item.dataset.typeset){ item.dataset.typeset='1';
+        var body=item.querySelector('.stacked-body'); if(body&&typeof MathJax!=='undefined'&&MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){}); }
+    });
+    hdr.addEventListener('dblclick', function(){var hid=hdr.getAttribute('data-id');if(hid){navigateTo(hid);scrollToEnv(hid);}});
+  });
+  cC.querySelectorAll('.stacked-desc-toggle').forEach(function(tog){
+    tog.addEventListener('click', function(e){
+      e.stopPropagation();
+      var sum = tog.nextElementSibling;
+      if (sum) { sum.classList.toggle('hidden'); tog.textContent = sum.classList.contains('hidden') ? 'describe \u25BE' : 'hide \u25B4'; }
+    });
+  });
+  cC.querySelectorAll('.panel-section-controls button').forEach(function(btn){
+    btn.addEventListener('click',function(e){e.stopPropagation();var sec=btn.closest('.panel-section'),act=btn.getAttribute('data-action');
+      sec.querySelectorAll('.stacked-item').forEach(function(item){
+        if(act==='expand-all'){item.classList.add('expanded');if(!item.dataset.typeset){item.dataset.typeset='1';var b=item.querySelector('.stacked-body');if(b&&typeof MathJax!=='undefined'&&MathJax.typesetPromise)MathJax.typesetPromise([b]).catch(function(){});}}
+        else item.classList.remove('expanded');});});
+  });
+  cC.querySelectorAll('a.ref').forEach(function(ref){
+    ref.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var tid=ref.getAttribute('data-ref');if(tid){if(graph[tid])navigateTo(tid);scrollToEnv(tid);}});
+  });
+  document.querySelectorAll('.env.panel-active').forEach(function(el){el.classList.remove('panel-active');});
+  var ae=document.getElementById(id); if(ae) ae.classList.add('panel-active');
+}
+
+// ── Floating peek popover ──
+function showPeek(refId, anchor) {
+  var pop=document.getElementById('peek-popover'), lbl=document.getElementById('peek-label'),
+      body=document.getElementById('peek-popover-body'), env=document.getElementById(refId);
+  if(!env||!pop) return;
+  clearTimeout(peekTimeout);
+  lbl.textContent = fullLabel(refId);
+  body.innerHTML = env.outerHTML;
+  pop.classList.add('visible');
+  pop.style.width = peekWidth+'px';
+  pop.style.maxHeight = peekHeight+'px';
+  var r=anchor.getBoundingClientRect(), pW=peekWidth, pH=peekHeight, wW=window.innerWidth, wH=window.innerHeight;
+  var left=r.right+12, top=r.top-20;
+  if(left+pW>wW-20) left=r.left-pW-12;
+  if(left<10) left=Math.max(10,(r.left+r.right)/2-pW/2);
+  if(top+pH>wH-10) top=wH-pH-10; if(top<10) top=10;
+  pop.style.left=left+'px'; pop.style.top=top+'px';
+  if(typeof MathJax!=='undefined'&&MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
+}
+function hidePeek() { clearTimeout(peekTimeout); peekTimeout=setTimeout(function(){document.getElementById('peek-popover').classList.remove('visible');},400); }
+
+function initPeek() {
+  var pop=document.getElementById('peek-popover');
+  pop.addEventListener('mouseenter',function(){clearTimeout(peekTimeout);});
+  pop.addEventListener('mouseleave', hidePeek);
+  document.getElementById('peek-close').addEventListener('click',function(){clearTimeout(peekTimeout);pop.classList.remove('visible');});
+  document.getElementById('content').addEventListener('mouseover',function(e){var ref=e.target.closest('a.ref');if(ref&&ref.dataset.ref)showPeek(ref.dataset.ref,ref);});
+  document.getElementById('content').addEventListener('mouseout',function(e){if(e.target.closest('a.ref'))hidePeek();});
+}
+
+// ── Peek resize and zoom ──
+function initPeekResize() {
+  var pop = document.getElementById('peek-popover');
+  var handle = document.getElementById('peek-resize-handle');
+  var dragging = false, startX, startY, startW, startH;
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    dragging = true; startX = e.clientX; startY = e.clientY;
+    startW = pop.offsetWidth; startH = pop.offsetHeight;
+    document.body.style.cursor = 'nwse-resize'; document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    var newW = Math.max(250, startW + (e.clientX - startX));
+    var newH = Math.max(200, startH + (e.clientY - startY));
+    pop.style.width = newW + 'px'; pop.style.maxHeight = newH + 'px'; pop.style.height = newH + 'px';
+    peekWidth = newW; peekHeight = newH;
+  });
+  document.addEventListener('mouseup', function() {
+    if (dragging) { dragging = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; }
+  });
+  document.getElementById('peek-zoom-in').addEventListener('click', function(e) {
+    e.stopPropagation(); peekZoom = Math.min(150, peekZoom + 10); applyPeekZoom();
+  });
+  document.getElementById('peek-zoom-out').addEventListener('click', function(e) {
+    e.stopPropagation(); peekZoom = Math.max(70, peekZoom - 10); applyPeekZoom();
+  });
+  document.getElementById('peek-zoom-reset').addEventListener('click', function(e) {
+    e.stopPropagation(); peekZoom = 100; applyPeekZoom();
+  });
+}
+function applyPeekZoom() {
+  var body = document.getElementById('peek-popover-body');
+  body.style.fontSize = (13.5 * peekZoom / 100) + 'px';
+  document.getElementById('peek-zoom-reset').textContent = peekZoom + '%';
+  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
+}
+
+// ── Resize handles ──
+function initResize() {
+  function makeDrag(handle, getWidth, setWidth) {
+    var dragging=false;
+    handle.addEventListener('mousedown',function(e){e.preventDefault();dragging=true;handle.classList.add('dragging');document.body.style.cursor='col-resize';document.body.style.userSelect='none';});
+    document.addEventListener('mousemove',function(e){if(!dragging)return;setWidth(e);});
+    document.addEventListener('mouseup',function(){if(dragging){dragging=false;handle.classList.remove('dragging');document.body.style.cursor='';document.body.style.userSelect='';}});
+  }
+  makeDrag(document.getElementById('resize-handle'), null, function(e){
+    var w=window.innerWidth-e.clientX; w=Math.max(200,Math.min(w,window.innerWidth-400));
+    document.body.style.setProperty('--panel-width',w+'px');
+  });
+  makeDrag(document.getElementById('sidebar-resize'), null, function(e){
+    var w=e.clientX; w=Math.max(120,Math.min(w,400));
+    document.body.style.setProperty('--sidebar-width',w+'px');
+  });
+}
+
+// ── Minimap (overview graph) ──
+var minimapPos = {};
+
+function renderMinimap() {
+  var container = document.getElementById('minimap-container');
+  var sections = [], secMap = {};
+  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
+    var lbl = h.textContent.trim();
+    if (lbl.length > 22) lbl = lbl.substring(0,20) + '\u2026';
+    secMap[h.id] = { id: h.id, label: lbl, items: [] };
+    sections.push(secMap[h.id]);
+  });
+  var curSec = null;
+  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
+    if (el.tagName === 'H2') curSec = secMap[el.id];
+    else if (curSec && graph[el.id]) curSec.items.push(el.id);
+  });
+
+  var cW=14, cH=14, gap=2, rowGap=6, lblW=95, pad=4;
+  var maxItems=0; sections.forEach(function(s){if(s.items.length>maxItems) maxItems=s.items.length;});
+  var tW = lblW + maxItems*(cW+gap) + pad*2;
+  var tH = sections.length*(cH+rowGap) - rowGap + pad*2;
+  minimapPos = {};
+
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+tW+'" height="'+tH+'" id="minimap-svg">';
+  // No edge lines - highlighting uses colored glows instead
+
+  for (var si=0; si<sections.length; si++) {
+    var sec=sections[si], ry=pad+si*(cH+rowGap);
+    svg += '<text x="'+pad+'" y="'+(ry+cH-3)+'" font-size="8.5" fill="#6b7280" font-weight="600" font-family="Computer Modern Sans,sans-serif">'+esc(sec.label)+'</text>';
+    for (var ii=0; ii<sec.items.length; ii++) {
+      var itemId=sec.items[ii], cx=lblW+ii*(cW+gap), color=TYPE_COLORS[getType(itemId)]||'#e5e7eb';
+      minimapPos[itemId] = {x:cx, y:ry, cx:cx+cW/2, cy:ry+cH/2};
+      svg += '<g class="minimap-node" data-id="'+itemId+'"><rect x="'+cx+'" y="'+ry+'" width="'+cW+'" height="'+cH+'" rx="2" fill="'+color+'"/></g>';
+    }
+  }
+  svg += '</svg>';
+
+  // Legend
+  var legend = '<div class="minimap-legend">';
+  var types = [['Def','definition'],['Thm','theorem'],['Lem','lemma'],['Prop','proposition'],['Cor','corollary'],['Ex','example'],['Rmk','remark']];
+  types.forEach(function(t) {
+    legend += '<span style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:1px;background:'+TYPE_COLORS[t[1]]+'"></span>'+t[0]+'</span>';
+  });
+  legend += '</div>';
+
+  var zoomControls = '<div id="minimap-zoom-controls"><button id="minimap-zoom-in" title="Zoom in">+</button><button id="minimap-zoom-out" title="Zoom out">&minus;</button><button id="minimap-zoom-reset" title="Reset zoom">&#8634;</button></div>';
+  container.innerHTML = zoomControls + svg + legend;
+  minimapBuilt = true;
+
+  // Zoom
+  var svgEl = document.getElementById('minimap-svg');
+  var minimapScale = 1;
+  function applyMinimapZoom() {
+    svgEl.style.transform = 'scale('+minimapScale+')';
+    svgEl.style.width = (tW * minimapScale) + 'px';
+    svgEl.style.height = (tH * minimapScale) + 'px';
+  }
+  document.getElementById('minimap-zoom-in').addEventListener('click', function(e) {
+    e.stopPropagation(); minimapScale = Math.min(3, minimapScale * 1.25); applyMinimapZoom();
+  });
+  document.getElementById('minimap-zoom-out').addEventListener('click', function(e) {
+    e.stopPropagation(); minimapScale = Math.max(0.5, minimapScale / 1.25); applyMinimapZoom();
+  });
+  document.getElementById('minimap-zoom-reset').addEventListener('click', function(e) {
+    e.stopPropagation(); minimapScale = 1; applyMinimapZoom();
+  });
+  container.addEventListener('wheel', function(e) {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      if (e.deltaY < 0) minimapScale = Math.min(3, minimapScale * 1.1);
+      else minimapScale = Math.max(0.5, minimapScale / 1.1);
+      applyMinimapZoom();
+    }
+  }, {passive: false});
+
+  // Interactions — hover shows label in nav bar instead of cluttering tooltip
+  var navLabel = document.getElementById('nav-label');
+  svgEl.querySelectorAll('.minimap-node').forEach(function(node) {
+    node.addEventListener('mouseenter', function() {
+      var id = node.getAttribute('data-id');
+      if (navLabel) { navLabel.textContent = shortLabel(id); navLabel.classList.add('minimap-hover'); }
+      highlightMinimapDeps(id);
+    });
+    node.addEventListener('mouseleave', function() {
+      if (navLabel) { navLabel.textContent = currentPanelId ? shortLabel(currentPanelId) : ''; navLabel.classList.remove('minimap-hover'); }
+      clearMinimapHighlights();
+    });
+    node.addEventListener('click', function() {
+      var id = node.getAttribute('data-id');
+      if (id) { navigateTo(id); scrollToEnv(id); }
+    });
+  });
+
+  // Apply current scroll highlight
+  if (currentScrollId) updateMinimapScroll(currentScrollId);
+}
+
+function highlightMinimapDeps(centerId) {
+  var deps = graph[centerId] ? graph[centerId].uses : [];
+  var usedBy = graph[centerId] ? graph[centerId].usedBy : [];
+  var related = {}; related[centerId] = 'center';
+  deps.forEach(function(d){related[d]='dep';}); usedBy.forEach(function(u){related[u]='usedby';});
+
+  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n) {
+    var nid = n.getAttribute('data-id');
+    n.classList.remove('active','dep-highlight','usedby-highlight','dimmed');
+    if (nid===centerId) n.classList.add('active');
+    else if (related[nid]==='dep') n.classList.add('dep-highlight');
+    else if (related[nid]==='usedby') n.classList.add('usedby-highlight');
+    else n.classList.add('dimmed');
+  });
+
+  // No edge arrows - colored glows on nodes are cleaner
+}
+
+function clearMinimapHighlights() {
+  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n){n.classList.remove('active','dep-highlight','usedby-highlight','dimmed');});
+  // Reset panel highlight only (no scroll tracking on minimap)
+  if (currentPanelId) updateMinimapActive(currentPanelId);
+}
+
+function updateMinimapScroll(id) {
+  document.querySelectorAll('#minimap-svg .minimap-node.scroll-active').forEach(function(n){n.classList.remove('scroll-active');});
+  var node = document.querySelector('#minimap-svg .minimap-node[data-id="'+id+'"]');
+  if (node) node.classList.add('scroll-active');
+}
+
+function updateMinimapActive(id) {
+  // Clear all highlight state to avoid stale glows
+  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n){
+    n.classList.remove('panel-selected','active','dep-highlight','usedby-highlight','dimmed');
+  });
+  var node = document.querySelector('#minimap-svg .minimap-node[data-id="'+id+'"]');
+  if (node) node.classList.add('panel-selected');
+}
+
+function toggleMinimap() {
+  var mc = document.getElementById('minimap-container'), btn = document.getElementById('btn-map');
+  if (mc.classList.contains('hidden')) {
+    mc.classList.remove('hidden'); btn.classList.add('active');
+  } else {
+    mc.classList.add('hidden'); btn.classList.remove('active');
+  }
+}
+
+// ── Sidebar filter tabs ──
+var activeFilter = 'all';
+
+function buildFilters() {
+  var types = ['definition','theorem','lemma','proposition','corollary','example','remark','notation'];
+  var typeLabels = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not'};
+  var counts = {all:0};
+  types.forEach(function(t){counts[t]=0;});
+  document.querySelectorAll('.env[id]').forEach(function(env){
+    counts.all++; var t=getType(env.id); if(counts[t]!==undefined) counts[t]++;
+  });
+  var tabsEl = document.getElementById('filter-tabs');
+  var html = '<button class="filter-tab active" data-filter="all">All</button>';
+  types.forEach(function(t){ if(counts[t]>0) html+='<button class="filter-tab" data-filter="'+t+'">'+typeLabels[t]+'</button>'; });
+  tabsEl.innerHTML = html;
+  tabsEl.querySelectorAll('.filter-tab').forEach(function(tab){
+    tab.addEventListener('click',function(){
+      tabsEl.querySelectorAll('.filter-tab').forEach(function(t){t.classList.remove('active');});
+      tab.classList.add('active');
+      activeFilter = tab.getAttribute('data-filter');
+      applyFilter();
+    });
+  });
+  // Add peek on hover to TOC items
+  document.querySelectorAll('.toc-items a[data-id]').forEach(function(a){
+    a.addEventListener('mouseenter',function(){ var id=a.getAttribute('data-id'); if(id) showPeek(id, a); });
+    a.addEventListener('mouseleave',function(){ hidePeek(); });
+  });
+}
+
+function applyFilter() {
+  document.querySelectorAll('.toc-items li').forEach(function(li){
+    var a = li.querySelector('a[data-id]');
+    if (!a) return;
+    var id = a.getAttribute('data-id'), type = getType(id);
+    if (activeFilter==='all' || type===activeFilter) li.classList.remove('filtered-out');
+    else li.classList.add('filtered-out');
+  });
+}
+
+// ── Event listeners ──
+document.addEventListener('click', function(e) {
+  var ph = e.target.closest('.proof-head');
+  if (ph) { e.stopPropagation(); ph.closest('.proof').classList.toggle('collapsed'); return; }
+  var eh = e.target.closest('.env-head');
+  if (eh && !eh.closest('#panel-content') && !eh.closest('#peek-popover')) {
+    var env = eh.closest('.env[id]'); if (env) navigateTo(env.id); return;
+  }
+  var ref = e.target.closest('a.ref');
+  if (ref && !ref.closest('#panel-content') && !ref.closest('#peek-popover')) {
+    e.preventDefault(); var tid=ref.getAttribute('data-ref'); if(!tid) return;
+    document.getElementById('peek-popover').classList.remove('visible');
+    if(graph[tid]) navigateTo(tid); scrollToEnv(tid);
+  }
+});
+
+// ── TOC ──
+function expandSection(sid) {
+  var head = document.querySelector('.toc-section-head[data-section="'+sid+'"]');
+  if (!head) return;
+  head.classList.add('expanded');
+  var items = head.nextElementSibling;
+  if (items && items.classList.contains('toc-items')) items.classList.add('visible');
+}
+function collapseSection(sid) {
+  var head = document.querySelector('.toc-section-head[data-section="'+sid+'"]');
+  if (!head) return;
+  head.classList.remove('expanded');
+  var items = head.nextElementSibling;
+  if (items && items.classList.contains('toc-items')) items.classList.remove('visible');
+}
+function expandAllSections() {
+  document.querySelectorAll('.toc-section-head').forEach(function(head) {
+    head.classList.add('expanded');
+    var items = head.nextElementSibling;
+    if (items && items.classList.contains('toc-items')) items.classList.add('visible');
+  });
+}
+function collapseAllSections() {
+  document.querySelectorAll('.toc-section-head').forEach(function(head) {
+    head.classList.remove('expanded');
+    var items = head.nextElementSibling;
+    if (items && items.classList.contains('toc-items')) items.classList.remove('visible');
+  });
+}
+document.querySelectorAll('.toc-section-head').forEach(function(head) {
+  head.addEventListener('click', function() {
+    var sid = head.getAttribute('data-section');
+    if (head.classList.contains('expanded')) collapseSection(sid);
+    else expandSection(sid);
+  });
+});
+document.querySelectorAll('.toc-items a').forEach(function(a) {
+  a.addEventListener('click', function(e) { e.preventDefault();
+    var tid=a.getAttribute('data-id'), t=document.getElementById(tid);
+    if(t){t.scrollIntoView({behavior:'smooth',block:'start'});if(graph[tid])navigateTo(tid);}
+  });
+});
+
+// ── Scroll observer (TOC + minimap tracking) ──
+function setupScrollObserver() {
+  var content = document.getElementById('content');
+  var secObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if(entry.isIntersecting) {
+        var sid = entry.target.id;
+        expandSection(sid);
+        document.querySelectorAll('.toc-section-head').forEach(function(h) { h.classList.remove('current'); });
+        var curHead = document.querySelector('.toc-section-head[data-section="'+sid+'"]');
+        if (curHead) curHead.classList.add('current');
+      }
+    });
+  }, {root:content, rootMargin:'-10% 0px -80% 0px', threshold:0});
+  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) { secObs.observe(h); });
+
+  document.querySelectorAll('.env[id]').forEach(function(env) {
+    new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var tocLink = document.querySelector('.toc-items a[data-id="'+entry.target.id+'"]');
+        if (tocLink) { document.querySelectorAll('.toc-items a.active').forEach(function(a){a.classList.remove('active');}); tocLink.classList.add('active'); }
+        currentScrollId = entry.target.id;
+      });
+    }, {root:content, rootMargin:'-10% 0px -70% 0px', threshold:0}).observe(env);
+  });
+}
+
+// ── Add descriptive names to TOC items ──
+function addTOCNames() {
+  document.querySelectorAll('.toc-items a[data-id]').forEach(function(a) {
+    var id = a.getAttribute('data-id');
+    if (ENV_NAMES[id]) {
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'toc-name';
+      nameSpan.textContent = ' \u2014 ' + ENV_NAMES[id];
+      a.appendChild(nameSpan);
+    }
+  });
+}
+
+// ── Add descriptive names to inline cross-references ──
+function addRefNames() {
+  document.querySelectorAll('#content a.ref[data-ref]').forEach(function(a) {
+    var id = a.getAttribute('data-ref');
+    if (ENV_NAMES[id] && !a.querySelector('.ref-name')) {
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'ref-name';
+      nameSpan.textContent = ' \u2014 ' + ENV_NAMES[id];
+      a.appendChild(nameSpan);
+    }
+  });
+}
+
+// ── Guide panel ──
+function buildGuide() {
+  var body = document.getElementById('guide-body');
+
+  // 1. Collect sections (B2.1 uses h2.section-heading, no chapter level)
+  var sections = [], secMap = {};
+  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
+    var sec = { id: h.id, label: h.textContent.trim(), items: [] };
+    secMap[h.id] = sec;
+    sections.push(sec);
+  });
+
+  // 2. Assign items to sections
+  var curSec = null;
+  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
+    if (el.tagName === 'H2') curSec = secMap[el.id];
+    else if (curSec) curSec.items.push(el.id);
+  });
+
+  // 3. Render guide with section > item hierarchy
+  var html = '';
+  sections.forEach(function(sec) {
+    if (sec.items.length === 0) return;
+    var secOutline = GUIDE_OUTLINE[sec.id] || '';
+    html += '<div class="guide-section" data-sec="'+sec.id+'">';
+    html += '<div class="guide-section-head" data-sec-click="'+sec.id+'">'+esc(sec.label)+'</div>';
+    if (secOutline) html += '<div class="guide-section-outline">'+secOutline+'</div>';
+    sec.items.forEach(function(id) {
+      var typ = getType(id);
+      var color = TYPE_COLORS[typ] || '#e5e7eb';
+      var name = ENV_NAMES[id] || '';
+      var desc = GUIDE_DESCS[id] || '';
+      html += '<div class="guide-entry" data-id="'+id+'" data-search="'+esc((shortLabel(id)+' '+name+' '+desc).toLowerCase())+'">';
+      html += '<span class="entry-chevron">&#9656;</span>';
+      html += '<span class="guide-type-dot" style="background:'+color+'"></span>';
+      html += '<span class="guide-label">'+esc(shortLabel(id))+'</span>';
+      if (name) html += ' <span style="color:#6b7280">\u2014 '+esc(name)+'</span>';
+      html += '<div class="guide-entry-detail"><div class="entry-math-content" data-env-id="'+id+'"></div>';
+      if (desc) html += '<div class="entry-desc-text">'+desc+'</div>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
+
+  // 4. Section head click → scroll to section in content
+  body.querySelectorAll('.guide-section-head[data-sec-click]').forEach(function(sh) {
+    sh.addEventListener('click', function() {
+      var secEl = document.getElementById(sh.getAttribute('data-sec-click'));
+      if (secEl) secEl.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  });
+
+  // 5. Entry click → expand/collapse; label click → navigate
+  body.querySelectorAll('.guide-entry').forEach(function(entry) {
+    entry.addEventListener('click', function(e) {
+      if (e.target.closest('.guide-label')) {
+        var id = entry.getAttribute('data-id');
+        if (id) { scrollToEnv(id); navigateTo(id); }
+        return;
+      }
+      entry.classList.toggle('expanded');
+      if (entry.classList.contains('expanded')) {
+        var mc = entry.querySelector('.entry-math-content');
+        if (mc && !mc.dataset.loaded) {
+          mc.dataset.loaded = '1';
+          var envId = mc.getAttribute('data-env-id');
+          var env = document.getElementById(envId);
+          if (env) { mc.innerHTML = env.outerHTML; if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([mc]).catch(function(){}); }
+        }
+      }
+    });
+  });
+}
+
+// ── Tab switching ──
+var activeTab = 'deps';
+function switchTab(tabName) {
+  activeTab = tabName;
+  document.querySelectorAll('.panel-tab').forEach(function(t) {
+    t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+  });
+  document.querySelectorAll('.panel-tab-content').forEach(function(c) {
+    c.classList.toggle('active', c.id === 'tab-' + tabName);
+  });
+  // Lazy build guide/glossary
+  if (tabName === 'guide') {
+    var gb = document.getElementById('guide-body');
+    if (!gb.dataset.built) { buildGuide(); gb.dataset.built = '1'; }
+  } else if (tabName === 'glossary') {
+    var glb = document.getElementById('glossary-body');
+    if (!glb.dataset.built) { buildGlossary(); glb.dataset.built = '1'; }
+  }
+}
+
+function toggleGuide() { switchTab(activeTab === 'guide' ? 'deps' : 'guide'); }
+
+function initGuideSearch() {
+  var input = document.getElementById('guide-search');
+  input.addEventListener('input', function() {
+    var q = input.value.toLowerCase().trim();
+    document.querySelectorAll('.guide-entry').forEach(function(entry) {
+      var searchText = entry.getAttribute('data-search') || '';
+      if (!q || searchText.indexOf(q) >= 0) entry.classList.remove('filtered-out');
+      else entry.classList.add('filtered-out');
+    });
+  });
+}
+
+// -- Glossary panel --
+var glossaryFilter = 'all';
+
+function buildGlossary() {
+  var body = document.getElementById('glossary-body');
+  var filtersEl = document.getElementById('glossary-type-filters');
+
+  // Collect all items with ENV_NAMES, sorted alphabetically by name
+  var items = [];
+  for (var id in ENV_NAMES) {
+    var name = ENV_NAMES[id];
+    if (!name) continue;
+    items.push({ id: id, name: name, type: getType(id), desc: GUIDE_DESCS[id] || '' });
+  }
+  items.sort(function(a, b) {
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
+
+  // Build type filter buttons
+  var types = {};
+  items.forEach(function(it) { types[it.type] = (types[it.type] || 0) + 1; });
+  var filterHtml = '<span class="glossary-type-filter active" data-gtype="all">All (' + items.length + ')</span>';
+  var typeOrder = ['definition','theorem','lemma','proposition','corollary','example','remark','notation','warning'];
+  var typeShort = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not',warning:'Warn'};
+  typeOrder.forEach(function(t) {
+    if (types[t]) filterHtml += '<span class="glossary-type-filter" data-gtype="' + t + '">' + typeShort[t] + ' (' + types[t] + ')</span>';
+  });
+  filtersEl.innerHTML = filterHtml;
+
+  // Group by first letter
+  var groups = {};
+  items.forEach(function(it) {
+    var letter = it.name.charAt(0).toUpperCase();
+    if (!/[A-Z]/.test(letter)) letter = '#';
+    if (!groups[letter]) groups[letter] = [];
+    groups[letter].push(it);
+  });
+
+  var letters = Object.keys(groups).sort();
+  var html = '';
+  letters.forEach(function(letter) {
+    html += '<div class="glossary-letter-group" data-letter="' + letter + '">';
+    html += '<div class="glossary-letter-head">' + letter + '</div>';
+    groups[letter].forEach(function(it) {
+      var color = TYPE_COLORS[it.type] || '#e5e7eb';
+      html += '<div class="glossary-term" data-id="' + it.id + '" data-gtype="' + it.type + '" data-search="' + esc((it.name + ' ' + shortLabel(it.id) + ' ' + it.desc).toLowerCase()) + '">';
+      html += '<span class="entry-chevron">&#9656;</span>';
+      html += '<span class="glossary-term-type-dot" style="background:' + color + '"></span>';
+      html += '<span class="glossary-term-name">' + esc(it.name) + '</span>';
+      html += '<span class="glossary-term-ref">' + esc(shortLabel(it.id)) + '</span>';
+      html += '<div class="glossary-term-detail"><div class="entry-math-content" data-env-id="' + it.id + '"></div>';
+      if (it.desc) html += '<div class="entry-desc-text">' + it.desc + '</div>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
+
+  // Click handlers for terms — expand/collapse; ref click → navigate
+  body.querySelectorAll('.glossary-term').forEach(function(term) {
+    term.addEventListener('click', function(e) {
+      if (e.target.closest('.glossary-term-ref')) {
+        var id = term.getAttribute('data-id');
+        if (id) { scrollToEnv(id); navigateTo(id); }
+        return;
+      }
+      term.classList.toggle('expanded');
+      if (term.classList.contains('expanded')) {
+        var mc = term.querySelector('.entry-math-content');
+        if (mc && !mc.dataset.loaded) {
+          mc.dataset.loaded = '1';
+          var envId = mc.getAttribute('data-env-id');
+          var env = document.getElementById(envId);
+          if (env) { mc.innerHTML = env.outerHTML; if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([mc]).catch(function(){}); }
+        }
+      }
+    });
+  });
+
+  // Click handlers for type filters
+  filtersEl.querySelectorAll('.glossary-type-filter').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      filtersEl.querySelectorAll('.glossary-type-filter').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      glossaryFilter = btn.getAttribute('data-gtype');
+      applyGlossaryFilters();
+    });
+  });
+}
+
+function applyGlossaryFilters() {
+  var q = (document.getElementById('glossary-search').value || '').toLowerCase().trim();
+  document.querySelectorAll('.glossary-term').forEach(function(term) {
+    var matchType = glossaryFilter === 'all' || term.getAttribute('data-gtype') === glossaryFilter;
+    var matchSearch = !q || (term.getAttribute('data-search') || '').indexOf(q) >= 0;
+    if (matchType && matchSearch) term.classList.remove('filtered-out');
+    else term.classList.add('filtered-out');
+  });
+  // Hide empty letter groups
+  document.querySelectorAll('.glossary-letter-group').forEach(function(grp) {
+    var visible = grp.querySelectorAll('.glossary-term:not(.filtered-out)').length > 0;
+    grp.style.display = visible ? '' : 'none';
+  });
+}
+
+function toggleGlossary() { switchTab(activeTab === 'glossary' ? 'deps' : 'glossary'); }
+
+function initGlossarySearch() {
+  document.getElementById('glossary-search').addEventListener('input', applyGlossaryFilters);
+}
+
+// ── Init ──
+function initApp() {
+  buildGraph();
+  renderMinimap();
+  showPanel();
+  document.getElementById('btn-map').classList.add('active');
+  buildFilters();
+  addTOCNames();
+  addRefNames();
+  setupScrollObserver();
+  initResize();
+  initPeek();
+  initPeekResize();
+  expandSection('sec0');
+  document.getElementById('nav-back').addEventListener('click', navBack);
+  document.getElementById('nav-forward').addEventListener('click', navForward);
+  document.getElementById('btn-map').addEventListener('click', toggleMinimap);
+  // Tab switching
+  document.querySelectorAll('.panel-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() { switchTab(tab.getAttribute('data-tab')); });
+  });
+  initGuideSearch();
+  initGlossarySearch();
+  document.getElementById('btn-close-panel').addEventListener('click', hidePanel);
+  // Sidebar expand/collapse all
+  document.getElementById('btn-expand-all').addEventListener('click', expandAllSections);
+  document.getElementById('btn-collapse-all').addEventListener('click', collapseAllSections);
+
+  // Hash navigation: if URL has #item-id, navigate there
+  if (location.hash) {
+    var hashId = location.hash.slice(1);
+    setTimeout(function() {
+      if (document.getElementById(hashId)) {
+        scrollToEnv(hashId);
+        if (graph[hashId]) navigateTo(hashId);
+      }
+    }, 500);
+  }
+
+  // Bidirectional parent shell communication
+  var _parentMsg = false;
+  var _origNav = navigateTo;
+  navigateTo = function(id) {
+    _origNav(id);
+    if (!_parentMsg && window.parent !== window) {
+      window.parent.postMessage({ type: 'viewer', action: 'itemClicked', course: 'a11', id: id }, '*');
+    }
+  };
+  window.addEventListener('message', function(e) {
+    if (!e.data || !e.data.action) return;
+    _parentMsg = true;
+    if (e.data.action === 'scrollTo' && e.data.id) {
+      scrollToEnv(e.data.id);
+    } else if (e.data.action === 'navigateTo' && e.data.id) {
+      scrollToEnv(e.data.id);
+      if (graph[e.data.id]) navigateTo(e.data.id);
+    } else if (e.data.action === 'highlight' && e.data.id) {
+      scrollToEnv(e.data.id);
+    }
+    _parentMsg = false;
+  });
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'viewer', action: 'ready', course: 'a11' }, '*');
+  }
+}
+
+if (typeof MathJax === 'undefined' || !MathJax.startup) {
+  document.addEventListener('DOMContentLoaded', function() { setTimeout(initApp, 2000); });
+}
+
+</script>
+</body>
+</html>

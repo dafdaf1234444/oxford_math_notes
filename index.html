@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oxford Mathematics — Lecture Notes Hub</title>
+<style>
+@import url('https://cdn.jsdelivr.net/npm/computer-modern/cmsans.css');
+@import url('https://cdn.jsdelivr.net/npm/computer-modern/cmserif.css');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Computer Modern Serif", Georgia, serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #111;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+header {
+  background: #1e293b;
+  color: #fff;
+  padding: 20px 32px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+header h1 { font-size: 20px; font-weight: 700; }
+header .subtitle { font-size: 13px; color: #94a3b8; }
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: calc(100vh - 64px);
+}
+
+/* Left panel: course selection + filters */
+.left-panel {
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.panel-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+/* Course cards */
+.course-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.course-card:hover { border-color: #93c5fd; }
+.course-card.selected { border-color: #3b82f6; background: #eff6ff; }
+.course-card .course-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: transparent;
+  transition: all 0.15s;
+}
+.course-card.selected .course-check {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+.course-code {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e40af;
+}
+.course-title {
+  font-size: 13px;
+  color: #374151;
+  margin-top: 2px;
+}
+.course-meta {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.course-meta span {
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.course-actions {
+  margin-top: 8px;
+}
+.course-actions a {
+  font-size: 11px;
+  color: #3b82f6;
+  text-decoration: none;
+  border: 1px solid #93c5fd;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.course-actions a:hover { background: #dbeafe; }
+
+/* Search */
+#global-search {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+#global-search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+
+/* Type filters */
+.type-filters {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.type-filter-btn {
+  font-size: 10px;
+  padding: 2px 7px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  color: #4b5563;
+  font-family: inherit;
+}
+.type-filter-btn:hover { background: #f3f4f6; }
+.type-filter-btn.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+
+/* Stats */
+.stats-bar {
+  font-size: 11px;
+  color: #6b7280;
+  padding: 4px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Right panel: combined glossary */
+.right-panel {
+  padding: 16px 24px;
+  overflow-y: auto;
+  max-height: calc(100vh - 64px);
+}
+.right-panel-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.right-panel-header h2 { font-size: 16px; font-weight: 700; }
+.overlap-badge {
+  font-size: 10px;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+/* Glossary entries */
+.letter-group {
+  margin-bottom: 12px;
+}
+.letter-head {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e40af;
+  padding: 4px 0;
+  border-bottom: 2px solid #dbeafe;
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 2;
+}
+.glossary-item {
+  padding: 6px 0 6px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.glossary-item:hover { background: #f1f5f9; }
+.glossary-item.overlap { background: #fefce8; }
+.glossary-item.overlap:hover { background: #fef9c3; }
+.glossary-item.filtered-out { display: none; }
+.gi-type-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.gi-content { flex: 1; min-width: 0; }
+.gi-name {
+  font-weight: 600;
+  color: #111;
+  font-size: 13px;
+}
+.gi-refs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.gi-ref-badge {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.gi-ref-badge.b21 { background: #dbeafe; color: #1e40af; }
+.gi-ref-badge.b23 { background: #dcfce7; color: #166534; }
+.gi-ref-badge:hover { opacity: 0.8; }
+.gi-desc {
+  font-size: 12px;
+  color: #4b5563;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.gi-overlap-tag {
+  font-size: 9px;
+  background: #fde68a;
+  color: #78350f;
+  padding: 0 4px;
+  border-radius: 2px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+}
+.empty-state h3 { font-size: 16px; margin-bottom: 8px; }
+.empty-state p { font-size: 13px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .left-panel { max-height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Oxford Mathematics Lecture Notes</h1>
+  <span class="subtitle">Part B &mdash; Interactive Viewers &amp; Cross-Course Glossary</span>
+</header>
+
+<div class="main-layout">
+
+<div class="left-panel">
+  <div>
+    <div class="panel-section-title">Courses</div>
+    <div id="course-list"></div>
+  </div>
+
+  <div>
+    <div class="panel-section-title">Search</div>
+    <input type="text" id="global-search" placeholder="Search across all selected courses...">
+  </div>
+
+  <div>
+    <div class="panel-section-title">Filter by Type</div>
+    <div class="type-filters" id="type-filters"></div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar"></div>
+</div>
+
+<div class="right-panel" id="glossary-view">
+  <div class="right-panel-header">
+    <h2>Combined Glossary</h2>
+    <span class="overlap-badge" id="overlap-count"></span>
+  </div>
+  <div id="glossary-body"></div>
+</div>
+
+</div>
+
+<script>
+// -- Course data --
+var COURSES = {
+  b21: {
+    code: 'B2.1',
+    title: 'Representation Theory',
+    instructor: 'Konstantin Ardakov',
+    term: 'Michaelmas',
+    items: 134,
+    path: 'Part_B/Michaelmas/B2.1_Representation_Theory/index.html',
+    color: '#3b82f6',
+    badgeClass: 'b21'
+  },
+  b23: {
+    code: 'B2.3',
+    title: 'Lie Algebras',
+    instructor: 'Kevin McGerty',
+    term: 'Hilary',
+    items: 205,
+    path: 'Part_B/Hilary/B2.3_Lie_Algebras/index.html',
+    color: '#16a34a',
+    badgeClass: 'b23'
+  }
+};
+
+// ENV_NAMES per course (embedded from individual viewers)
+var ENV = {
+  b21: {"not-1.1":"Standing notation","def-1.2":"Representation and degree","ex-1.3":"Geometric representation examples","def-1.4":"Free vector space","def-1.5":"Permutation representation","ex-1.6":"Galois representation example","def-1.7":"Faithful representation","def-1.8":"Matrix representation","def-1.9":"Matrix of a linear map","rmk-1.10":"Representations vs matrix representations","ex-1.11":"Permutation matrices for S3","warn-1.11a":"Permutation multiplication convention","def-1.12":"Homomorphism and intertwining operator","def-1.13":"Equivalent matrix representations","def-1.14":"G-stable subspace and subrepresentation","lem-1.15":"Kernel and image stability","def-1.16":"Trivial representation","ex-1.17":"Non-trivial with trivial sub/quotient","def-1.18":"Irreducible representation","def-1.19":"G-stable complement","ex-1.20":"Standard representation of S3","thm-1.21":"Maschke's theorem","rmk-1.22":"Maschke fails in char p","def-1.23":"Completely reducible representation","cor-1.24":"Complete reducibility corollary","def-2.1":"Ring","def-2.2":"Group ring","ex-2.3":"Cyclic group ring structure","def-2.4":"Module over a ring","prop-2.5":"Representations as kG-modules","rmk-2.6":"Isomorphism theorems for representations","ex-2.7":"Free module and left ideals","def-2.8":"Left regular representation","def-2.9":"Semisimple ring","ex-2.10":"Group ring is semisimple","def-2.11":"Cyclic module and annihilator","lem-2.12":"Cyclic module quotient isomorphism","lem-2.13":"Simple module homomorphism lemma","prop-2.14":"Finitely many simple modules","thm-2.15":"Finitely many irreducible representations","def-2.16":"Rank of a group","def-3.1":"Centre of a ring","def-3.2":"Endomorphism ring","def-3.3":"k-algebra and semisimple algebra","thm-3.4":"Schur's lemma","def-3.5":"Central character","not-3.6":"Semisimple decomposition notation","prop-3.7":"Centre dimension upper bound","lem-3.8":"Two-sided ideal decomposition","lem-3.9":"Centre dimension lower bound","thm-3.10":"Simple modules count centre dimension","def-3.11":"Number of conjugacy classes","prop-3.12":"Conjugacy class sum basis","cor-3.13":"Rank equals conjugacy class count","lem-3.14":"Block decomposition of semisimple ring","warn-3.14a":"Block identity element warning","def-3.15":"Opposite ring","prop-3.16":"Semisimple block as matrix ring","thm-3.17":"Artin-Wedderburn theorem","cor-3.18":"Group ring dimension formula","lem-4.1":"Linear action criterion","def-4.2":"Direct sum of representations","def-4.3":"Dual representation","def-4.4":"Hom representation","lem-4.5":"Biduality isomorphism","def-4.6":"Tensor product of vector spaces","rmk-4.7":"Tensor product remarks","lem-4.8":"Tensor product basis independence","lem-4.9":"Universal property of tensor product","def-4.10":"Tensor product representation","lem-4.11":"Dual tensor equals Hom","def-4.12":"Symmetric and alternating square","lem-4.13":"Tensor square decomposition","def-5.1":"Character of a representation","def-5.2":"Class function","lem-5.3":"Characters are class functions","def-5.4":"Character table","lem-5.5":"Basic character properties","ex-5.6":"Character tables of C3 and S3","prop-5.7":"Sum of squares formula","def-5.8":"Inflated representation","def-5.9":"Derived subgroup","lem-5.10":"Linear characters count","ex-5.11":"Derived subgroup of A4","def-5.12":"Inner product on class functions","thm-5.13":"Row orthogonality","cor-5.14":"Characters determine isomorphism","cor-5.15":"Irreducible characters form basis","def-5.16":"Conjugacy class and centraliser","lem-5.17":"Orbit-stabiliser for conjugacy","ex-5.18":"Character table of A4","def-5.19":"Invariant submodule","prop-5.20":"Fixed point formula","prop-5.21":"Characters of multilinear constructions","prop-5.22":"Inner product via Hom dimension","thm-5.23":"Column orthogonality","ex-5.24":"Character table of S4","def-6.1":"H-coinvariants","lem-6.2":"Left G-action and right H-action","cor-6.3":"Coinvariants form a G-module","def-6.4":"Induced module and representation","lem-6.5":"Coset tensor relations","lem-6.6":"Coset component isomorphism","prop-6.7":"Induced module coset decomposition","ex-6.8":"Permutation module as induced module","def-6.9":"Restricted representation","prop-6.10":"Frobenius adjunction isomorphism","def-6.11":"Restricted and induced characters","cor-6.12":"Frobenius reciprocity","ex-6.13":"Regular representation via induction","lem-6.14":"Induced character trace formula","def-6.15":"Extension by zero","thm-6.16":"Induced character formula","rmk-6.17":"Vanishing of induced character","cor-6.18":"Induction adjoint to restriction","cor-6.19":"Induced character via class splitting","def-6.20":"Twist of a character","prop-6.21":"Restriction of induced from normal","cor-6.22":"Induction from normal gives irreducible","ex-6.23":"Characters of odd dihedral groups","def-7.1":"Algebraic number and integer","ex-7.2":"Algebraic integer examples","thm-7.3":"Algebraic integers form a ring","prop-7.4":"Finitely generated subgroup criterion","lem-7.5":"Character values are algebraic integers","lem-7.6":"Class sum subring of centre","thm-7.7":"Central character is algebraic integer","cor-7.8":"Dimension divides group order","thm-7.9":"Burnside's p^a q^b theorem","def-7.10":"Sylow p-subgroup","thm-7.11":"Sylow's theorems","lem-7.12":"Conjugacy class size in p^a q^b","thm-7.13":"Prime power class implies non-simple","lem-7.14":"Root of unity average lemma"},
+  b23: {"rmk-0.0.1":"Right vs left actions","ex-0.0.1":"SO(2) rotation action","rmk-0.0.2":"Complex exponential form","def-0.0.1":"Derivation (Leibniz rule)","lem-0.0.1":"Derivations as partial derivatives","def-0.0.2":"Vector field","ex-0.0.2":"SO(3) action on R\u00B3","def-1.1.1":"R-algebra","def-1.1.2":"Lie algebra","rmk-1.1.3":"Skew-symmetry & Jacobi identity","def-1.1.4":"Lie algebra homomorphism","ex-1.1.5":"Key examples (gl, sl, subalgebras)","def-1.1.6":"k-derivation (Leibniz rule)","ex-1.1.7":"Commutator derivation & adjoint","rmk-1.1.8":"Adjoint as derivation","def-1.2.1":"Ideal","rmk-1.2.2":"Left = right ideals","thm-1.2.3":"First isomorphism theorem","def-1.2.4":"Bracket of subspaces [V,W]","rmk-1.2.5":"Derived subalgebra D(g)","def-1.2.6":"Normalizer","def-1.2.7":"Simple Lie algebra","thm-1.2.8":"Second & third isomorphism theorems","def-2.1.1":"Representation","ex-2.1.2":"Vector, adjoint & trivial reps","def-2.1.3":"Irreducible & completely reducible","rmk-2.1.4":"Semisimple representation","ex-2.1.5":"gl(1) reps & Jordan form","ex-2.1.6":"One-dimensional representations","def-2.2.1":"Stabilizer subalgebra","lem-2.2.2":"Sub- and quotient reps","def-2.2.3":"Flag in vector space","def-2.2.4":"Dual representation","lem-2.2.5":"Dual sub/quotient correspondence","rmk-2.2.6":"Dual of irreducible is irreducible","def-2.2.7":"Exact sequence of reps","lem-2.2.8":"Split short exact sequence","ex-2.2.9":"Non-split extension","def-2.2.10":"Composition series","rmk-2.2.11":"Building reps from factors","prop-2.2.12":"Jordan\u2013H\u00F6lder theorem","lem-2.2.13":"Dual composition factors","lem-2.2.14":"Trace from composition factors","def-2.2.15":"Socle of representation","rmk-2.2.16":"Hom-space as representation","lem-2.3.1":"Tensor product representation","rmk-2.3.2":"Coordinate-free trace","rmk-2.3.3":"Natural maps as g-morphisms","ex-2.3.4":"Universal enveloping action","rmk-2.3.5":"Casimir element preview","def-3.1.1":"Almost simple & simple","def-3.1.2":"Composition series of Lie algebras","prop-3.1.3":"Jordan\u2013H\u00F6lder for Lie algebras","rmk-3.1.4":"Radical & semisimple quotient","def-3.2.1":"Short exact sequence","def-3.2.2":"Split extension","def-3.2.3":"Semidirect product","ex-3.2.4":"2-dim Lie algebras","ex-3.2.5":"Extensions by gl(1)","rmk-3.2.6":"Group vs Lie algebra extensions","rmk-3.2.7":"Central extensions","ex-3.2.8":"Heisenberg algebra n\u2083","def-4.1.1":"Solvable Lie algebra","ex-4.1.2":"2-dim non-abelian solvable","def-4.1.3":"Derived series","lem-4.1.4":"D(g) gives largest abelian quotient","rmk-4.1.5":"Solvable filtration by ideals","def-4.1.6":"Perfect Lie algebra","lem-4.1.7":"Upper triangular is solvable","lem-4.1.8":"Solvability under homomorphisms","def-4.2.1":"Nilpotent Lie algebra","def-4.2.2":"Lower central series","rmk-4.2.3":"Lower central vs derived series","prop-4.2.4":"Nilpotent characterizations","lem-4.2.5":"Nilpotency under homomorphisms","rmk-4.2.6":"Nilpotent implies solvable","rmk-4.2.7":"Complete reducibility & nilpotent","lem-4.2.8":"Strictly upper triangular is nilpotent","ex-4.2.9":"Heisenberg algebra","rmk-4.2.10":"Complete flag requirement","rmk-4.2.11":"Upper central series","def-4.2.12":"Nilpotent representation","lem-4.2.13":"Sum of commuting nilpotents","lem-4.2.14":"Nilpotent rep operations","prop-4.2.15":"Engel\u2019s theorem","cor-4.2.16":"Engel\u2019s theorem (adjoint form)","thm-4.3.1":"Lie\u2019s theorem","lem-4.3.2":"Lie\u2019s lemma (weight space invariance)","rmk-4.3.3":"Trace trick","cor-4.3.4":"Solvable reps are upper triangular","def-4.3.5":"Radical of Lie algebra","def-4.4.1":"Isotypic subrepresentation","prop-4.4.2":"Maximal S-type submodule","ex-4.4.3":"gl(1) generalized eigenspace","def-4.4.4":"Weights of solvable algebra","lem-4.4.5":"Weight space operations","prop-4.4.6":"Weight space decomposition","def-4.4.7":"V-generic element","thm-4.4.8":"Weight space decomposition theorem","lem-5.1.1":"Weight space decomposition (general)","lem-5.1.2":"Self-normalizing iff g\u2080 = n","def-5.1.3":"Cartan subalgebra","rmk-5.1.4":"Cartan = maximal toral","def-5.1.5":"Regular element","prop-5.1.6":"Existence of Cartan subalgebras","def-5.2.1":"Invariant bilinear form","rmk-5.2.2":"Invariance as associativity","def-5.2.3":"Invariant form via pullback","lem-5.2.4":"Trace form properties","rmk-5.2.5":"Direct invariance calculation","def-5.2.6":"Trace form of representation","lem-5.2.7":"Trace form from composition factors","def-5.2.8":"Killing form","lem-5.2.9":"Killing form restricts to ideals","def-5.2.10":"Coroot subspace h\u03B1","lem-5.2.11":"Root space pairing properties","def-5.2.12":"Perfect Lie algebra (recap)","prop-5.2.13":"Perfect subalgebra has nonzero trace","thm-5.2.14":"Cartan\u2019s solvability criterion (trace)","cor-5.2.15":"Cartan\u2019s criterion for solvability","def-5.3.1":"Solvable radical & semisimple","lem-5.3.2":"g/rad(g) is semisimple","ex-5.3.3":"Levi decomposition example","thm-5.3.4":"Levi\u2019s theorem","lem-5.3.5":"Semisimple iff no abelian ideals","lem-5.3.6":"Abelian ideal in Killing radical","thm-5.3.7":"Cartan\u2019s semisimplicity criterion","rmk-5.3.8":"Killing radical vs solvable radical","def-5.3.9":"Simple Lie algebra (recap)","lem-5.3.10":"Bilinear form dimension formula","prop-5.3.11":"Ideal complement via Killing form","cor-5.3.12":"All derivations are inner","thm-5.3.13":"Semisimple = direct sum of simples","def-5.4.1":"sl(2)-triple","lem-5.4.2":"sl(2)-triple bracket relations","lem-5.4.3":"E, F shift weights by \u00B12","def-5.4.4":"Highest weight vector","prop-5.4.5":"sl(2) irreducible classification","lem-5.4.6":"Casimir operator for sl(2)","cor-5.4.7":"Codimension-1 complement","thm-5.4.8":"sl(2) complete reducibility","thm-5.4.9":"Levi\u2019s theorem for sl(2)","prop-6.1.1":"Cartan decomposition properties","rmk-6.1.2":"Killing form duality t\u03BB","lem-6.1.3":"Killing form root formula","def-6.1.4":"Root pair notation","prop-6.1.5":"Root spaces are 1-dim, sl(2) copies","def-6.1.6":"Coroot h\u03B1","prop-6.1.7":"\u03B1-string through \u03B2","def-6.1.8":"Rational form & inner product","lem-6.1.9":"h_Q properties (basis, positive definite)","def-6.1.10":"Inner product on h*","def-6.2.1":"Reflection s_v","def-6.2.2":"Abstract root system axioms","lem-6.2.3":"Cartan pair gives root system","def-6.2.4":"Weyl group","ex-6.2.5":"sl(n) root system (type A)","def-6.2.6":"N-span and Z-span","def-6.2.7":"Positive system","ex-6.2.8":"Positive system from ordering","lem-6.2.9":"Positive system from basis","rmk-6.2.10":"Remark on positive systems","def-6.2.11":"Base / simple roots","def-6.2.12":"Decomposable & indecomposable roots","prop-6.2.13":"Base and positive roots structure","lem-6.2.14":"Root pair angle constraints","prop-6.2.15":"Weyl group transitive on bases","cor-6.2.16":"Weyl generated by simple reflections","rmk-6.2.17":"Weyl group simply transitive","def-6.3.1":"Root system isomorphism","def-6.3.2":"Cartan matrix","thm-6.3.3":"Root system determined by Cartan matrix","lem-6.3.4":"Cartan integer constraints","def-6.3.5":"Dynkin diagram","def-6.3.6":"Irreducible root system","def-6.3.7":"Coxeter system","rmk-6.3.8":"Root systems to remember","thm-6.3.9":"Isomorphic roots \u21D2 isomorphic algebras","thm-6.3.10":"Existence of all root systems","def-A.1.1":"Generalized eigenspace","prop-A.1.2":"Primary decomposition","cor-A.1.3":"gl(1) isotypic decomposition","lem-A.1.4":"Characteristic polynomial coefficients","def-A.2.1":"Free vector space k_X","def-A.2.2":"Multilinear maps","prop-A.2.3":"Multilinear maps from basis","rmk-A.2.4":"Linear maps from basis","lem-A.2.5":"Tensor product universal property","rmk-A.2.6":"Change of base field","ex-A.2.7":"k \u2297 W \u2245 W","lem-A.2.8":"Tensor-hom adjunction","def-A.2.9":"Composition of linear maps","prop-A.2.10":"V* \u2297 W \u2245 Hom(V,W)","rmk-A.2.11":"Trace via contraction","rmk-A.2.12":"Contraction notation","ex-A.2.13":"Composition via contraction","rmk-A.2.14":"Multi-factor contraction","rmk-A.2.15":"Identity as contraction element","rmk-A.2.16":"Currying for vector spaces","def-A.2.17":"Bilinear form","rmk-A.2.18":"Form \u2194 linear map","def-A.2.19":"Radical of bilinear form","lem-A.2.20":"Orthogonal complement properties","lem-A.2.21":"Orthonormal basis existence","rmk-A.2.22":"Sylvester\u2019s law of inertia"}
+};
+
+// Known concept overlaps between courses
+var OVERLAPS = [
+  { concept: 'Representation', items: { b21: 'def-1.2', b23: 'def-2.1.1' } },
+  { concept: 'Irreducible representation', items: { b21: 'def-1.18', b23: 'def-2.1.3' } },
+  { concept: 'Completely reducible', items: { b21: 'def-1.23', b23: 'def-2.1.3' } },
+  { concept: 'Dual representation', items: { b21: 'def-4.3', b23: 'def-2.2.4' } },
+  { concept: 'Tensor product', items: { b21: 'def-4.10', b23: 'lem-2.3.1' } },
+  { concept: 'Homomorphism', items: { b21: 'def-1.12', b23: 'def-1.1.4' } },
+  { concept: 'Composition series', items: { b21: 'def-2.11', b23: 'def-2.2.10' } },
+  { concept: 'First isomorphism theorem', items: { b21: 'lem-1.15', b23: 'thm-1.2.3' } },
+  { concept: 'Free vector space', items: { b21: 'def-1.4', b23: 'def-A.2.1' } },
+  { concept: 'Radical', items: { b21: 'def-2.11', b23: 'def-4.3.5' } }
+];
+
+var TYPE_COLORS = {
+  definition:'#93c5fd', theorem:'#fca5a5', lemma:'#86efac', proposition:'#d8b4fe',
+  corollary:'#fdba74', example:'#d1d5db', remark:'#e5e7eb', notation:'#e5e7eb', warning:'#fde68a'
+};
+var TYPE_SHORT = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not',warning:'Warn'};
+
+function getType(id) {
+  if (id.indexOf('def-')===0) return 'definition';
+  if (id.indexOf('thm-')===0) return 'theorem';
+  if (id.indexOf('lem-')===0) return 'lemma';
+  if (id.indexOf('prop-')===0) return 'proposition';
+  if (id.indexOf('cor-')===0) return 'corollary';
+  if (id.indexOf('ex-')===0) return 'example';
+  if (id.indexOf('rmk-')===0) return 'remark';
+  if (id.indexOf('not-')===0) return 'notation';
+  if (id.indexOf('warn-')===0) return 'warning';
+  return 'example';
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// State
+var selectedCourses = { b21: true, b23: true };
+var activeTypeFilter = 'all';
+
+// Build overlap index: maps "courseKey:itemId" to overlap concept
+var overlapIndex = {};
+OVERLAPS.forEach(function(ov) {
+  for (var ck in ov.items) {
+    overlapIndex[ck + ':' + ov.items[ck]] = ov.concept;
+  }
+});
+
+function renderCourseList() {
+  var html = '';
+  for (var ck in COURSES) {
+    var c = COURSES[ck];
+    var sel = selectedCourses[ck] ? ' selected' : '';
+    html += '<div class="course-card' + sel + '" data-course="' + ck + '">';
+    html += '<div class="course-check">\u2713</div>';
+    html += '<div class="course-code">' + esc(c.code) + '</div>';
+    html += '<div class="course-title">' + esc(c.title) + '</div>';
+    html += '<div class="course-meta"><span>' + esc(c.term) + '</span><span>' + c.items + ' items</span><span>' + esc(c.instructor) + '</span></div>';
+    html += '<div class="course-actions"><a href="' + c.path + '" target="_blank">Open Viewer \u2192</a></div>';
+    html += '</div>';
+  }
+  document.getElementById('course-list').innerHTML = html;
+
+  document.querySelectorAll('.course-card').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (e.target.tagName === 'A') return;
+      var ck = card.getAttribute('data-course');
+      selectedCourses[ck] = !selectedCourses[ck];
+      renderCourseList();
+      renderGlossary();
+    });
+  });
+}
+
+function renderTypeFilters() {
+  var types = {};
+  for (var ck in selectedCourses) {
+    if (!selectedCourses[ck]) continue;
+    for (var id in ENV[ck]) {
+      var t = getType(id);
+      types[t] = (types[t] || 0) + 1;
+    }
+  }
+  var total = 0; for (var t in types) total += types[t];
+  var order = ['definition','theorem','lemma','proposition','corollary','example','remark','notation','warning'];
+  var html = '<button class="type-filter-btn' + (activeTypeFilter === 'all' ? ' active' : '') + '" data-type="all">All (' + total + ')</button>';
+  order.forEach(function(t) {
+    if (types[t]) html += '<button class="type-filter-btn' + (activeTypeFilter === t ? ' active' : '') + '" data-type="' + t + '">' + TYPE_SHORT[t] + ' (' + types[t] + ')</button>';
+  });
+  document.getElementById('type-filters').innerHTML = html;
+
+  document.querySelectorAll('.type-filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      activeTypeFilter = btn.getAttribute('data-type');
+      renderTypeFilters();
+      applyFilters();
+    });
+  });
+}
+
+function renderGlossary() {
+  var body = document.getElementById('glossary-body');
+  renderTypeFilters();
+
+  // Collect all items from selected courses
+  var items = []; // { name, type, courseKey, itemId, searchText }
+  for (var ck in selectedCourses) {
+    if (!selectedCourses[ck]) continue;
+    for (var id in ENV[ck]) {
+      var name = ENV[ck][id];
+      items.push({
+        name: name,
+        type: getType(id),
+        courseKey: ck,
+        itemId: id,
+        overlap: overlapIndex[ck + ':' + id] || null
+      });
+    }
+  }
+
+  // Sort alphabetically by name
+  items.sort(function(a, b) {
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
+
+  // Group by first letter
+  var groups = {};
+  items.forEach(function(it) {
+    var letter = it.name.charAt(0).toUpperCase();
+    if (!/[A-Z]/.test(letter)) letter = '#';
+    if (!groups[letter]) groups[letter] = [];
+    groups[letter].push(it);
+  });
+
+  // Count overlaps
+  var overlapItems = items.filter(function(it) { return it.overlap; });
+  var overlapEl = document.getElementById('overlap-count');
+  if (overlapItems.length > 0) {
+    overlapEl.textContent = overlapItems.length + ' shared concepts';
+    overlapEl.style.display = '';
+  } else {
+    overlapEl.style.display = 'none';
+  }
+
+  var letters = Object.keys(groups).sort();
+  var html = '';
+  letters.forEach(function(letter) {
+    html += '<div class="letter-group" data-letter="' + letter + '">';
+    html += '<div class="letter-head">' + letter + '</div>';
+    groups[letter].forEach(function(it) {
+      var color = TYPE_COLORS[it.type] || '#e5e7eb';
+      var c = COURSES[it.courseKey];
+      var overlapClass = it.overlap ? ' overlap' : '';
+      var searchText = (it.name + ' ' + it.itemId + ' ' + (it.overlap || '') + ' ' + c.code).toLowerCase();
+      html += '<div class="glossary-item' + overlapClass + '" data-type="' + it.type + '" data-course="' + it.courseKey + '" data-search="' + esc(searchText) + '">';
+      html += '<span class="gi-type-dot" style="background:' + color + '"></span>';
+      html += '<div class="gi-content">';
+      html += '<span class="gi-name">' + esc(it.name) + '</span>';
+      if (it.overlap) html += '<span class="gi-overlap-tag">shared</span>';
+      html += '<div class="gi-refs">';
+      html += '<a class="gi-ref-badge ' + c.badgeClass + '" href="' + c.path + '#' + it.itemId + '" target="_blank">' + esc(c.code) + ' ' + esc(TYPE_SHORT[it.type] || '') + ' ' + esc(it.itemId.replace(/^[a-z]+-/, '')) + '</a>';
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+
+  if (items.length === 0) {
+    html = '<div class="empty-state"><h3>No courses selected</h3><p>Select one or more courses from the left panel to see the combined glossary.</p></div>';
+  }
+
+  body.innerHTML = html;
+  document.getElementById('stats-bar').textContent = items.length + ' terms across ' + Object.keys(selectedCourses).filter(function(k) { return selectedCourses[k]; }).length + ' course(s)';
+  applyFilters();
+}
+
+function applyFilters() {
+  var q = (document.getElementById('global-search').value || '').toLowerCase().trim();
+  document.querySelectorAll('.glossary-item').forEach(function(item) {
+    var matchType = activeTypeFilter === 'all' || item.getAttribute('data-type') === activeTypeFilter;
+    var matchSearch = !q || (item.getAttribute('data-search') || '').indexOf(q) >= 0;
+    if (matchType && matchSearch) item.classList.remove('filtered-out');
+    else item.classList.add('filtered-out');
+  });
+  document.querySelectorAll('.letter-group').forEach(function(grp) {
+    var visible = grp.querySelectorAll('.glossary-item:not(.filtered-out)').length > 0;
+    grp.style.display = visible ? '' : 'none';
+  });
+}
+
+// Init
+renderCourseList();
+renderGlossary();
+document.getElementById('global-search').addEventListener('input', applyFilters);
+</script>
+</body>
+</html>

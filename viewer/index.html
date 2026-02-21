@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oxford Mathematics — Lecture Notes</title>
+<style>
+@import url('https://cdn.jsdelivr.net/npm/computer-modern/cmsans.css');
+@import url('https://cdn.jsdelivr.net/npm/computer-modern/cmserif.css');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:"Computer Modern Serif",Georgia,serif;
+  font-size:15px;line-height:1.5;color:#111;
+  height:100vh;display:flex;flex-direction:column;
+  overflow:hidden;background:#f8f9fa;
+}
+
+/* ── Header ── */
+.hdr{
+  background:#1e293b;color:#fff;height:44px;padding:0 20px;
+  display:flex;align-items:center;gap:12px;flex-shrink:0;user-select:none;
+}
+.hdr-title{font-size:15px;font-weight:700;white-space:nowrap;}
+.hdr-sep{width:1px;height:18px;background:rgba(255,255,255,.15);}
+.hdr-chips{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.hdr-chip{
+  display:flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600;
+  cursor:pointer;white-space:nowrap;color:#94a3b8;
+  border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);
+  transition:all .15s;
+}
+.hdr-chip:hover{color:#e2e8f0;background:rgba(255,255,255,.08);}
+.hdr-chip.active{color:#fff;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);}
+.hdr-chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.hdr-spacer{flex:1;}
+
+/* ── Main area ── */
+.main{flex:1;display:flex;overflow:hidden;}
+
+/* ── Glossary panel ── */
+.glossary{
+  display:flex;flex-direction:column;overflow:hidden;
+  background:#fff;transition:width .25s ease,min-width .25s ease;
+  width:100%;
+}
+.main.viewing .glossary{
+  width:340px;min-width:220px;max-width:50vw;
+  border-right:1px solid #e2e8f0;
+}
+
+/* Glossary head */
+.gl-head{padding:12px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;}
+.main:not(.viewing) .gl-head{max-width:820px;margin:0 auto;width:100%;border-bottom:none;padding:28px 24px 12px;}
+.gl-top{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.gl-title{font-size:20px;font-weight:700;color:#1e293b;}
+.main.viewing .gl-title{font-size:14px;}
+.gl-overlap{
+  font-size:10px;background:#fef3c7;color:#92400e;
+  padding:1px 6px;border-radius:3px;font-weight:600;
+}
+
+.gl-search{
+  width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:5px;
+  font-size:13px;font-family:inherit;
+}
+.gl-search:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.12);}
+.main.viewing .gl-search{padding:5px 8px;font-size:11px;}
+
+.gl-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:flex-start;}
+.gl-types{display:flex;gap:3px;flex-wrap:wrap;}
+.gt-btn{
+  font-size:11px;padding:2px 8px;border:1px solid #e2e8f0;border-radius:4px;
+  background:#fff;cursor:pointer;color:#64748b;font-family:inherit;transition:all .1s;
+}
+.gt-btn:hover{background:#f3f4f6;}
+.gt-btn.active{background:#dbeafe;color:#1e40af;border-color:#93c5fd;}
+.main.viewing .gt-btn{font-size:9px;padding:1px 5px;}
+
+.gl-courses{display:flex;gap:4px;flex-wrap:wrap;}
+.gl-cc{
+  font-size:10px;padding:2px 7px;border-radius:3px;cursor:pointer;
+  font-family:inherit;border:1px solid;transition:all .1s;font-weight:600;
+}
+.gl-cc.on{opacity:1;}.gl-cc.off{opacity:.35;}.gl-cc:hover{opacity:.7;}
+
+.gl-modes{display:flex;gap:2px;margin-left:auto;}
+.gm-btn{
+  font-size:10px;padding:1px 6px;border:1px solid #e2e8f0;border-radius:3px;
+  background:#fff;cursor:pointer;color:#64748b;font-family:inherit;transition:all .1s;
+}
+.gm-btn:hover{background:#f3f4f6;}
+.gm-btn.active{background:#f1f5f9;color:#374151;border-color:#d1d5db;}
+
+/* Glossary body */
+.gl-body{flex:1;overflow-y:auto;padding:0 16px 16px;}
+.main:not(.viewing) .gl-body{max-width:820px;margin:0 auto;width:100%;padding:0 24px 24px;}
+
+.letter-group{margin-bottom:2px;}
+.letter-head{
+  font-size:14px;font-weight:700;color:#1e40af;
+  padding:8px 0 3px;border-bottom:2px solid #dbeafe;
+  position:sticky;top:0;background:#fff;z-index:2;
+}
+.main.viewing .letter-head{font-size:12px;padding:5px 0 2px;}
+
+.gi{
+  padding:6px 4px;border-bottom:1px solid #f8fafc;
+  cursor:pointer;transition:background .08s;border-radius:3px;
+}
+.gi:hover{background:#f1f5f9;}
+.gi.overlap{border-left:3px solid #fbbf24;padding-left:8px;}
+.gi.overlap:hover{background:#fefce8;}
+.gi.active{background:#eff6ff !important;border-left:3px solid #3b82f6;padding-left:8px;transition:background .3s;}
+.gi.active .gi-desc{display:block !important;}
+@keyframes gi-flash{0%{background:#dbeafe;}100%{background:#eff6ff;}}
+.gi.flash{animation:gi-flash .5s ease;}
+.gi.filtered-out{display:none;}
+.gi-row{display:flex;align-items:baseline;gap:6px;}
+.gi-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;position:relative;top:-1px;}
+.gi-name{font-weight:600;color:#1e293b;font-size:13px;flex:1;min-width:0;}
+.gi-badge{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600;flex-shrink:0;white-space:nowrap;}
+.gi-shared{font-size:8px;background:#fde68a;color:#78350f;padding:0 4px;border-radius:2px;font-weight:700;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px;}
+.gi-desc{font-size:12px;color:#64748b;margin-top:2px;line-height:1.45;}
+
+/* View modes */
+.gl-body.mode-compact .gi{padding:3px 4px;}
+.gl-body.mode-compact .gi-name{font-size:11px;}
+.gl-body.mode-compact .gi-badge{display:none;}
+.gl-body.mode-compact .gi-desc{display:none;}
+.gl-body.mode-compact .letter-head{font-size:11px;padding:3px 0 1px;}
+.gl-body.mode-normal .gi-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gl-body.mode-normal .gi-desc{display:none;}
+.gl-body.mode-normal .gi:hover .gi-desc{display:block;}
+.gl-body.mode-expanded .gi-desc{display:block;}
+
+/* Sidebar adjustments */
+.main.viewing .gi-name{font-size:11.5px;}
+.main.viewing .gi-badge{font-size:8.5px;padding:0 4px;}
+.main.viewing .gi-desc{font-size:10.5px;}
+.main.viewing .gi{padding:4px 4px;}
+
+.gl-stats{font-size:10px;color:#9ca3af;padding:6px 16px;border-top:1px solid #f1f5f9;flex-shrink:0;}
+.gl-empty{text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;}
+
+/* ── Resize handle ── */
+.resize-handle{
+  width:5px;cursor:col-resize;background:transparent;
+  flex-shrink:0;transition:background .1s;display:none;
+}
+.resize-handle:hover{background:rgba(59,130,246,.2);}
+.main.viewing .resize-handle{display:block;}
+
+/* ── Viewer iframe area ── */
+.viewer-area{flex:1;display:none;min-width:0;position:relative;background:#fff;}
+.main.viewing .viewer-area{display:block;}
+.viewer-area iframe{width:100%;height:100%;border:none;}
+
+.drag-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;cursor:col-resize;display:none;}
+</style>
+<script>
+MathJax={
+  tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},
+  options:{skipHtmlTags:['script','noscript','style','textarea','code']},
+  startup:{typeset:false}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+</head>
+<body>
+
+<div class="drag-overlay" id="drag-overlay"></div>
+
+<div class="hdr">
+  <span class="hdr-title">Oxford Mathematics</span>
+  <div class="hdr-sep"></div>
+  <div class="hdr-chips" id="hdr-chips"></div>
+  <div class="hdr-spacer"></div>
+</div>
+
+<div class="main" id="main">
+  <div class="glossary" id="glossary">
+    <div class="gl-head">
+      <div class="gl-top">
+        <span class="gl-title">Glossary</span>
+        <span class="gl-overlap" id="overlap-badge" style="display:none"></span>
+      </div>
+      <input type="text" class="gl-search" id="gl-search" placeholder="Search all terms...">
+      <div class="gl-controls">
+        <div class="gl-types" id="gl-types"></div>
+        <div class="gl-courses" id="gl-courses"></div>
+        <div class="gl-modes" id="gl-modes">
+          <button class="gm-btn" data-mode="compact">Compact</button>
+          <button class="gm-btn active" data-mode="normal">Normal</button>
+          <button class="gm-btn" data-mode="expanded">Expanded</button>
+          <span style="width:1px;height:14px;background:#e2e8f0;margin:0 2px;"></span>
+          <button class="gm-btn active" data-sort="alpha">A-Z</button>
+          <button class="gm-btn" data-sort="number">By #</button>
+        </div>
+      </div>
+    </div>
+    <div class="gl-body mode-normal" id="gl-body"></div>
+    <div class="gl-stats" id="gl-stats"></div>
+  </div>
+
+  <div class="resize-handle" id="resize-handle"></div>
+  <div class="viewer-area" id="viewer-area"></div>
+</div>
+
+<!-- VIEWER registration (must come before course scripts) -->
+<script>
+var VIEWER={};
+VIEWER.courses={};
+VIEWER.courseOrder=[];
+VIEWER.registerCourse=function(d){VIEWER.courses[d.key]=d;VIEWER.courseOrder.push(d.key);};
+</script>
+<script src="courses/b21.js"></script>
+<script src="courses/b23.js"></script>
+<script src="courses/a11.js"></script>
+<script>
+// ============================================================
+// Constants
+// ============================================================
+var COURSE_COLORS=[
+  {bg:'#dbeafe',fg:'#1e40af',border:'#3b82f6'},
+  {bg:'#dcfce7',fg:'#166534',border:'#16a34a'},
+  {bg:'#fef3c7',fg:'#92400e',border:'#f59e0b'},
+  {bg:'#fce7f3',fg:'#9d174d',border:'#ec4899'},
+  {bg:'#e0e7ff',fg:'#3730a3',border:'#6366f1'},
+  {bg:'#ccfbf1',fg:'#115e59',border:'#14b8a6'},
+  {bg:'#fee2e2',fg:'#991b1b',border:'#ef4444'},
+  {bg:'#f3e8ff',fg:'#6b21a8',border:'#a855f7'}
+];
+function cc(k){return COURSE_COLORS[VIEWER.courseOrder.indexOf(k)%COURSE_COLORS.length];}
+
+var TYPE_COLORS={
+  definition:'#93c5fd',theorem:'#fca5a5',lemma:'#86efac',proposition:'#d8b4fe',
+  corollary:'#fdba74',example:'#d1d5db',remark:'#e5e7eb',notation:'#e5e7eb',warning:'#fde68a'
+};
+var TYPE_SHORT={
+  definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',
+  corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not',warning:'Warn'
+};
+function getType(id){
+  var p=id.split('-')[0];
+  return{def:'definition',thm:'theorem',lem:'lemma',prop:'proposition',
+    cor:'corollary',ex:'example',rmk:'remark',not:'notation',warn:'warning'}[p]||'example';
+}
+function shortLabel(id){return(TYPE_SHORT[getType(id)]||'?')+' '+id.replace(/^[a-z]+-/,'');}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+var OVERLAPS=[
+  {concept:'Representation',items:{b21:'def-1.2',b23:'def-2.1.1'}},
+  {concept:'Irreducible representation',items:{b21:'def-1.18',b23:'def-2.1.3'}},
+  {concept:'Completely reducible',items:{b21:'def-1.23',b23:'def-2.1.3'}},
+  {concept:'Dual representation',items:{b21:'def-4.3',b23:'def-2.2.4'}},
+  {concept:'Tensor product',items:{b21:'def-4.10',b23:'lem-2.3.1'}},
+  {concept:'Homomorphism',items:{b21:'def-1.12',b23:'def-1.1.4'}},
+  {concept:'Composition series',items:{b21:'def-2.11',b23:'def-2.2.10'}},
+  {concept:'First isomorphism theorem',items:{b21:'lem-1.15',b23:'thm-1.2.3'}},
+  {concept:'Free vector space',items:{b21:'def-1.4',b23:'def-A.2.1'}},
+  {concept:'Radical',items:{b21:'def-2.11',b23:'def-4.3.5'}}
+];
+var overlapIdx={};
+OVERLAPS.forEach(function(o){for(var k in o.items) overlapIdx[k+':'+o.items[k]]=o.concept;});
+
+// ============================================================
+// State
+// ============================================================
+var activeCourse=null;
+var activeIframe=null;
+var selectedCourses={};
+var activeTypeFilter='all';
+var glossaryMode='normal';
+var glossarySort='alpha';
+
+function numCmpIds(a,b){
+  var pa=a.replace(/^[a-z]+-/,'').split('.'),pb=b.replace(/^[a-z]+-/,'').split('.');
+  for(var i=0;i<Math.max(pa.length,pb.length);i++){
+    var va=i<pa.length?pa[i]:'',vb=i<pb.length?pb[i]:'';
+    var na=parseInt(va),nb=parseInt(vb);
+    if(!isNaN(na)&&!isNaN(nb)){if(na!==nb) return na-nb;}
+    else{var c=va.localeCompare(vb);if(c!==0) return c;}
+  }
+  return 0;
+}
+
+// ============================================================
+// Header course chips
+// ============================================================
+function renderChips(){
+  var html='';
+  VIEWER.courseOrder.forEach(function(key){
+    var c=VIEWER.courses[key],clr=cc(key);
+    var cls=key===activeCourse?' active':'';
+    html+='<div class="hdr-chip'+cls+'" data-course="'+key+'">';
+    html+='<span class="dot" style="background:'+clr.border+'"></span>';
+    html+=esc(c.code)+' '+esc(c.title);
+    html+='</div>';
+  });
+  document.getElementById('hdr-chips').innerHTML=html;
+  document.querySelectorAll('.hdr-chip').forEach(function(el){
+    el.addEventListener('click',function(){
+      var key=el.getAttribute('data-course');
+      if(key===activeCourse) closeCourse(); else openCourse(key);
+    });
+  });
+}
+
+// ============================================================
+// Course viewer (iframe)
+// ============================================================
+function openCourse(key){
+  var c=VIEWER.courses[key];
+  if(!c) return;
+  if(activeIframe){activeIframe.remove();activeIframe=null;}
+  activeCourse=key;
+  var iframe=document.createElement('iframe');
+  iframe.src=c.path;
+  document.getElementById('viewer-area').appendChild(iframe);
+  activeIframe=iframe;
+  document.getElementById('main').classList.add('viewing');
+  renderChips();
+}
+
+function closeCourse(){
+  if(activeIframe){activeIframe.remove();activeIframe=null;}
+  activeCourse=null;
+  document.getElementById('main').classList.remove('viewing');
+  document.getElementById('glossary').style.width='';
+  renderChips();
+}
+
+function navigateToItem(courseKey,itemId){
+  if(courseKey===activeCourse && activeIframe){
+    sendMsg({action:'navigateTo',id:itemId});
+  } else {
+    openCourse(courseKey);
+    activeIframe.addEventListener('load',function onL(){
+      activeIframe.removeEventListener('load',onL);
+      setTimeout(function(){sendMsg({action:'navigateTo',id:itemId});},1500);
+    });
+  }
+}
+
+function sendMsg(msg){
+  if(activeIframe&&activeIframe.contentWindow) activeIframe.contentWindow.postMessage(msg,'*');
+}
+
+window.addEventListener('message',function(e){
+  if(!e.data||e.data.type!=='viewer') return;
+  if(e.data.action==='itemClicked'&&e.data.course&&e.data.id){
+    highlightGlossaryItem(e.data.course,e.data.id);
+  }
+});
+
+function highlightGlossaryItem(courseKey,itemId){
+  // Clear previous highlight
+  document.querySelectorAll('.gi.active').forEach(function(el){el.classList.remove('active','flash');});
+  var target=document.querySelector('.gi[data-ck="'+courseKey+'"][data-id="'+itemId+'"]');
+  // Auto-enable course if not shown
+  if(!target&&!selectedCourses[courseKey]){
+    selectedCourses[courseKey]=true;
+    renderGlossary();
+    target=document.querySelector('.gi[data-ck="'+courseKey+'"][data-id="'+itemId+'"]');
+  }
+  if(!target) return;
+  // Clear filters if item is hidden
+  if(target.classList.contains('filtered-out')){
+    activeTypeFilter='all';
+    document.getElementById('gl-search').value='';
+    applyFilters();
+    renderTypeFilters();
+  }
+  target.classList.add('active');
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+  void target.offsetWidth;
+  target.classList.add('flash');
+}
+
+// ============================================================
+// Resize handle
+// ============================================================
+(function(){
+  var overlay=document.getElementById('drag-overlay');
+  var glossary=document.getElementById('glossary');
+  var dragging=false,startX,startW;
+  document.getElementById('resize-handle').addEventListener('mousedown',function(e){
+    e.preventDefault();dragging=true;startX=e.clientX;
+    startW=glossary.getBoundingClientRect().width;
+    overlay.style.display='block';
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!dragging) return;
+    var w=Math.max(200,Math.min(window.innerWidth*.5,startW+(e.clientX-startX)));
+    glossary.style.width=w+'px';
+  });
+  document.addEventListener('mouseup',function(){
+    if(!dragging) return;dragging=false;overlay.style.display='none';
+  });
+})();
+
+// ============================================================
+// Glossary rendering
+// ============================================================
+function renderCourseChips(){
+  var html='';
+  VIEWER.courseOrder.forEach(function(key){
+    var c=VIEWER.courses[key],clr=cc(key),on=selectedCourses[key];
+    html+='<span class="gl-cc '+(on?'on':'off')+'" data-ck="'+key+'" ';
+    html+='style="background:'+(on?clr.bg:'#f1f5f9')+';color:'+(on?clr.fg:'#9ca3af')+';border-color:'+(on?clr.border:'#e2e8f0')+'">';
+    html+=esc(c.code)+'</span>';
+  });
+  document.getElementById('gl-courses').innerHTML=html;
+  document.querySelectorAll('.gl-cc').forEach(function(el){
+    el.addEventListener('click',function(e){
+      e.stopPropagation();
+      var k=el.getAttribute('data-ck');
+      selectedCourses[k]=!selectedCourses[k];
+      renderGlossary();
+    });
+  });
+}
+
+function renderTypeFilters(){
+  var types={};
+  VIEWER.courseOrder.forEach(function(key){
+    if(!selectedCourses[key]) return;
+    var c=VIEWER.courses[key];
+    for(var id in c.envNames){var t=getType(id);types[t]=(types[t]||0)+1;}
+  });
+  var total=0;for(var t in types)total+=types[t];
+  var order=['definition','theorem','lemma','proposition','corollary','example','remark','notation','warning'];
+  var html='<button class="gt-btn'+(activeTypeFilter==='all'?' active':'')+'" data-type="all">All '+total+'</button>';
+  order.forEach(function(t){
+    if(types[t]) html+='<button class="gt-btn'+(activeTypeFilter===t?' active':'')+'" data-type="'+t+'">'+TYPE_SHORT[t]+' '+types[t]+'</button>';
+  });
+  document.getElementById('gl-types').innerHTML=html;
+  document.querySelectorAll('.gt-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      activeTypeFilter=btn.getAttribute('data-type');
+      renderTypeFilters();
+      applyFilters();
+    });
+  });
+}
+
+function renderGlossary(){
+  renderCourseChips();
+  renderTypeFilters();
+  var body=document.getElementById('gl-body');
+
+  var items=[];
+  VIEWER.courseOrder.forEach(function(key){
+    if(!selectedCourses[key]) return;
+    var c=VIEWER.courses[key];
+    for(var id in c.envNames){
+      items.push({
+        name:c.envNames[id],type:getType(id),ck:key,id:id,
+        desc:(c.guideDescs&&c.guideDescs[id])||'',
+        overlap:overlapIdx[key+':'+id]||null
+      });
+    }
+  });
+  // Sort items
+  if(glossarySort==='number'){
+    items.sort(function(a,b){
+      var ci=VIEWER.courseOrder.indexOf(a.ck)-VIEWER.courseOrder.indexOf(b.ck);
+      if(ci!==0) return ci;
+      return numCmpIds(a.id,b.id);
+    });
+  } else {
+    items.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
+  }
+
+  // Group items
+  var groups={},groupOrder=[];
+  items.forEach(function(it){
+    var gk,label;
+    if(glossarySort==='number'){
+      var sec=it.id.replace(/^[a-z]+-/,'').split('.')[0];
+      var c=VIEWER.courses[it.ck];
+      gk=it.ck+'_'+sec;
+      label=c.code+' \u00A7'+sec;
+    } else {
+      gk=it.name.charAt(0).toUpperCase();
+      if(!/[A-Z]/.test(gk)) gk='#';
+      label=gk;
+    }
+    if(!groups[gk]){groups[gk]={label:label,items:[]};groupOrder.push(gk);}
+    groups[gk].items.push(it);
+  });
+  if(glossarySort==='alpha') groupOrder.sort();
+
+  var oc=items.filter(function(it){return it.overlap;}).length;
+  var badge=document.getElementById('overlap-badge');
+  if(oc>0){badge.textContent=oc+' shared concepts';badge.style.display='';}
+  else badge.style.display='none';
+
+  var html='';
+  if(!items.length){
+    html='<div class="gl-empty">Select courses above to see terms</div>';
+  } else {
+    groupOrder.forEach(function(gk){
+      var g=groups[gk];
+      html+='<div class="letter-group" data-letter="'+esc(gk)+'">';
+      html+='<div class="letter-head">'+esc(g.label)+'</div>';
+      g.items.forEach(function(it){
+        var color=TYPE_COLORS[it.type]||'#e5e7eb';
+        var c=VIEWER.courses[it.ck],clr=cc(it.ck);
+        var ov=it.overlap?' overlap':'';
+        var st=(it.name+' '+it.id+' '+(it.overlap||'')+' '+c.code+' '+it.desc).toLowerCase();
+        html+='<div class="gi'+ov+'" data-type="'+it.type+'" data-ck="'+it.ck+'" data-id="'+it.id+'" data-s="'+esc(st)+'">';
+        html+='<div class="gi-row">';
+        html+='<span class="gi-dot" style="background:'+color+'"></span>';
+        html+='<span class="gi-name">'+esc(it.name)+'</span>';
+        html+='<span class="gi-badge" style="background:'+clr.bg+';color:'+clr.fg+'">'+esc(c.code)+' '+esc(shortLabel(it.id))+'</span>';
+        if(it.overlap) html+='<span class="gi-shared">shared</span>';
+        html+='</div>';
+        if(it.desc) html+='<div class="gi-desc">'+it.desc+'</div>';
+        html+='</div>';
+      });
+      html+='</div>';
+    });
+  }
+
+  body.innerHTML=html;
+  body.className='gl-body mode-'+glossaryMode;
+
+  var sc=VIEWER.courseOrder.filter(function(k){return selectedCourses[k];}).length;
+  document.getElementById('gl-stats').textContent=items.length+' terms from '+sc+' course(s)';
+
+  document.querySelectorAll('.gi').forEach(function(el){
+    el.addEventListener('click',function(){
+      navigateToItem(el.getAttribute('data-ck'),el.getAttribute('data-id'));
+    });
+  });
+
+  applyFilters();
+
+  if(typeof MathJax!=='undefined'&&MathJax.typesetPromise){
+    MathJax.typesetPromise([body]).catch(function(){});
+  }
+}
+
+function applyFilters(){
+  var q=(document.getElementById('gl-search').value||'').toLowerCase().trim();
+  document.querySelectorAll('.gi').forEach(function(el){
+    var ok=(activeTypeFilter==='all'||el.getAttribute('data-type')===activeTypeFilter)
+         &&(!q||(el.getAttribute('data-s')||'').indexOf(q)>=0);
+    el.classList.toggle('filtered-out',!ok);
+  });
+  document.querySelectorAll('.letter-group').forEach(function(g){
+    g.style.display=g.querySelectorAll('.gi:not(.filtered-out)').length>0?'':'none';
+  });
+}
+
+// ============================================================
+// View mode buttons
+// ============================================================
+document.querySelectorAll('.gm-btn[data-mode]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    glossaryMode=btn.getAttribute('data-mode');
+    document.getElementById('gl-body').className='gl-body mode-'+glossaryMode;
+    document.querySelectorAll('.gm-btn[data-mode]').forEach(function(b){
+      b.classList.toggle('active',b.getAttribute('data-mode')===glossaryMode);
+    });
+  });
+});
+document.querySelectorAll('.gm-btn[data-sort]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    glossarySort=btn.getAttribute('data-sort');
+    document.querySelectorAll('.gm-btn[data-sort]').forEach(function(b){
+      b.classList.toggle('active',b.getAttribute('data-sort')===glossarySort);
+    });
+    renderGlossary();
+  });
+});
+
+// ============================================================
+// Init — courses are already registered by now
+// ============================================================
+function initViewer(){
+  VIEWER.courseOrder.forEach(function(k){selectedCourses[k]=true;});
+  renderChips();
+  renderGlossary();
+  document.getElementById('gl-search').addEventListener('input',applyFilters);
+}
+
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initViewer);
+else initViewer();
+</script>
+</body>
+</html>
