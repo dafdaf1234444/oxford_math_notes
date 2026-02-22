@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A11 Quantum Theory — Márk Mezei</title>
+<title>A11 Quantum Theory — Mark Mezei</title>
 <script>
 MathJax = {
   tex: {
@@ -61,9 +61,51 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
+#sidebar-search-wrap {
+  flex-shrink: 0;
+  padding: 0.5rem 0.6rem 0.3rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+#sidebar-search {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+#sidebar-search:focus { outline: none; border-color: #93c5fd; }
+#sidebar-search-results {
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafbfc;
+  font-size: 11px;
+}
+#sidebar-search-results.visible { display: block; }
+.sidebar-search-item {
+  padding: 4px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.sidebar-search-item:hover { background: #eff6ff; }
+.sidebar-search-item .ss-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.sidebar-search-item .ss-label { font-weight: 600; color: #1e40af; }
+.sidebar-search-item .ss-name { color: #6b7280; font-size: 10px; }
 #sidebar-filters {
   flex-shrink: 0;
-  padding: 0.6rem 0.6rem 0.3rem;
+  padding: 0.4rem 0.6rem 0.3rem;
   border-bottom: 1px solid #e5e7eb;
 }
 .filter-tabs {
@@ -186,8 +228,14 @@ h2.section-heading {
   font-weight: 700;
   margin: 2.5rem 0 1rem;
 }
+h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 1.8rem 0 0.8rem;
+  color: #1f2937;
+}
 
-/* Theorem-like environments — monochrome LaTeX style */
+/* Theorem-like environments */
 .env {
   margin: 1.2rem 0;
   padding: 0.5rem 0 0.5rem 1rem;
@@ -204,7 +252,6 @@ h2.section-heading {
 .env-head:hover { color: #1e40af; }
 .env-name { font-style: italic; font-weight: 400; }
 
-/* Remove all type-specific coloring */
 .env.definition, .env.theorem, .env.lemma, .env.proposition,
 .env.corollary, .env.example, .env.remark, .env.notation, .env.warning {
   border-color: #d1d5db;
@@ -215,6 +262,12 @@ h2.section-heading {
 .env.remark .env-head, .env.notation .env-head, .env.warning .env-head {
   color: #111;
 }
+
+/* Equation environments */
+.env.equation { border-left: 2px solid #d1d5db; padding: 0.4rem 0 0.4rem 1rem; margin: 0.8rem 0; }
+.eq-wrapper { display: flex; align-items: center; gap: 1rem; }
+.eq-math { flex: 1; }
+.eq-number { color: #6b7280; font-size: 0.9em; white-space: nowrap; }
 
 /* Highlight selected env */
 .env.panel-active {
@@ -238,11 +291,11 @@ h2.section-heading {
   user-select: none;
 }
 .proof-head::after {
-  content: ' ▾';
+  content: ' \25BE';
   font-size: 0.7em;
   color: #9ca3af;
 }
-.proof.collapsed .proof-head::after { content: ' ▸'; }
+.proof.collapsed .proof-head::after { content: ' \25B8'; }
 .proof.collapsed .proof-body { display: none; }
 .proof-body { margin-top: 0.3rem; }
 .qed {
@@ -251,7 +304,7 @@ h2.section-heading {
   margin-top: 0.1rem;
 }
 
-/* Cross-references — dark blue, no underline */
+/* Cross-references */
 a.ref {
   color: #1e40af;
   text-decoration: none;
@@ -262,7 +315,7 @@ a.ref {
 a.ref:hover { color: #1d4ed8; background: #eff6ff; border-radius: 2px; }
 a.ref .ref-name { color: #9ca3af; font-size: 0.88em; font-weight: 400; white-space: nowrap; }
 
-/* Character tables — booktabs style */
+/* Character tables */
 table.char-table {
   border-collapse: collapse;
   margin: 1rem auto;
@@ -280,6 +333,27 @@ table.char-table th {
   border-bottom: 1px solid #111;
 }
 
+/* Figure placeholders */
+.content-figure {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+.content-figure .img-placeholder {
+  border: 1px dashed #ccc;
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.9em;
+  border-radius: 4px;
+  background: #fafafa;
+}
+.content-figure figcaption {
+  font-size: 0.9em;
+  color: #555;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
 /* ── Right Panel ── */
 #ref-panel {
   grid-column: 3;
@@ -290,17 +364,6 @@ table.char-table th {
   background: #fff;
   overflow: hidden;
   position: relative;
-}
-#ref-panel .panel-empty {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #9ca3af;
-  font-size: 14px;
-  font-style: italic;
-  padding: 1rem;
-  text-align: center;
 }
 
 /* Resize handle */
@@ -347,27 +410,146 @@ table.char-table th {
   white-space: nowrap;
   margin-left: 4px;
 }
+#inspector-search {
+  width: 140px;
+  padding: 3px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: inherit;
+}
+#inspector-search:focus { outline: none; border-color: #93c5fd; }
+
+/* Close panel button */
+#panel-nav .btn-close-panel { font-size: 13px; padding: 1px 5px; }
+
+/* Inspector content area */
+#inspector-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Inspector: Course Index */
+.inspector-index { padding: 0; }
+.inspector-type-filters {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  padding: 6px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+.inspector-type-filter {
+  font-size: 9px;
+  padding: 1px 5px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  color: #4b5563;
+  line-height: 1.3;
+}
+.inspector-type-filter:hover { background: #f3f4f6; }
+.inspector-type-filter.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+.inspector-section-group { border-bottom: 1px solid #f3f4f6; }
+.inspector-section-head {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  padding: 6px 12px 3px;
+  background: #fafbfc;
+  cursor: pointer;
+  position: sticky;
+  top: 28px;
+  z-index: 1;
+}
+.inspector-section-head:hover { color: #374151; }
+.inspector-item {
+  padding: 5px 12px 5px 20px;
+  cursor: pointer;
+  font-size: 11.5px;
+  line-height: 1.35;
+  border-bottom: 1px solid #f0f1f3;
+}
+.inspector-item:hover { background: #eff6ff; }
+.inspector-item .ii-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.inspector-item .ii-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.inspector-item .ii-label { font-weight: 600; color: #1e40af; white-space: nowrap; }
+.inspector-item .ii-name { color: #6b7280; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inspector-item .ii-desc {
+  font-size: 10.5px;
+  color: #4b5563;
+  line-height: 1.35;
+  padding: 2px 0 1px 10px;
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+.inspector-item .ii-desc.collapsed { max-height: 0; padding: 0 0 0 10px; }
+.inspector-item.filtered-out { display: none; }
+.inspector-desc-controls {
+  display: inline-flex; gap: 6px; margin-left: auto; font-weight: 400;
+}
+.inspector-desc-controls button {
+  background: none; border: none; cursor: pointer;
+  font-size: 9px; color: #6b7280; text-decoration: underline;
+}
+.inspector-desc-controls button:hover { color: #1e40af; }
+
+/* Inspector: Active Item View */
+.inspector-active { padding: 0; }
+.inspector-active-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+.inspector-active-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 4px;
+}
+.inspector-active-desc {
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+.inspector-back-btn {
+  display: inline-block;
+  font-size: 10px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 2px 0;
+  margin-bottom: 4px;
+}
+.inspector-back-btn:hover { color: #1e40af; }
 
 /* Graph container */
 #graph-container {
   flex-shrink: 0;
   border-bottom: 1px solid #e5e7eb;
   padding: 0.6rem;
-  min-height: 100px;
+  min-height: 80px;
   overflow-x: auto;
   overflow-y: hidden;
 }
 #graph-container svg { display: block; margin: 0 auto; }
 
-/* Panel content area */
-#panel-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  position: relative;
-}
-
-/* Section labels in panel content */
+/* Panel section labels */
 .panel-section {
   padding: 0.4rem 0.8rem 0;
 }
@@ -442,7 +624,7 @@ table.char-table th {
   padding: 0.3rem 0.8rem;
 }
 
-/* Floating peek popover — appears near hovered reference */
+/* Floating peek popover */
 #peek-popover {
   position: fixed;
   width: 380px;
@@ -516,53 +698,6 @@ table.char-table th {
 }
 .peek-zoom-controls button:hover { background: #f3f4f6; color: #111; }
 
-/* Minimap overview */
-#minimap-container {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 6px 8px;
-  overflow: auto;
-  flex-shrink: 0;
-  position: relative;
-  max-height: 300px;
-}
-#minimap-container.hidden { display: none; }
-#minimap-zoom-controls {
-  position: absolute; top: 4px; right: 6px; z-index: 5;
-  display: flex; gap: 2px;
-}
-#minimap-zoom-controls button {
-  width: 20px; height: 20px; border: 1px solid #d1d5db; border-radius: 3px;
-  background: #f9fafb; cursor: pointer; font-size: 12px; line-height: 1;
-  display: flex; align-items: center; justify-content: center; color: #374151;
-}
-#minimap-zoom-controls button:hover { background: #e5e7eb; }
-#minimap-svg { transform-origin: 0 0; }
-.minimap-node { cursor: pointer; }
-.minimap-node rect { transition: opacity 0.15s, filter 0.15s; }
-.minimap-node.dimmed rect { opacity: 0.12; }
-.minimap-node.scroll-active rect { stroke: #111; stroke-width: 2; }
-.minimap-node.active rect { stroke: #1e40af; stroke-width: 2.5; filter: drop-shadow(0 0 3px rgba(30,64,175,0.5)); }
-.minimap-node.dep-highlight rect { stroke: #2563eb; stroke-width: 2; filter: drop-shadow(0 0 2px rgba(37,99,235,0.6)); }
-.minimap-node.usedby-highlight rect { stroke: #dc2626; stroke-width: 2; filter: drop-shadow(0 0 2px rgba(220,38,38,0.6)); }
-.minimap-node.panel-selected rect { stroke: #1e40af; stroke-width: 2; }
-#nav-label.minimap-hover { color: #6b7280; font-style: italic; }
-.minimap-legend {
-  display: flex; gap: 8px; flex-wrap: wrap;
-  padding: 4px 0 2px; font-size: 9px; color: #6b7280;
-}
-.minimap-legend span::before {
-  content: ''; display: inline-block;
-  width: 8px; height: 8px; border-radius: 1px;
-  margin-right: 2px; vertical-align: middle;
-}
-
-/* Map toggle button */
-#panel-nav .btn-map { margin-left: auto; font-size: 10px; }
-#panel-nav .btn-map.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
-
-/* Close panel button */
-#panel-nav .btn-close-panel { font-size: 13px; padding: 1px 5px; }
-
 /* Graph node styling */
 .graph-node { cursor: pointer; }
 .graph-node rect { rx: 4; ry: 4; }
@@ -570,160 +705,9 @@ table.char-table th {
 .graph-node text { font-family: "Computer Modern Serif", Georgia, serif; font-size: 10.5px; }
 .graph-label { font-family: "Computer Modern Serif", Georgia, serif; }
 
-/* Guide tab */
-#tab-guide { background: #fff; }
-#guide-search {
-  width: 100%;
-  padding: 5px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 12px;
-  font-family: inherit;
-  margin: 6px 12px;
-  box-sizing: border-box;
-}
-#guide-search:focus { outline: none; border-color: #93c5fd; }
-#guide-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-}
-/* Guide: section groups */
-.guide-section {
-  border-bottom: 1px solid #f3f4f6;
-}
-.guide-section-head {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  letter-spacing: 0.3px;
-  padding: 6px 12px 2px;
-  background: #fafbfc;
-  cursor: pointer;
-}
-.guide-section-head:hover { color: #374151; }
-.guide-section-outline {
-  padding: 2px 12px 5px;
-  font-size: 11px;
-  color: #6b7280;
-  line-height: 1.4;
-  font-style: italic;
-}
-/* Guide: entries */
-.guide-entry {
-  padding: 5px 12px;
-  border-bottom: 1px solid #f9fafb;
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.guide-entry:hover { background: #eff6ff; }
-.guide-entry .guide-label {
-  font-weight: 600;
-  color: #1e40af;
-}
-.guide-entry .guide-type-dot {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-.guide-entry .guide-desc { display: none; }
-.guide-entry.filtered-out { display: none; }
-
-/* Glossary tab */
-#tab-glossary { background: #fff; }
-#glossary-search {
-  width: 100%;
-  padding: 5px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 12px;
-  font-family: inherit;
-  margin: 6px 12px;
-  box-sizing: border-box;
-}
-#glossary-search:focus { outline: none; border-color: #93c5fd; }
-.glossary-type-filters {
-  display: flex;
-  gap: 3px;
-  flex-wrap: wrap;
-  padding: 0 12px 6px;
-}
-.glossary-type-filter {
-  font-size: 9px;
-  padding: 1px 5px;
-  border: 1px solid #d1d5db;
-  border-radius: 3px;
-  background: #fff;
-  cursor: pointer;
-  color: #4b5563;
-  line-height: 1.3;
-}
-.glossary-type-filter:hover { background: #f3f4f6; }
-.glossary-type-filter.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
-#glossary-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-}
-.glossary-letter-group {
-  border-bottom: 1px solid #e5e7eb;
-}
-.glossary-letter-head {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e40af;
-  padding: 6px 12px 2px;
-  background: #f9fafb;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-.glossary-term {
-  padding: 5px 12px 5px 20px;
-  border-bottom: 1px solid #f9fafb;
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.glossary-term:hover { background: #eff6ff; }
-.glossary-term .glossary-term-name {
-  font-weight: 600;
-  color: #111;
-}
-.glossary-term .glossary-term-ref {
-  color: #6b7280;
-  font-size: 11px;
-  margin-left: 4px;
-}
-.glossary-term .glossary-term-type-dot {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-.glossary-term .glossary-term-desc { display: none; }
-.glossary-term.filtered-out { display: none; }
-
 p { margin: 0.5rem 0; }
 .display-math { margin: 0.8rem 0; text-align: center; }
 .important-convention { background: #fefce8; border: 1px solid #fbbf24; border-radius: 0; padding: 0.8rem 1rem; margin: 1rem 0; }
-
-/* ── Panel Tab System ── */
-.panel-tabs { display: flex; gap: 2px; flex: 1; justify-content: center; }
-.panel-tab {
-  font-size: 11px; padding: 3px 10px; border: 1px solid #d1d5db; border-radius: 4px;
-  background: #fff; cursor: pointer; color: #6b7280; font-weight: 500; transition: all 0.15s;
-}
-.panel-tab:hover { background: #f3f4f6; color: #374151; }
-.panel-tab.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; font-weight: 600; }
-.panel-tab-content { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
-.panel-tab-content.active { display: flex; }
-#nav-label-bar { padding: 5px 10px; font-size: 12px; font-weight: 600; color: #1f2937; border-bottom: 1px solid #e5e7eb; background: #f9fafb; flex-shrink: 0; }
-#nav-label-bar #nav-label:empty + #nav-label-bar { display: none; }
 
 /* ── Sidebar Controls ── */
 .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 0 0.3rem; margin-bottom: 0.4rem; }
@@ -733,29 +717,23 @@ p { margin: 0.5rem 0; }
 .sidebar-controls button:hover { background: #f3f4f6; color: #111; }
 #sidebar .toc-section-head.current { background: #eff6ff; color: #1e40af; }
 
-/* ── Expandable Entries ── */
-.entry-chevron { display: inline-block; font-size: 8px; margin-right: 3px; transition: transform 0.15s; color: #9ca3af; width: 10px; flex-shrink: 0; }
-.guide-entry.expanded .entry-chevron, .glossary-term.expanded .entry-chevron { transform: rotate(90deg); color: #374151; }
-.guide-entry-detail, .glossary-term-detail {
-  display: none; margin-top: 4px; padding: 6px 10px; background: #fafbfc; border-radius: 4px;
-  border: 1px solid #f3f4f6; font-size: 13px; line-height: 1.5;
-}
-.guide-entry.expanded .guide-entry-detail, .glossary-term.expanded .glossary-term-detail { display: block; }
-.entry-math-content .env { margin: 0; padding: 4px 0; border: none; background: transparent; }
-.entry-math-content .env-head { font-size: 12px; }
-.entry-math-content p { font-size: 13px; line-height: 1.45; }
-.entry-desc-text { font-size: 11.5px; color: #4b5563; margin-top: 4px; padding-top: 4px; border-top: 1px solid #e5e7eb; font-style: italic; }
-
 /* ── Stacked Item Description Toggle ── */
-.stacked-desc-toggle { font-size: 10px; color: #6b7280; cursor: pointer; padding: 2px 10px 4px 22px; user-select: none; }
-.stacked-desc-toggle:hover { color: #1e40af; }
-.stacked-summary.hidden { display: none; }
+.stacked-summary {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+.stacked-summary.collapsed { max-height: 0; padding-top: 0; padding-bottom: 0; }
 </style>
 </head>
 <body>
 
 <!-- Sidebar Table of Contents -->
 <nav id="sidebar">
+<div id="sidebar-search-wrap">
+  <input type="text" id="sidebar-search" placeholder="Search definitions, equations...">
+</div>
+<div id="sidebar-search-results"></div>
 <div id="sidebar-filters">
   <div class="filter-tabs" id="filter-tabs"></div>
 </div>
@@ -875,16 +853,53 @@ p { margin: 0.5rem 0; }
 </div>
 <div id="sidebar-resize"></div>
 </nav>
-
 <main id="content">
 <div class="doc-title">Quantum Theory</div>
-<div class="doc-author">Márk Mezei, Michaelmas Term 2024</div>
+<div class="doc-author">Mark Mezei, Michaelmas Term 2024</div>
 
 <h2 class="section-heading" id="sec0">0. Classical particles and waves</h2>
-<p>A point particle has position \(\mathbf{x}(t)\) obeying Newton's second law. Conservative force \(\mathbf{F} = -\nabla V\). Total energy \(E = \frac{1}{2}m|\dot{\mathbf{x}}|^2 + V\). The classical wave equation \(\frac{1}{v^2}\frac{\partial^2 \phi}{\partial t^2} = \nabla^2 \phi\) admits plane wave solutions \(\phi = A e^{i(\mathbf{k}\cdot\mathbf{x} - \omega t)}\).</p>
+
+<h3 id="sec0-1">0.1 Point particles</h3>
+<p>A point particle has position \(\mathbf{x}(t)\) obeying Newton's second law. Conservative force \(\mathbf{F} = -\nabla V\). Total energy \(E = \frac{1}{2}m|\dot{\mathbf{x}}|^2 + V\).</p>
+
+<div class="env equation" id="eq-0.1">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ m\ddot{\mathbf{x}} = \mathbf{F} = -\nabla V \]</span>
+    <span class="eq-number">(0.1)</span>
+  </div>
+</div>
+
+<h3 id="sec0-2">0.2 Waves</h3>
+<p>The classical wave equation admits plane wave solutions. These solutions will motivate the quantum mechanical wave function.</p>
+
+<div class="env equation" id="eq-0.3">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \frac{1}{v^2}\frac{\partial^2 \phi}{\partial t^2} = \nabla^2 \phi \]</span>
+    <span class="eq-number">(0.3)</span>
+  </div>
+</div>
+
+<p>Plane wave solutions take the form:</p>
+
+<div class="env equation" id="eq-0.5">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \phi(\mathbf{x},t) = A\,e^{i(\mathbf{k}\cdot\mathbf{x} - \omega t)} \]</span>
+    <span class="eq-number">(0.5)</span>
+  </div>
+</div>
 
 <h2 class="section-heading" id="sec1">1. Physical background and wave-particle duality</h2>
 <p>The photoelectric effect and atomic spectra show classical physics fails at atomic scales. Wave-particle duality emerges from these experiments, motivating a new theoretical framework.</p>
+
+<h3 id="sec1-1">1.1 The photoelectric effect</h3>
+<p>When light shines on a metal surface, electrons may be emitted. Classical wave theory predicts that any frequency of light should eventually liberate electrons if the intensity is high enough. Experiment contradicts this: there is a threshold frequency below which no electrons are emitted, regardless of intensity.</p>
+
+<figure id="fig-1" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 1 -- Photoelectric effect ]
+  </div>
+  <figcaption>Figure 1: The photoelectric effect. Light of frequency \(\omega\) strikes a metal surface; electrons are emitted only when \(\omega > E_0/\hbar\).</figcaption>
+</figure>
 
 <div class="env definition" id="def-1.1">
 <div class="env-head">Definition 1.1.</div>
@@ -893,6 +908,36 @@ p { margin: 0.5rem 0; }
 The photoelectric effect gives \(E_{\text{kinetic}} = -E_0 + \hbar\omega\), where \(E_0\) is the binding energy. No electrons are emitted when \(\omega < E_0/\hbar\).</p>
 </div>
 
+<div class="env equation" id="eq-1.1">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ E = \hbar\omega \]</span>
+    <span class="eq-number">(1.1)</span>
+  </div>
+</div>
+
+<h3 id="sec1-2">1.2 Emission and absorption spectra</h3>
+<p>Atoms emit and absorb light only at discrete frequencies, producing line spectra. This is evidence for discrete energy levels within atoms.</p>
+
+<figure id="fig-2" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 2 -- Emission spectrum ]
+  </div>
+  <figcaption>Figure 2: Discrete emission spectrum of hydrogen, showing the Balmer series.</figcaption>
+</figure>
+
+<h3 id="sec1-3">1.3 Double slit experiment</h3>
+<p>When particles pass through two slits, they produce an interference pattern on a screen, just like waves. This holds even when particles are sent one at a time, demonstrating the wave nature of matter.</p>
+
+<figure id="fig-3" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 3 -- Double slit experiment ]
+  </div>
+  <figcaption>Figure 3: The double slit experiment. Individual particles build up an interference pattern over time.</figcaption>
+</figure>
+
+<h3 id="sec1-4">1.4 De Broglie matter-waves</h3>
+<p>De Broglie extended Einstein's photon relation to all particles, associating a wavelength with any particle of momentum \(\mathbf{p}\).</p>
+
 <div class="env definition" id="def-1.2">
 <div class="env-head">Definition 1.2.</div>
 <p>A free particle of energy \(E\) and momentum \(\mathbf{p}\) is associated with a wave of angular frequency \(\omega\) and wave vector \(\mathbf{k}\) via the de Broglie relations:
@@ -900,35 +945,124 @@ The photoelectric effect gives \(E_{\text{kinetic}} = -E_0 + \hbar\omega\), wher
 The wavelength is \(\lambda = 2\pi\hbar/|\mathbf{p}| = h/|\mathbf{p}|\).</p>
 </div>
 
+<div class="env equation" id="eq-1.2">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \mathbf{p} = \hbar\mathbf{k} \]</span>
+    <span class="eq-number">(1.2)</span>
+  </div>
+</div>
+
+<figure id="fig-4" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 4 -- Wave packet ]
+  </div>
+  <figcaption>Figure 4: A wave packet representing a localized particle: superposition of plane waves with a range of wave vectors.</figcaption>
+</figure>
+
 <h2 class="section-heading" id="sec2">2. Wave mechanics</h2>
-<p>The de Broglie relations lead to the Schrödinger equation governing quantum matter-waves.</p>
+<p>The de Broglie relations lead to the Schrodinger equation governing quantum matter-waves.</p>
+
+<h3 id="sec2-1">2.1 The Schrodinger equation</h3>
+<p>Combining the de Broglie relations with the classical energy-momentum relation \(E = p^2/2m + V\) and replacing \(E \to i\hbar\partial_t\), \(\mathbf{p} \to -i\hbar\nabla\) acting on a wave function \(\Psi\), we obtain the fundamental equation of quantum mechanics.</p>
 
 <div class="env definition" id="def-2.1">
 <div class="env-head">Definition 2.1.</div>
-<p>A single non-relativistic particle of mass \(m\) in potential \(V(\mathbf{x})\) is governed by the Schrödinger equation:
+<p>A single non-relativistic particle of mass \(m\) in potential \(V(\mathbf{x})\) is governed by the Schrodinger equation:
 \[i\hbar\frac{\partial\Psi}{\partial t} = -\frac{\hbar^2}{2m}\nabla^2\Psi + V\Psi.\]
 This is a linear complex PDE for the wave function \(\Psi(\mathbf{x},t)\). Cf. <a class="ref" data-ref="def-1.2">Definition 1.2</a>.</p>
 </div>
 
+<p>For a free particle (\(V = 0\)), this reduces to:</p>
+
+<div class="env equation" id="eq-2.1">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ i\hbar\frac{\partial\Psi}{\partial t} = -\frac{\hbar^2}{2m}\nabla^2\Psi \]</span>
+    <span class="eq-number">(2.1)</span>
+  </div>
+</div>
+
+<p>The general Schrodinger equation with potential is the central equation of wave mechanics:</p>
+
+<div class="env equation" id="eq-2.4">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ i\hbar\frac{\partial\Psi}{\partial t} = -\frac{\hbar^2}{2m}\nabla^2\Psi + V(\mathbf{x})\Psi \]</span>
+    <span class="eq-number">(2.4)</span>
+  </div>
+</div>
+
+<h3 id="sec2-2">2.2 Stationary states</h3>
+<p>We look for solutions of the form \(\Psi(\mathbf{x},t) = \psi(\mathbf{x})e^{-iEt/\hbar}\), separating the time and space dependence.</p>
+
 <div class="env definition" id="def-2.2">
 <div class="env-head">Definition 2.2.</div>
-<p>Writing \(\Psi(\mathbf{x},t) = \psi(\mathbf{x})e^{-iEt/\hbar}\), the time-independent Schrödinger equation is:
+<p>Writing \(\Psi(\mathbf{x},t) = \psi(\mathbf{x})e^{-iEt/\hbar}\), the time-independent Schrodinger equation is:
 \[-\frac{\hbar^2}{2m}\nabla^2\psi + V\psi = E\psi.\]
 Solutions are stationary states with definite energy \(E\). Cf. <a class="ref" data-ref="def-2.1">Definition 2.1</a>.</p>
 </div>
+
+<div class="env equation" id="eq-2.7">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \Psi(\mathbf{x},t) = \psi(\mathbf{x})\,e^{-iEt/\hbar} \]</span>
+    <span class="eq-number">(2.7)</span>
+  </div>
+</div>
+
+<div class="env equation" id="eq-2.8">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ -\frac{\hbar^2}{2m}\nabla^2\psi + V\psi = E\psi \]</span>
+    <span class="eq-number">(2.8)</span>
+  </div>
+</div>
+
+<h3 id="sec2-3">2.3 One-dimensional equations</h3>
+<p>In one dimension, the time-independent Schrodinger equation becomes an ODE, which can be solved explicitly for simple potentials.</p>
+
+<h3 id="sec2-4">2.4 Particle in a box</h3>
+<p>Consider a particle confined to the interval \([0,a]\) with infinite potential walls. The boundary conditions \(\psi(0) = \psi(a) = 0\) force quantized energies.</p>
 
 <div class="env definition" id="def-2.3">
 <div class="env-head">Definition 2.3.</div>
 <p>When energies are discrete and bounded below, the lowest energy is the ground state (zero-point) energy. Higher energies are the first, second, etc. excited states. For example, a particle in a box \([0,a]\) has energies \(E_n = \frac{n^2\pi^2\hbar^2}{2ma^2}\) for \(n = 1,2,3,\ldots\).</p>
 </div>
 
+<div class="env equation" id="eq-2.15">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ E_n = \frac{n^2\pi^2\hbar^2}{2ma^2}, \qquad n = 1, 2, 3, \ldots \]</span>
+    <span class="eq-number">(2.15)</span>
+  </div>
+</div>
+
+<figure id="fig-5" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 5 -- Particle in a box wavefunctions ]
+  </div>
+  <figcaption>Figure 5: The first three stationary state wave functions for a particle in a box.</figcaption>
+</figure>
+
+<h3 id="sec2-5">2.5 Particle in a 3D box</h3>
+<p>For a particle in a three-dimensional rectangular box \([0,a_1] \times [0,a_2] \times [0,a_3]\), the Schrodinger equation separates into three independent one-dimensional equations. The energies are sums of the individual contributions.</p>
+
+<h3 id="sec2-6">2.6 Degeneracy</h3>
+
 <div class="env definition" id="def-2.4">
 <div class="env-head">Definition 2.4.</div>
 <p>An energy level \(E\) is \(d\)-fold degenerate if the space of stationary states with that energy has dimension \(d > 1\). Non-degenerate means \(d = 1\). For example, a particle in a 3D box has degeneracies due to different combinations of quantum numbers giving the same energy.</p>
 </div>
 
+<div class="env equation" id="eq-2.22">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ d(E) = \#\{(n_1,n_2,n_3) \in \mathbb{Z}_{>0}^3 : E_{n_1,n_2,n_3} = E\} \]</span>
+    <span class="eq-number">(2.22)</span>
+  </div>
+</div>
+
+<h3 id="sec2-7">2.7 Particle on a circle</h3>
+<p>A particle constrained to move on a circle of radius \(R\) has periodic boundary conditions \(\psi(\theta + 2\pi) = \psi(\theta)\). This quantizes the angular momentum to integer multiples of \(\hbar\).</p>
+
 <h2 class="section-heading" id="sec3">3. The Born interpretation</h2>
 <p>The Born interpretation gives physical meaning to the wave function in terms of probability.</p>
+
+<h3 id="sec3-1">3.1 Probability density</h3>
 
 <div class="env definition" id="def-3.1">
 <div class="env-head">Definition 3.1.</div>
@@ -936,10 +1070,19 @@ Solutions are stationary states with definite energy \(E\). Cf. <a class="ref" d
 \[P_\Psi(D) = \iiint_D |\Psi(\mathbf{x},t)|^2\,d^3x.\]</p>
 </div>
 
+<div class="env equation" id="eq-3.1">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \rho(\mathbf{x},t) = |\Psi(\mathbf{x},t)|^2 \]</span>
+    <span class="eq-number">(3.1)</span>
+  </div>
+</div>
+
 <div class="env definition" id="def-3.2">
 <div class="env-head">Definition 3.2.</div>
 <p>A wave function \(\Psi\) is normalizable if \(0 < \iiint_{\mathbb{R}^3} |\Psi|^2\,d^3x < \infty\). It is normalized if \(\iiint_{\mathbb{R}^3} |\Psi|^2\,d^3x = 1\). The Born interpretation requires normalization. Cf. <a class="ref" data-ref="def-3.1">Definition 3.1</a>.</p>
 </div>
+
+<h3 id="sec3-2">3.2 Continuity equation</h3>
 
 <div class="env definition" id="def-3.3">
 <div class="env-head">Definition 3.3.</div>
@@ -950,7 +1093,7 @@ This gives the average value of repeated position-dependent measurements. Cf. <a
 
 <div class="env proposition" id="prop-3.1">
 <div class="env-head">Proposition 3.1.</div>
-<p>The <a class="ref" data-ref="def-2.1">Schrödinger equation</a> implies the continuity equation:
+<p>The <a class="ref" data-ref="def-2.1">Schrodinger equation</a> implies the continuity equation:
 \[\frac{\partial\rho}{\partial t} + \nabla\cdot\mathbf{j} = 0,\]
 where \(\mathbf{j} = \frac{i\hbar}{2m}(\Psi\nabla\bar{\Psi} - \bar{\Psi}\nabla\Psi)\) is the probability current.</p>
 </div>
@@ -958,9 +1101,23 @@ where \(\mathbf{j} = \frac{i\hbar}{2m}(\Psi\nabla\bar{\Psi} - \bar{\Psi}\nabla\P
 <div class="proof collapsed" id="proof-prop-3.1">
 <div class="proof-head">Proof.</div>
 <div class="proof-body">
-<p>Direct computation: \(\frac{\partial}{\partial t}|\Psi|^2 = \bar{\Psi}\frac{\partial\Psi}{\partial t} + \Psi\frac{\partial\bar{\Psi}}{\partial t}\). Substituting the <a class="ref" data-ref="def-2.1">Schrödinger equation</a> and its conjugate, the potential terms cancel (since \(V\) is real), leaving \(-\nabla\cdot\mathbf{j}\).</p>
+<p>Direct computation: \(\frac{\partial}{\partial t}|\Psi|^2 = \bar{\Psi}\frac{\partial\Psi}{\partial t} + \Psi\frac{\partial\bar{\Psi}}{\partial t}\). Substituting the <a class="ref" data-ref="def-2.1">Schrodinger equation</a> and its conjugate, the potential terms cancel (since \(V\) is real), leaving \(-\nabla\cdot\mathbf{j}\).</p>
 </div>
-<div class="qed">□</div>
+<div class="qed">&#9633;</div>
+</div>
+
+<div class="env equation" id="eq-3.6">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \mathbf{j} = \frac{i\hbar}{2m}\bigl(\Psi\nabla\bar{\Psi} - \bar{\Psi}\nabla\Psi\bigr) \]</span>
+    <span class="eq-number">(3.6)</span>
+  </div>
+</div>
+
+<div class="env equation" id="eq-3.7">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \frac{\partial\rho}{\partial t} + \nabla\cdot\mathbf{j} = 0 \]</span>
+    <span class="eq-number">(3.7)</span>
+  </div>
 </div>
 
 <div class="env proposition" id="prop-3.2">
@@ -973,20 +1130,47 @@ where \(\mathbf{j} = \frac{i\hbar}{2m}(\Psi\nabla\bar{\Psi} - \bar{\Psi}\nabla\P
 <div class="proof-body">
 <p>Integrate the continuity equation over \(\mathbb{R}^3\) and apply the divergence theorem. The surface integral vanishes by the decay condition on \(\mathbf{j}\).</p>
 </div>
-<div class="qed">□</div>
+<div class="qed">&#9633;</div>
 </div>
+
+<h3 id="sec3-3">3.3 Measurement of energy</h3>
 
 <div class="env definition" id="def-3.4">
 <div class="env-head">Definition 3.4.</div>
 <p>For a state \(\Psi = \sum_n c_n \psi_n e^{-iE_nt/\hbar}\), the probability of measuring energy \(E_n\) is \(|c_n|^2\). This follows from orthonormality of stationary states. Cf. <a class="ref" data-ref="def-2.2">Definition 2.2</a>.</p>
 </div>
 
+<div class="env equation" id="eq-3.21">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ P(E_n) = |c_n|^2, \qquad \sum_n |c_n|^2 = 1 \]</span>
+    <span class="eq-number">(3.21)</span>
+  </div>
+</div>
+
 <h2 class="section-heading" id="sec4">4. The harmonic oscillator</h2>
-<p>Near any potential minimum, physics is described by a harmonic oscillator. This section solves it via the Schrödinger equation.</p>
+<p>Near any potential minimum, physics is described by a harmonic oscillator. This section solves it via the Schrodinger equation.</p>
+
+<h3 id="sec4-1">4.1 One-dimensional harmonic oscillator</h3>
 
 <div class="env definition" id="def-4.1">
 <div class="env-head">Definition 4.1.</div>
 <p>A 1D stationary state with \(\psi(-x) = \psi(x)\) has even parity; with \(\psi(-x) = -\psi(x)\) it has odd parity. For symmetric potentials \(V(-x) = V(x)\), stationary states can always be chosen to have definite parity.</p>
+</div>
+
+<div class="env equation" id="eq-4.4">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ V(x) = \tfrac{1}{2}m\omega^2 x^2 \]</span>
+    <span class="eq-number">(4.4)</span>
+  </div>
+</div>
+
+<p>The Hermite differential equation arises after substituting the ansatz \(\psi(\xi) = h(\xi)e^{-\xi^2/2}\) into the time-independent Schrodinger equation for the harmonic oscillator:</p>
+
+<div class="env equation" id="eq-4.14">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ h''(\xi) - 2\xi\,h'(\xi) + 2n\,h(\xi) = 0 \]</span>
+    <span class="eq-number">(4.14)</span>
+  </div>
 </div>
 
 <div class="env theorem" id="thm-4.1">
@@ -996,9 +1180,35 @@ where \(\mathbf{j} = \frac{i\hbar}{2m}(\Psi\nabla\bar{\Psi} - \bar{\Psi}\nabla\P
 The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}\) where \(\xi = \sqrt{m\omega/\hbar}\,x\) and \(H_n\) are the Hermite polynomials. The ground state energy is \(\frac{1}{2}\hbar\omega\) (zero-point energy). Cf. <a class="ref" data-ref="def-2.2">Definition 2.2</a>, <a class="ref" data-ref="def-2.3">Definition 2.3</a>.</p>
 </div>
 
+<div class="env equation" id="eq-4.18">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ E_n = \left(n + \tfrac{1}{2}\right)\hbar\omega, \qquad n \in \mathbb{Z}_{\geq 0} \]</span>
+    <span class="eq-number">(4.18)</span>
+  </div>
+</div>
+
+<figure id="fig-6" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 6 -- Harmonic oscillator wavefunctions ]
+  </div>
+  <figcaption>Figure 6: The first four stationary state wave functions of the quantum harmonic oscillator, showing the characteristic Hermite polynomial structure.</figcaption>
+</figure>
+
+<h3 id="sec4-2">4.2 Higher-dimensional oscillators</h3>
+<p>In higher dimensions, the harmonic oscillator potential separates into a sum of independent one-dimensional oscillators. The total energy is the sum of individual energies. Quantum tunnelling into classically forbidden regions is a characteristic quantum phenomenon.</p>
+
+<figure id="fig-7" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 7 -- Quantum tunnelling ]
+  </div>
+  <figcaption>Figure 7: Quantum tunnelling: the wave function penetrates into the classically forbidden region where \(V > E\).</figcaption>
+</figure>
+
 <h2 class="section-heading" id="sec5">5. The mathematical structure of quantum theory</h2>
 
 <p>The postulates of quantum mechanics are formalized using Hilbert spaces and self-adjoint operators.</p>
+
+<h3 id="sec5-1">5.1 States</h3>
 
 <div class="env definition" id="def-5.1">
   <div class="env-head">Definition 5.1.</div>
@@ -1010,6 +1220,15 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <p>A <em>Hilbert space</em> is a complete complex inner product space. Completeness ensures that infinite sums (superpositions) converge to elements of \(\mathcal{H}\). The inner product is denoted \(\langle\phi|\psi\rangle\), antilinear in the first argument and linear in the second.</p>
 </div>
 
+<div class="env equation" id="eq-5.1">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \langle\phi|\psi\rangle = \overline{\langle\psi|\phi\rangle}, \quad \langle\phi|\alpha\psi_1 + \beta\psi_2\rangle = \alpha\langle\phi|\psi_1\rangle + \beta\langle\phi|\psi_2\rangle, \quad \langle\psi|\psi\rangle \geq 0 \]</span>
+    <span class="eq-number">(5.1)</span>
+  </div>
+</div>
+
+<h3 id="sec5-2">5.2 Observables</h3>
+
 <div class="env definition" id="def-5.3">
   <div class="env-head">Definition 5.3.</div>
   <p>Observables (measurable quantities) correspond to self-adjoint (Hermitian) linear operators \(A\) on \(\mathcal{H}\), satisfying \(\langle\phi|A\psi\rangle = \langle A\phi|\psi\rangle\) for all states \(\phi, \psi \in \mathcal{H}\). Ref: <a class="ref" data-ref="def-5.2">Definition 5.2</a>.</p>
@@ -1018,6 +1237,20 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
 <div class="env definition" id="def-5.4">
   <div class="env-head">Definition 5.4.</div>
   <p><em>Position:</em> \((X_i\psi)(\mathbf{x}) = x_i\psi(\mathbf{x})\). <em>Momentum:</em> \((P_i\psi)(\mathbf{x}) = -i\hbar\frac{\partial\psi}{\partial x_i}\). Both are self-adjoint on suitable domains. Ref: <a class="ref" data-ref="def-5.3">Definition 5.3</a>.</p>
+</div>
+
+<div class="env equation" id="eq-5.8">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ (X_i\psi)(\mathbf{x}) = x_i\,\psi(\mathbf{x}) \]</span>
+    <span class="eq-number">(5.8)</span>
+  </div>
+</div>
+
+<div class="env equation" id="eq-5.9">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ (P_i\psi)(\mathbf{x}) = -i\hbar\frac{\partial\psi}{\partial x_i} \]</span>
+    <span class="eq-number">(5.9)</span>
+  </div>
 </div>
 
 <div class="env lemma" id="lem-5.1">
@@ -1030,7 +1263,7 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>For \(A+B\): \(\langle\phi|(A+B)\psi\rangle = \langle\phi|A\psi\rangle + \langle\phi|B\psi\rangle = \langle A\phi|\psi\rangle + \langle B\phi|\psi\rangle = \langle(A+B)\phi|\psi\rangle\). Similarly for scalar multiples. For \(A^2\): \(\langle\phi|A^2\psi\rangle = \langle A\phi|A\psi\rangle = \langle A^2\phi|\psi\rangle\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
 
 <div class="env definition" id="def-5.5">
@@ -1038,9 +1271,23 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <p>The <em>Hamiltonian</em> \(H = \frac{|\mathbf{P}|^2}{2m} + V(\mathbf{X})\) is the energy observable. Acting on wave functions: \((H\psi)(\mathbf{x}) = -\frac{\hbar^2}{2m}\nabla^2\psi + V\psi\). Refs: <a class="ref" data-ref="def-5.4">Definition 5.4</a>, <a class="ref" data-ref="lem-5.1">Lemma 5.1</a>.</p>
 </div>
 
+<div class="env equation" id="eq-5.11">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ H = \frac{|\mathbf{P}|^2}{2m} + V(\mathbf{X}) \]</span>
+    <span class="eq-number">(5.11)</span>
+  </div>
+</div>
+
 <div class="env definition" id="def-5.6">
   <div class="env-head">Definition 5.6.</div>
   <p>An <em>eigenstate</em> of observable \(A\) satisfies \(A\psi = \alpha\psi\) for eigenvalue \(\alpha\). The set of all eigenvalues is the <em>spectrum</em> of \(A\). Ref: <a class="ref" data-ref="def-5.3">Definition 5.3</a>.</p>
+</div>
+
+<div class="env equation" id="eq-5.16">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ A\psi = \alpha\psi \]</span>
+    <span class="eq-number">(5.16)</span>
+  </div>
 </div>
 
 <div class="env proposition" id="prop-5.2">
@@ -1053,7 +1300,7 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>\(\alpha\|\psi\|^2 = \langle\psi|A\psi\rangle = \langle A\psi|\psi\rangle = \bar{\alpha}\|\psi\|^2\), so \(\alpha = \bar{\alpha}\) is real. For orthogonality: \(\alpha_1\langle\psi_1|\psi_2\rangle = \langle A\psi_1|\psi_2\rangle = \langle\psi_1|A\psi_2\rangle = \alpha_2\langle\psi_1|\psi_2\rangle\), so \((\alpha_1 - \alpha_2)\langle\psi_1|\psi_2\rangle = 0\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
 
 <div class="env theorem" id="thm-5.3">
@@ -1061,25 +1308,56 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <p>If \(A\) is self-adjoint on a finite-dimensional \(\mathcal{H}\), there exists a complete orthonormal basis of eigenvectors. This generalises to infinite dimensions under suitable conditions: any \(\psi \in \mathcal{H}\) can be expanded as \(\psi = \sum_n c_n\psi_n\) where \(A\psi_n = \alpha_n\psi_n\). Refs: <a class="ref" data-ref="prop-5.2">Proposition 5.2</a>, <a class="ref" data-ref="def-5.6">Definition 5.6</a>.</p>
 </div>
 
+<h3 id="sec5-3">5.3 Measurement</h3>
+
 <div class="env definition" id="def-5.7">
   <div class="env-head">Definition 5.7.</div>
   <p>Measuring observable \(A\) in state \(\psi = \sum_n c_n\psi_n\) yields eigenvalue \(\alpha_n\) with probability \(|c_n|^2\). Only eigenvalues can be observed as measurement outcomes. Refs: <a class="ref" data-ref="thm-5.3">Theorem 5.3</a>, <a class="ref" data-ref="def-5.6">Definition 5.6</a>.</p>
 </div>
+
+<div class="env equation" id="eq-5.32">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ P(\alpha_n) = |c_n|^2 = |\langle\psi_n|\psi\rangle|^2 \]</span>
+    <span class="eq-number">(5.32)</span>
+  </div>
+</div>
+
+<h3 id="sec5-4">5.4 Collapse of wave function</h3>
 
 <div class="env definition" id="def-5.8">
   <div class="env-head">Definition 5.8.</div>
   <p>After measuring \(A\) and obtaining eigenvalue \(\alpha_n\), the state instantaneously <em>collapses</em> to the eigenstate \(\psi_n\). All prior superposition information is lost. Ref: <a class="ref" data-ref="def-5.7">Definition 5.7</a>.</p>
 </div>
 
+<h3 id="sec5-5">5.5 Summary</h3>
+
+<p>The time evolution of a quantum state is governed by the Schrodinger equation in operator form:</p>
+
+<div class="env equation" id="eq-5.36">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ i\hbar\frac{d}{dt}\ket{\psi(t)} = H\ket{\psi(t)} \]</span>
+    <span class="eq-number">(5.36)</span>
+  </div>
+</div>
+
 <h2 class="section-heading" id="sec6">6. Statistical aspects of quantum theory</h2>
 
 <p>Expectation values, commutators, and the uncertainty principle.</p>
+
+<h3 id="sec6-1">6.1 Expectation and dispersion</h3>
 
 <div class="env definition" id="def-6.1">
   <div class="env-head">Definition 6.1.</div>
   <p>The <em>expectation value</em> of observable \(A\) in normalized state \(\psi\) is:
   \[E_\psi(A) = \langle\psi|A\psi\rangle = \sum_n \alpha_n|c_n|^2.\]
   It equals the average over repeated measurements. Refs: <a class="ref" data-ref="def-5.7">Definition 5.7</a>, <a class="ref" data-ref="thm-5.3">Theorem 5.3</a>.</p>
+</div>
+
+<div class="env equation" id="eq-6.1">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ E_\psi(A) = \langle\psi|A\psi\rangle \]</span>
+    <span class="eq-number">(6.1)</span>
+  </div>
 </div>
 
 <div class="env definition" id="def-6.2">
@@ -1099,6 +1377,13 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   It measures the spread of measurement outcomes. Ref: <a class="ref" data-ref="def-6.1">Definition 6.1</a>.</p>
 </div>
 
+<div class="env equation" id="eq-6.5">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \Delta_\psi(A)^2 = E_\psi(A^2) - \bigl(E_\psi(A)\bigr)^2 \]</span>
+    <span class="eq-number">(6.5)</span>
+  </div>
+</div>
+
 <div class="env proposition" id="prop-6.2">
   <div class="env-head">Proposition 6.2.</div>
   <p>\(\Delta_\psi(A) = 0\) if and only if \(\psi\) is an eigenstate of \(A\). In that case the eigenvalue equals \(E_\psi(A)\) and measurement is certain. Refs: <a class="ref" data-ref="def-6.3">Definition 6.3</a>, <a class="ref" data-ref="def-5.6">Definition 5.6</a>.</p>
@@ -1109,8 +1394,10 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>\(\Delta_\psi(A)^2 = \|(A - E_\psi(A)\mathbf{1})\psi\|^2\) by self-adjointness. This is zero if and only if \(A\psi = E_\psi(A)\psi\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
+
+<h3 id="sec6-2">6.2 Commutation relations</h3>
 
 <div class="env definition" id="def-6.4">
   <div class="env-head">Definition 6.4.</div>
@@ -1127,13 +1414,22 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>\((XP - PX)\psi = x(-i\hbar\psi') - (-i\hbar)(x\psi)' = -i\hbar x\psi' + i\hbar\psi + i\hbar x\psi' = i\hbar\psi\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
+</div>
+
+<div class="env equation" id="eq-6.9">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ [X, P] = i\hbar\,\mathbf{1} \]</span>
+    <span class="eq-number">(6.9)</span>
+  </div>
 </div>
 
 <div class="env proposition" id="prop-6.4">
   <div class="env-head">Proposition 6.4.</div>
   <p>The commutator is: (i) antisymmetric: \([A,B] = -[B,A]\); (ii) linear; (iii) satisfies the Leibniz rule: \([A,BC] = B[A,C] + [A,B]C\); (iv) satisfies the Jacobi identity: \([A,[B,C]] + [B,[C,A]] + [C,[A,B]] = 0\); (v) if \([A,B] = iC\) with \(A,B\) self-adjoint, then \(C\) is self-adjoint. Ref: <a class="ref" data-ref="def-6.4">Definition 6.4</a>.</p>
 </div>
+
+<h3 id="sec6-3">6.3 Heisenberg uncertainty principle</h3>
 
 <div class="env proposition" id="prop-6.5">
   <div class="env-head">Proposition 6.5.</div>
@@ -1147,7 +1443,14 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>\(\|(A - isB)\psi\|^2 = E(A^2) + sE(C) + s^2E(B^2) \geq 0\) for all real \(s\). This quadratic in \(s\) has non-positive discriminant: \((E(C))^2 - 4E(A^2)E(B^2) \leq 0\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
+</div>
+
+<div class="env equation" id="eq-6.13">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ E_\psi(A^2)\,E_\psi(B^2) \geq \tfrac{1}{4}\bigl(E_\psi(C)\bigr)^2 \]</span>
+    <span class="eq-number">(6.13)</span>
+  </div>
 </div>
 
 <div class="env corollary" id="cor-6.6">
@@ -1162,7 +1465,14 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>Set \(A = X - E(X)\mathbf{1}\), \(B = P - E(P)\mathbf{1}\). Then \([A,B] = [X,P] = i\hbar\mathbf{1}\), so \(C = \hbar\mathbf{1}\). Apply <a class="ref" data-ref="prop-6.5">Proposition 6.5</a> with \(E(A^2) = \Delta(X)^2\) and \(E(B^2) = \Delta(P)^2\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
+</div>
+
+<div class="env equation" id="eq-6.15">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ \Delta_\psi(X)\,\Delta_\psi(P) \geq \frac{\hbar}{2} \]</span>
+    <span class="eq-number">(6.15)</span>
+  </div>
 </div>
 
 <div class="env corollary" id="cor-6.7">
@@ -1176,11 +1486,20 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
 
 <p>Algebraic approach using raising and lowering operators. The Hamiltonian is \(H = \frac{P^2}{2m} + \frac{1}{2}m\omega^2 X^2\).</p>
 
+<h3 id="sec7-1">7.1 Raising and lowering operators</h3>
+
 <div class="env definition" id="def-7.1">
   <div class="env-head">Definition 7.1.</div>
   <p>The <em>raising and lowering operators</em> are:
   \[a_\pm = \frac{1}{\sqrt{2m\omega\hbar}}(\mp iP + m\omega X).\]
   Since \(X\) and \(P\) are self-adjoint, \(a_+ = (a_-)^*\). Ref: <a class="ref" data-ref="def-5.4">Definition 5.4</a>.</p>
+</div>
+
+<div class="env equation" id="eq-7.1">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ a_\pm = \frac{1}{\sqrt{2m\omega\hbar}}\bigl(\mp iP + m\omega X\bigr) \]</span>
+    <span class="eq-number">(7.1)</span>
+  </div>
 </div>
 
 <div class="env lemma" id="lem-7.1">
@@ -1193,7 +1512,14 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>\(N = a_+a_- = \frac{1}{2m\omega\hbar}(P^2 + m^2\omega^2 X^2 + im\omega[X,P]) = \frac{1}{\hbar\omega}\!\left(\frac{P^2}{2m} + \frac{1}{2}m\omega^2 X^2\right) - \frac{1}{2}\). Rearranging gives the result.</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
+</div>
+
+<div class="env equation" id="eq-7.5">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ H = \left(N + \tfrac{1}{2}\right)\hbar\omega, \qquad N = a_+a_- \]</span>
+    <span class="eq-number">(7.5)</span>
+  </div>
 </div>
 
 <div class="env definition" id="def-7.2">
@@ -1206,6 +1532,13 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <p>(i) \([a_-, a_+] = 1\). (ii) \([N, a_\pm] = \pm a_\pm\). (iii) \(\|a_-\psi\|^2 = \langle\psi|N\psi\rangle\). (iv) \(\|a_+\psi\|^2 = \langle\psi|(N+1)\psi\rangle\). Refs: <a class="ref" data-ref="def-7.1">Definition 7.1</a>, <a class="ref" data-ref="def-7.2">Definition 7.2</a>, <a class="ref" data-ref="prop-6.3">Proposition 6.3</a>.</p>
 </div>
 
+<div class="env equation" id="eq-7.12">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ N(a_\pm\psi) = (\lambda \pm 1)\,a_\pm\psi \quad\text{if } N\psi = \lambda\psi \]</span>
+    <span class="eq-number">(7.12)</span>
+  </div>
+</div>
+
 <div class="env lemma" id="lem-7.3">
   <div class="env-head">Lemma 7.3.</div>
   <p>If \(N\psi = \lambda\psi\) with \(\psi \neq 0\): (a) \(a_\pm\psi\) are eigenstates of \(N\) with eigenvalue \(\lambda \pm 1\) (if non-zero); (b) \(\lambda \geq 0\) with equality if and only if \(a_-\psi = 0\). Refs: <a class="ref" data-ref="def-7.2">Definition 7.2</a>, <a class="ref" data-ref="prop-7.2">Proposition 7.2</a>.</p>
@@ -1216,7 +1549,7 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>(a) \(N(a_\pm\psi) = ([N,a_\pm] + a_\pm N)\psi = (\pm a_\pm + \lambda a_\pm)\psi = (\lambda\pm 1)a_\pm\psi\). (b) \(\lambda = \langle\psi|N\psi\rangle/\|\psi\|^2 = \|a_-\psi\|^2/\|\psi\|^2 \geq 0\), with equality if and only if \(a_-\psi = 0\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
 
 <div class="env theorem" id="thm-7.4">
@@ -1229,8 +1562,10 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>If \(N\psi = \mu\psi\), applying \(a_-\) repeatedly gives eigenstates with eigenvalues \(\mu, \mu-1, \ldots\). Since eigenvalues \(\geq 0\), this terminates at some \(a_-^n\psi = 0\) with \(\mu - n = 0\). Hence \(\mu \in \mathbb{Z}_{\geq 0}\). Conversely, \(a_+^n\psi_0\) has eigenvalue \(n\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
+
+<h3 id="sec7-2">7.2 Normalized states</h3>
 
 <div class="env proposition" id="prop-7.6">
   <div class="env-head">Proposition 7.6.</div>
@@ -1242,6 +1577,8 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
 <h2 class="section-heading" id="sec8">8. Angular momentum</h2>
 
 <p>In classical mechanics, angular momentum \(\mathbf{L} = \mathbf{x} \wedge \mathbf{p}\). Conservation of angular momentum plays a key role in the hydrogen atom.</p>
+
+<h3 id="sec8-1">8.1 Angular momentum operators</h3>
 
 <div class="env definition" id="def-8.1">
   <div class="env-head">Definition 8.1.</div>
@@ -1264,8 +1601,17 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>For (i): \([L_i, X_j] = \sum_{m,n}\epsilon_{imn}[X_mP_n, X_j] = \sum_{m,n}\epsilon_{imn}X_m[P_n,X_j] = -i\hbar\sum_m \epsilon_{imj}X_m = i\hbar\sum_k\epsilon_{ijk}X_k\). Parts (ii) and (iii) are similar, using the Leibniz rule and the canonical commutation relations.</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
+
+<div class="env equation" id="eq-8.2">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ [L_i, L_j] = i\hbar \sum_k \epsilon_{ijk}\,L_k \]</span>
+    <span class="eq-number">(8.2)</span>
+  </div>
+</div>
+
+<h3 id="sec8-2">8.2 Raising and lowering operators</h3>
 
 <div class="env definition" id="def-8.2">
   <div class="env-head">Definition 8.2.</div>
@@ -1281,7 +1627,7 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
 
 <div class="env proposition" id="prop-8.2">
   <div class="env-head">Proposition 8.2.</div>
-  <p>\([J^2, J_i] = 0\) for all \(i\). Hence \(J^2\) and any single component \(J_i\) can be simultaneously measured — they share a common set of eigenstates. See <a class="ref" data-ref="def-8.3">Definition 8.3</a>, <a class="ref" data-ref="def-8.2">Definition 8.2</a>.</p>
+  <p>\([J^2, J_i] = 0\) for all \(i\). Hence \(J^2\) and any single component \(J_i\) can be simultaneously measured -- they share a common set of eigenstates. See <a class="ref" data-ref="def-8.3">Definition 8.3</a>, <a class="ref" data-ref="def-8.2">Definition 8.2</a>.</p>
 </div>
 
 <div class="proof collapsed" id="proof-prop-8.2">
@@ -1292,8 +1638,10 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
     \[= -i\hbar(J_1J_2 + J_2J_1) + i\hbar(J_2J_1 + J_1J_2) = 0.\]
     The cases \(i = 1, 2\) are analogous by symmetry.</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
+
+<h3 id="sec8-3">8.3 Representations of angular momentum</h3>
 
 <div class="env theorem" id="thm-8.3">
   <div class="env-head">Theorem 8.3.</div>
@@ -1305,8 +1653,17 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div class="proof-body">
     <p>Define raising and lowering operators \(J_\pm = J_1 \pm iJ_2\). One verifies \([J_3, J_\pm] = \pm\hbar J_\pm\) and \([J_+, J_-] = 2\hbar J_3\). If \(\psi\) is an eigenstate of \(J_3\) with eigenvalue \(m\hbar\), then \(J_\pm\psi\) (when nonzero) is an eigenstate with eigenvalue \((m\pm 1)\hbar\). By the same ladder argument as for the <a class="ref" data-ref="thm-7.4">harmonic oscillator</a>, the spectrum of \(J_3\) is bounded above and below; the ladder must terminate, which forces \(m\) to range from \(-j\) to \(j\) in integer steps for some \(j \in \frac{1}{2}\mathbb{Z}_{\geq 0}\). Using \(J^2 = J_-J_+ + J_3^2 + \hbar J_3\) gives the eigenvalue \(j(j+1)\hbar^2\).</p>
   </div>
-  <div class="qed">□</div>
+  <div class="qed">&#9633;</div>
 </div>
+
+<div class="env equation" id="eq-8.11">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ J^2\ket{j,m} = j(j+1)\hbar^2\ket{j,m}, \qquad J_3\ket{j,m} = m\hbar\ket{j,m} \]</span>
+    <span class="eq-number">(8.11)</span>
+  </div>
+</div>
+
+<h3 id="sec8-4">8.4 Orbital angular momentum and spherical harmonics</h3>
 
 <div class="env definition" id="def-8.4">
   <div class="env-head">Definition 8.4.</div>
@@ -1315,15 +1672,43 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   where \(l \in \mathbb{Z}_{\geq 0}\) and \(m \in \{-l, \ldots, l\}\). They form a complete orthonormal set on the sphere \(S^2\). See <a class="ref" data-ref="thm-8.3">Theorem 8.3</a>, <a class="ref" data-ref="def-8.1">Definition 8.1</a>.</p>
 </div>
 
+<div class="env equation" id="eq-8.33">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ L^2 Y_l^m = l(l+1)\hbar^2 Y_l^m, \qquad L_3 Y_l^m = m\hbar Y_l^m \]</span>
+    <span class="eq-number">(8.33)</span>
+  </div>
+</div>
+
 <h2 class="section-heading" id="sec9">9. The hydrogen atom</h2>
 
 <p>The hydrogen atom consists of an electron orbiting a proton under the Coulomb potential \(V(r) = -e^2/r\).</p>
 
+<h3 id="sec9-1">9.1 Atoms</h3>
+<p>An atom consists of a heavy nucleus of charge \(Ze\) surrounded by electrons. For hydrogen (\(Z = 1\)), we consider a single electron in the Coulomb field of the proton.</p>
+
+<h3 id="sec9-2">9.2 Central potentials</h3>
+
 <div class="env definition" id="def-9.1">
   <div class="env-head">Definition 9.1.</div>
-  <p>A <strong>central potential</strong> is a potential \(V = V(r)\) depending only on the distance \(r = |\mathbf{x}|\). The <a class="ref" data-ref="def-2.2">stationary Schrödinger equation</a> separates in spherical coordinates: the angular part is solved by <a class="ref" data-ref="def-8.4">spherical harmonics</a> \(Y_l^m\), and the radial part becomes:
+  <p>A <strong>central potential</strong> is a potential \(V = V(r)\) depending only on the distance \(r = |\mathbf{x}|\). The <a class="ref" data-ref="def-2.2">stationary Schrodinger equation</a> separates in spherical coordinates: the angular part is solved by <a class="ref" data-ref="def-8.4">spherical harmonics</a> \(Y_l^m\), and the radial part becomes:
   \[-\frac{\hbar^2}{2m}\left(\frac{d^2u}{dr^2} - \frac{l(l+1)}{r^2}u\right) + V(r)u = Eu,\]
   where \(\psi(r,\theta,\phi) = \frac{u(r)}{r}Y_l^m(\theta,\phi)\).</p>
+</div>
+
+<div class="env equation" id="eq-9.10">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ H = -\frac{\hbar^2}{2m_e}\nabla^2 - \frac{e^2}{r} \]</span>
+    <span class="eq-number">(9.10)</span>
+  </div>
+</div>
+
+<h3 id="sec9-3">9.3 Spectrum of hydrogen atom</h3>
+
+<div class="env equation" id="eq-9.14">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ -\frac{\hbar^2}{2m_e}\frac{d^2u}{dr^2} + \left(-\frac{e^2}{r} + \frac{l(l+1)\hbar^2}{2m_e r^2}\right)u = E\,u \]</span>
+    <span class="eq-number">(9.14)</span>
+  </div>
 </div>
 
 <div class="env theorem" id="thm-9.1">
@@ -1333,11 +1718,35 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   Each energy level \(E_n\) has degeneracy \(n^2\), with \(l = 0, 1, \ldots, n-1\) and \(m = -l, \ldots, l\). This reproduces the Rydberg formula \(\omega_{n_1,n_2} = 2\pi R_0 c\left(\frac{1}{n_1^2} - \frac{1}{n_2^2}\right)\). See <a class="ref" data-ref="def-9.1">Definition 9.1</a>, <a class="ref" data-ref="def-8.4">Definition 8.4</a>, <a class="ref" data-ref="def-1.1">Definition 1.1</a>.</p>
 </div>
 
+<div class="env equation" id="eq-9.32">
+  <div class="eq-wrapper">
+    <span class="eq-math">\[ E_n = -\frac{m_e e^4}{2\hbar^2 n^2}, \qquad n = 1, 2, 3, \ldots \]</span>
+    <span class="eq-number">(9.32)</span>
+  </div>
+</div>
+
+<h3 id="sec9-4">9.4 Rotationally symmetric solutions</h3>
+<p>For \(l = 0\) (s-wave states), the angular part is trivial (\(Y_0^0 = 1/\sqrt{4\pi}\)) and the wave function depends only on \(r\).</p>
+
+<figure id="fig-11" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 11 -- Hydrogen atom wavefunctions ]
+  </div>
+  <figcaption>Figure 11: Radial probability densities for the first few hydrogen atom states.</figcaption>
+</figure>
+
 <h2 class="section-heading" id="sec10">10. Quantum key distribution</h2>
 
 <p>Quantum mechanics has applications beyond physics. The BB84 protocol, developed by Bennett and Brassard in 1984, uses the <a class="ref" data-ref="def-5.7">quantum measurement postulate</a> and the no-cloning theorem to establish secure communication channels. Any eavesdropping attempt disturbs the quantum states being transmitted, making interception detectable. This is a direct consequence of the <a class="ref" data-ref="def-5.8">collapse of the wave function</a>: measuring a quantum state inevitably changes it.</p>
 
 <p>The security of quantum key distribution rests on fundamental quantum mechanical principles rather than computational assumptions, unlike classical cryptographic methods such as RSA. The <a class="ref" data-ref="cor-6.7">uncertainty principle</a> ensures that an eavesdropper cannot simultaneously determine all properties of the transmitted quantum states.</p>
+
+<figure id="fig-12" class="content-figure">
+  <div class="img-placeholder">
+    [ Placeholder: Figure 12 -- QKD setup ]
+  </div>
+  <figcaption>Figure 12: Schematic of the BB84 quantum key distribution protocol.</figcaption>
+</figure>
 
 </main>
 
@@ -1347,32 +1756,15 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
 <div id="panel-nav">
   <button id="nav-back" disabled title="Back">&#9664;</button>
   <button id="nav-forward" disabled title="Forward">&#9654;</button>
-  <div class="panel-tabs">
-    <button class="panel-tab active" data-tab="deps">Deps</button>
-    <button class="panel-tab" data-tab="guide">Guide</button>
-    <button class="panel-tab" data-tab="glossary">Glossary</button>
-  </div>
-  <button class="btn-map" id="btn-map" title="Toggle overview map">Map</button>
+  <span id="nav-label" class="nav-label"></span>
+  <input type="text" id="inspector-search" placeholder="Search all items...">
   <button class="btn-close-panel" id="btn-close-panel" title="Close panel">&times;</button>
 </div>
-<div id="minimap-container"></div>
-<div id="tab-deps" class="panel-tab-content active">
-  <div id="nav-label-bar"><span id="nav-label"></span></div>
-  <div id="graph-container"></div>
-  <div id="panel-content"></div>
-</div>
-<div id="tab-guide" class="panel-tab-content">
-  <input type="text" id="guide-search" placeholder="Search guide...">
-  <div id="guide-body"></div>
-</div>
-<div id="tab-glossary" class="panel-tab-content">
-  <input type="text" id="glossary-search" placeholder="Search glossary...">
-  <div class="glossary-type-filters" id="glossary-type-filters"></div>
-  <div id="glossary-body"></div>
-</div>
+<div id="graph-container" style="display:none;"></div>
+<div id="inspector-content"></div>
 </aside>
 
-<!-- Floating peek popover (positioned near hovered reference) -->
+<!-- Floating peek popover -->
 <div id="peek-popover">
   <div id="peek-popover-header">
     <span id="peek-label"></span>
@@ -1387,152 +1779,134 @@ The stationary state wave functions are \(\psi_n(x) \propto H_n(\xi)e^{-\xi^2/2}
   <div id="peek-resize-handle"></div>
 </div>
 
-
 <!-- JavaScript -->
 <script>
 var graph = {}, labelMap = {};
 var navHistory = [], navIndex = -1, currentPanelId = null;
-var peekTimeout = null, minimapBuilt = false, currentScrollId = null;
+var peekTimeout = null, currentScrollId = null;
 var peekWidth = 380, peekHeight = 420, peekZoom = 100;
 var MAX_DEPTH = 2, MAX_PER_COL = 8;
+var inspectorMode = 'index'; // 'index' or 'active'
+var inspectorFilter = 'all';
 
-var ENV_NAMES = {
-  "def-1.1": "Einstein\u2013Planck relation",
-  "def-1.2": "De Broglie relations",
-  "def-2.1": "Schr\u00f6dinger equation",
-  "def-2.2": "Stationary state Schr\u00f6dinger equation",
-  "def-2.3": "Ground state energy",
-  "def-2.4": "Degeneracy",
-  "def-3.1": "Born rule",
-  "def-3.2": "Normalizable wave function",
-  "def-3.3": "Expectation value of position",
-  "prop-3.1": "Continuity equation",
-  "prop-3.2": "Conservation of probability",
-  "def-3.4": "Energy measurement probability",
-  "def-4.1": "Parity state",
-  "thm-4.1": "Harmonic oscillator energies",
-  "def-5.1": "Quantum states",
-  "def-5.2": "Hilbert space",
-  "def-5.3": "Observables",
-  "def-5.4": "Position and momentum operators",
-  "lem-5.1": "Self-adjoint operator construction",
-  "def-5.5": "Hamiltonian operator",
-  "def-5.6": "Eigenstate and spectrum",
-  "prop-5.2": "Real eigenvalues and orthogonality",
-  "thm-5.3": "Spectral theorem",
-  "def-5.7": "Quantum measurement postulate",
-  "def-5.8": "Collapse of the wave function",
-  "def-6.1": "Expectation value",
-  "def-6.2": "Identity and non-negative operators",
-  "prop-6.1": "Expectation value properties",
-  "def-6.3": "Dispersion",
-  "prop-6.2": "Dispersion and eigenstates",
-  "def-6.4": "Commutator",
-  "prop-6.3": "Canonical commutation relations",
-  "prop-6.4": "Commutator properties",
-  "prop-6.5": "Uncertainty inequality",
-  "cor-6.6": "Heisenberg uncertainty principle",
-  "cor-6.7": "General uncertainty relation",
-  "def-7.1": "Raising and lowering operators",
-  "lem-7.1": "Hamiltonian factorization",
-  "def-7.2": "Number operator",
-  "prop-7.2": "Ladder operator commutation",
-  "lem-7.3": "Number operator eigenvalue properties",
-  "thm-7.4": "Spectrum of the number operator",
-  "prop-7.6": "Normalized stationary states",
-  "def-8.1": "Angular momentum operator",
-  "prop-8.1": "Angular momentum commutation relations",
-  "def-8.2": "General angular momentum operator",
-  "def-8.3": "Total angular momentum squared",
-  "prop-8.2": "J\u00b2 commutes with components",
-  "thm-8.3": "Spectrum of angular momentum",
-  "def-8.4": "Spherical harmonics",
-  "def-9.1": "Central potential",
-  "thm-9.1": "Hydrogen atom spectrum"
+var KNOWLEDGE_GRAPH = {
+  // ── Sections ──
+  'sec0': { type:'section', name:'0. Classical particles and waves', desc:"Classical particles and waves. Review of point particles (Newton\u2019s second law, conserved energy, momentum) and the wave equation. Sets notation for wave vector, angular frequency, wavelength. Everything here is classical background.", uses:[], usedBy:[] },
+  'sec1': { type:'section', name:'1. Physical background and wave-particle duality', desc:"Physical background and wave-particle duality. The photoelectric effect shows light comes in quanta (photons, \\(E = \\hbar\\omega\\)). Atomic spectra reveal discrete energy levels. The double slit experiment shows particles behave as waves. De Broglie\u2019s relations \\(E = \\hbar\\omega\\), \\(\\mathbf{p} = \\hbar\\mathbf{k}\\) unify these observations.", uses:[], usedBy:[] },
+  'sec2': { type:'section', name:'2. Wave mechanics', desc:"Wave mechanics. The Schr\u00f6dinger equation is motivated from de Broglie\u2019s relations and classical energy. Stationary states separate time and space variables. Key examples: particle in a box (quantized energies \\(\\propto n^2\\)), degeneracy in 3D boxes, particle on a circle. Energy quantization emerges from boundary conditions.", uses:[], usedBy:[] },
+  'sec3': { type:'section', name:'3. The Born interpretation', desc:"The Born interpretation. The wave function\u2019s absolute value squared gives the probability density. Normalizable/normalized wave functions, expectation values. The continuity equation ensures probability is conserved. Energy measurement: expanding in stationary states gives measurement probabilities \\(|c_n|^2\\).", uses:[], usedBy:[] },
+  'sec4': { type:'section', name:'4. The harmonic oscillator', desc:"The harmonic oscillator. Near any potential minimum, physics looks like a harmonic oscillator. Solving the Schr\u00f6dinger equation via power series yields energies \\(E_n = (n + 1/2)\\hbar\\omega\\) with Hermite polynomial wave functions. Higher dimensions: separation of variables gives decoupled oscillators. Quantum tunnelling into classically forbidden regions.", uses:[], usedBy:[] },
+  'sec5': { type:'section', name:'5. The mathematical structure of quantum theory', desc:"The mathematical structure of quantum theory. States live in a Hilbert space \\(\\mathcal{H}\\). Observables are self-adjoint operators. Key examples: position \\(X\\), momentum \\(P = -i\\hbar\\nabla\\), Hamiltonian \\(H\\). The spectral theorem gives eigenbases. Measurement postulate: outcomes are eigenvalues with probabilities \\(|c_n|^2\\). Wave function collapse after measurement.", uses:[], usedBy:[] },
+  'sec6': { type:'section', name:'6. Statistical aspects of quantum theory', desc:"Statistical aspects. Expectation value \\(E(A) = \\langle\\psi|A\\psi\\rangle\\) and dispersion \\(\\Delta(A)\\). Zero dispersion iff eigenstate. Commutators encode algebraic structure: canonical \\([X,P] = i\\hbar\\), Leibniz rule, Jacobi identity. Heisenberg uncertainty principle \\(\\Delta(X)\\Delta(P) \\geq \\hbar/2\\) follows directly from the commutation relation. Minimum uncertainty states are Gaussians.", uses:[], usedBy:[] },
+  'sec7': { type:'section', name:'7. The harmonic oscillator revisited', desc:"The harmonic oscillator revisited. Algebraic approach using raising/lowering operators \\(a_\\pm\\). The Hamiltonian factors as \\(H = (N + 1/2)\\hbar\\omega\\). Ladder operators move between eigenstates: \\(a_+\\) raises, \\(a_-\\) lowers. Spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\). Normalized states \\(\\psi_n = (1/\\sqrt{n!})a_+^n\\psi_0\\). Derives Hermite polynomial formula.", uses:[], usedBy:[] },
+  'sec8': { type:'section', name:'8. Angular momentum', desc:"Angular momentum. Orbital angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\) satisfies \\([L_i,L_j] = i\\hbar\\epsilon_{ijk}L_k\\). General angular momentum operators \\(\\mathbf{J}\\) analyzed algebraically (same raising/lowering technique as harmonic oscillator). Eigenvalues: \\(J^2 \\to j(j+1)\\hbar^2\\), \\(J_3 \\to m\\hbar\\) with \\(m \\in \\{-j,\\ldots,j\\}\\). Orbital case: \\(j = l \\in \\mathbb{Z}_{\\geq 0}\\), spherical harmonics \\(Y_l^m\\).", uses:[], usedBy:[] },
+  'sec9': { type:'section', name:'9. The hydrogen atom', desc:"The hydrogen atom. Central potentials separate in spherical coordinates: angular part gives spherical harmonics, radial part gives the radial Schr\u00f6dinger equation. For Coulomb potential \\(V = -e^2/r\\), energies are \\(E_n = -m_ee^4/(2\\hbar^2n^2)\\), reproducing Rydberg\u2019s empirical formula. Degeneracy \\(n^2\\) from hidden symmetry.", uses:[], usedBy:[] },
+  'sec10': { type:'section', name:'10. Quantum key distribution', desc:"Quantum key distribution. Application of quantum mechanics to cryptography. The BB84 protocol uses the measurement postulate and no-cloning theorem to establish secure communication. Eavesdropping disturbs quantum states, making interception detectable.", uses:[], usedBy:[] },
+  // ── Definitions, Theorems, etc. ──
+  'def-1.1': { type:'definition', name:'Einstein\u2013Planck relation \\(E = \\hbar\\omega\\)', desc:"Light of angular frequency \\(\\omega\\) exists in quanta of energy \\(E = \\hbar\\omega\\). These photon packets explain the photoelectric effect, where electrons are emitted only when \\(\\omega > E_0/\\hbar\\).", uses:[], usedBy:[] },
+  'def-1.2': { type:'definition', name:'De Broglie relations \\(\\mathbf{p} = \\hbar\\mathbf{k}\\)', desc:"A free particle of energy \\(E\\) and momentum \\(\\mathbf{p}\\) is associated with a wave via \\(E = \\hbar\\omega\\) and \\(\\mathbf{p} = \\hbar\\mathbf{k}\\). This extends Einstein\u2019s photon relation to all particles, underpinning wave mechanics.", uses:['def-1.1'], usedBy:[] },
+  'def-2.1': { type:'definition', name:'Schr\u00f6dinger equation \\(i\\hbar\\partial_t\\Psi = H\\Psi\\)', desc:"A non-relativistic particle of mass \\(m\\) in potential \\(V(\\mathbf{x})\\) is governed by \\(i\\hbar\\frac{\\partial\\Psi}{\\partial t} = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V\\Psi\\). This complex linear PDE replaces Newton\u2019s second law at quantum scales.", uses:['def-1.2'], usedBy:[] },
+  'def-2.2': { type:'definition', name:'Stationary state \\(\\Psi = \\psi e^{-iEt/\\hbar}\\)', desc:"Separating \\(\\Psi = \\psi(\\mathbf{x})e^{-iEt/\\hbar}\\) yields the time-independent equation \\(-\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi = E\\psi\\). Solutions are stationary states with definite energy \\(E\\).", uses:['def-2.1'], usedBy:[] },
+  'def-2.3': { type:'definition', name:'Ground state energy \\(E_n = n^2\\pi^2\\hbar^2/2ma^2\\)', desc:"When energies are discrete and bounded below, the lowest energy is the ground state (zero point) energy. Higher energies are the first, second, etc. excited states.", uses:[], usedBy:[] },
+  'def-2.4': { type:'definition', name:'Degeneracy', desc:"An energy level \\(E\\) is \\(d\\)-fold degenerate if the space of stationary states with that energy has dimension \\(d > 1\\). Non-degenerate means \\(d = 1\\).", uses:[], usedBy:[] },
+  'def-3.1': { type:'definition', name:'Born rule \\(\\rho = |\\Psi|^2\\)', desc:"The probability density is \\(\\rho = |\\Psi(\\mathbf{x},t)|^2\\). The probability of finding the particle in a region \\(D\\) is \\(\\int_D |\\Psi|^2 d^3x\\). This is the Born interpretation of the wave function.", uses:[], usedBy:[] },
+  'def-3.2': { type:'definition', name:'Normalizable wave function', desc:"A wave function is normalizable if \\(0 < \\int |\\Psi|^2 d^3x < \\infty\\) and normalized if the integral equals 1. The Born interpretation requires normalization.", uses:['def-3.1'], usedBy:[] },
+  'def-3.3': { type:'definition', name:'Expectation value of position', desc:"The expectation value of \\(f(\\mathbf{x})\\) in state \\(\\Psi\\) is \\(E_\\Psi(f) = \\int f(\\mathbf{x})|\\Psi|^2 d^3x\\). This gives the average value of repeated position-dependent measurements.", uses:['def-3.1'], usedBy:[] },
+  'prop-3.1': { type:'proposition', name:'Continuity equation \\(\\partial_t\\rho + \\nabla\\cdot\\mathbf{j} = 0\\)', desc:"The Schr\u00f6dinger equation implies \\(\\partial\\rho/\\partial t + \\nabla\\cdot\\mathbf{j} = 0\\) where \\(\\mathbf{j} = \\frac{i\\hbar}{2m}(\\Psi\\nabla\\bar\\Psi - \\bar\\Psi\\nabla\\Psi)\\) is the probability current. This is a conservation law for probability.", uses:['def-2.1'], usedBy:[] },
+  'prop-3.2': { type:'proposition', name:'Conservation of probability', desc:"If the probability current decays sufficiently fast at infinity, then \\(\\int|\\Psi|^2 d^3x\\) is independent of time. A wave function normalized at one time stays normalized forever.", uses:['prop-3.1','def-3.2'], usedBy:[] },
+  'def-3.4': { type:'definition', name:'Energy measurement probability \\(|c_n|^2\\)', desc:"For a state \\(\\Psi = \\sum c_n \\psi_n e^{-iE_nt/\\hbar}\\), the probability of measuring energy \\(E_n\\) is \\(|c_n|^2\\). This follows from orthonormality of stationary states.", uses:['def-2.2'], usedBy:[] },
+  'def-4.1': { type:'definition', name:'Parity of stationary states', desc:"A 1D stationary state with \\(\\psi(-x) = \\psi(x)\\) has even parity; with \\(\\psi(-x) = -\\psi(x)\\) it has odd parity. For symmetric potentials, stationary states can always be chosen to have definite parity.", uses:[], usedBy:[] },
+  'thm-4.1': { type:'theorem', name:'Harmonic oscillator energies \\(E_n = (n+\\tfrac{1}{2})\\hbar\\omega\\)', desc:"The 1D harmonic oscillator with angular frequency \\(\\omega\\) has energies \\(E_n = (n + \\tfrac{1}{2})\\hbar\\omega\\) for \\(n \\in \\mathbb{Z}_{\\geq 0}\\). Wave functions are \\(\\psi_n \\propto H_n(\\xi)e^{-\\xi^2/2}\\) with Hermite polynomials \\(H_n\\).", uses:['def-2.2','def-2.3'], usedBy:[] },
+  'def-5.1': { type:'definition', name:'Quantum states in \\(\\mathcal{H}\\)', desc:"The states of a quantum system are elements of a complex inner product space \\(\\mathcal{H}\\). Proportional vectors represent the same physical state.", uses:[], usedBy:[] },
+  'def-5.2': { type:'definition', name:'Hilbert space', desc:"A complete complex inner product space is a Hilbert space. Completeness ensures infinite sums (superpositions) converge to elements of \\(\\mathcal{H}\\).", uses:[], usedBy:[] },
+  'def-5.3': { type:'definition', name:'Observables (self-adjoint operators)', desc:"Observables (measurable quantities) correspond to self-adjoint linear operators \\(A\\) on \\(\\mathcal{H}\\), satisfying \\(\\langle\\phi|A\\psi\\rangle = \\langle A\\phi|\\psi\\rangle\\) for all states.", uses:['def-5.2'], usedBy:[] },
+  'def-5.4': { type:'definition', name:'Position \\(X\\) and momentum \\(P = -i\\hbar\\nabla\\)', desc:"Position: \\((X_i\\psi)(\\mathbf{x}) = x_i\\psi(\\mathbf{x})\\). Momentum: \\((P_i\\psi)(\\mathbf{x}) = -i\\hbar\\frac{\\partial\\psi}{\\partial x_i}\\). Both are self-adjoint on suitable domains.", uses:['def-5.3'], usedBy:[] },
+  'lem-5.1': { type:'lemma', name:'Self-adjoint operator construction', desc:"If \\(A, B\\) are self-adjoint, so are \\(A + B\\), \\(\\alpha A\\) (\\(\\alpha\\) real), and \\(A^2\\). This lets us build observables like the Hamiltonian from position and momentum.", uses:['def-5.3'], usedBy:[] },
+  'def-5.5': { type:'definition', name:'Hamiltonian \\(H = P^2/2m + V(X)\\)', desc:"The Hamiltonian \\(H = \\frac{|\\mathbf{P}|^2}{2m} + V(\\mathbf{X})\\) is the energy observable. Acting on wave functions: \\((H\\psi)(\\mathbf{x}) = -\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi\\).", uses:['def-5.4','lem-5.1'], usedBy:[] },
+  'def-5.6': { type:'definition', name:'Eigenstate and spectrum \\(A\\psi = \\alpha\\psi\\)', desc:"An eigenstate of observable \\(A\\) satisfies \\(A\\psi = \\alpha\\psi\\) for eigenvalue \\(\\alpha\\). The set of all eigenvalues is the spectrum of \\(A\\).", uses:['def-5.3'], usedBy:[] },
+  'prop-5.2': { type:'proposition', name:'Real eigenvalues and orthogonality', desc:"Eigenvalues of self-adjoint operators are real. Eigenstates with distinct eigenvalues are orthogonal: \\(\\langle\\psi_1|\\psi_2\\rangle = 0\\) when \\(\\alpha_1 \\neq \\alpha_2\\).", uses:['def-5.3','def-5.6'], usedBy:[] },
+  'thm-5.3': { type:'theorem', name:'Spectral theorem', desc:"If \\(A\\) is self-adjoint on a finite-dimensional \\(\\mathcal{H}\\), there exists a complete orthonormal basis of eigenvectors. This generalizes to infinite dimensions under suitable conditions.", uses:['prop-5.2','def-5.6'], usedBy:[] },
+  'def-5.7': { type:'definition', name:'Quantum measurement postulate', desc:"Measuring observable \\(A\\) yields eigenvalue \\(\\alpha_n\\) with probability \\(|c_n|^2\\) where \\(\\psi = \\sum c_n\\psi_n\\) in the eigenbasis. Only eigenvalues can be observed.", uses:['thm-5.3','def-5.6'], usedBy:[] },
+  'def-5.8': { type:'definition', name:'Collapse of the wave function', desc:"After measuring \\(A\\) and obtaining eigenvalue \\(\\alpha_n\\), the state instantaneously collapses to the eigenstate \\(\\psi_n\\). All prior superposition information is lost.", uses:['def-5.7'], usedBy:[] },
+  'def-6.1': { type:'definition', name:'Expectation value \\(E(A) = \\langle\\psi|A\\psi\\rangle\\)', desc:"The expectation value of observable \\(A\\) in normalized state \\(\\psi\\) is \\(E_\\psi(A) = \\langle\\psi|A\\psi\\rangle = \\sum \\alpha_n|c_n|^2\\). It equals the average over repeated measurements.", uses:['def-5.7','thm-5.3'], usedBy:[] },
+  'def-6.2': { type:'definition', name:'Identity and non-negative operators', desc:"The identity operator \\(\\mathbf{1}\\) satisfies \\(\\mathbf{1}\\psi = \\psi\\). An operator \\(A\\) is non-negative if \\(\\langle\\psi|A\\psi\\rangle \\geq 0\\) for all \\(\\psi\\).", uses:[], usedBy:[] },
+  'prop-6.1': { type:'proposition', name:'Expectation value properties', desc:"Expectation is linear: \\(E(A+B) = E(A) + E(B)\\), \\(E(\\alpha A) = \\alpha E(A)\\). For non-negative \\(A\\), \\(E(A) \\geq 0\\). Also \\(E(\\mathbf{1}) = 1\\).", uses:['def-6.1','def-6.2'], usedBy:[] },
+  'def-6.3': { type:'definition', name:'Dispersion \\(\\Delta(A) = \\sqrt{E(A^2) - E(A)^2}\\)', desc:"The dispersion \\(\\Delta_\\psi(A) = \\sqrt{E_\\psi(A^2) - (E_\\psi(A))^2}\\) measures the spread of measurement outcomes around the mean. It is the quantum analogue of standard deviation.", uses:['def-6.1'], usedBy:[] },
+  'prop-6.2': { type:'proposition', name:'Dispersion and eigenstates', desc:"The dispersion \\(\\Delta_\\psi(A) = 0\\) if and only if \\(\\psi\\) is an eigenstate of \\(A\\). In that case the eigenvalue equals \\(E_\\psi(A)\\) and measurement is certain.", uses:['def-6.3','def-5.6'], usedBy:[] },
+  'def-6.4': { type:'definition', name:'Commutator \\([A,B] = AB - BA\\)', desc:"The commutator \\([A,B] = AB - BA\\) measures non-commutativity of operators. It is central to the algebraic structure of quantum mechanics.", uses:[], usedBy:[] },
+  'prop-6.3': { type:'proposition', name:'Canonical commutation relations \\([X,P] = i\\hbar\\)', desc:"In 1D: \\([X,P] = i\\hbar\\mathbf{1}\\). In 3D: \\([X_i,P_j] = i\\hbar\\delta_{ij}\\mathbf{1}\\), \\([X_i,X_j] = 0 = [P_i,P_j]\\). The canonical commutation relations encode the fundamental quantum structure.", uses:['def-5.4','def-6.4'], usedBy:[] },
+  'prop-6.4': { type:'proposition', name:'Commutator properties (Leibniz, Jacobi)', desc:"The commutator is antisymmetric (\\([A,B] = -[B,A]\\)), linear, satisfies the Leibniz rule (\\([A,BC] = B[A,C] + [A,B]C\\)), and the Jacobi identity. If \\([A,B] = iC\\) with \\(A,B\\) self-adjoint, then \\(C\\) is self-adjoint.", uses:['def-6.4'], usedBy:[] },
+  'prop-6.5': { type:'proposition', name:'Uncertainty inequality', desc:"For self-adjoint \\(A,B\\) with \\([A,B] = iC\\): \\(E(A^2)E(B^2) \\geq \\tfrac{1}{4}(E(C))^2\\). Equality holds iff \\((A - is_0B)\\psi = 0\\) for some real \\(s_0\\).", uses:['def-6.4','def-6.1'], usedBy:[] },
+  'cor-6.6': { type:'corollary', name:'Heisenberg uncertainty \\(\\Delta X\\,\\Delta P \\geq \\hbar/2\\)', desc:"Heisenberg\u2019s uncertainty principle: \\(\\Delta_\\psi(X)\\Delta_\\psi(P) \\geq \\frac{\\hbar}{2}\\). Equality holds for Gaussian wave functions (minimum uncertainty states). This is a direct consequence of \\([X,P] = i\\hbar\\).", uses:['prop-6.5','prop-6.3'], usedBy:[] },
+  'cor-6.7': { type:'corollary', name:'General uncertainty relation', desc:"For any self-adjoint \\(A,B\\): \\(\\Delta_\\psi(A)\\Delta_\\psi(B) \\geq \\frac{1}{2}|E_\\psi([A,B])|\\). Non-commuting observables cannot both be measured with arbitrary precision.", uses:['prop-6.5','def-6.4'], usedBy:[] },
+  'def-7.1': { type:'definition', name:'Raising and lowering operators \\(a_\\pm\\)', desc:"The raising and lowering operators \\(a_\\pm = \\frac{1}{\\sqrt{2m\\omega\\hbar}}(\\mp iP + m\\omega X)\\) satisfy \\(a_+ = (a_-)^*\\). They provide an algebraic approach to the harmonic oscillator.", uses:['def-5.4'], usedBy:[] },
+  'lem-7.1': { type:'lemma', name:'Hamiltonian factorization \\(H = (N+\\tfrac{1}{2})\\hbar\\omega\\)', desc:"The Hamiltonian factorizes as \\(H = (N + \\tfrac{1}{2})\\hbar\\omega\\) where \\(N = a_+a_-\\) is the self-adjoint number operator. This follows from \\([X,P] = i\\hbar\\).", uses:['def-7.1','prop-6.3'], usedBy:[] },
+  'def-7.2': { type:'definition', name:'Number operator \\(N = a_+a_-\\)', desc:"The number operator \\(N = a_+a_-\\) counts the excitation level. Its eigenvalue on \\(\\psi_n\\) is \\(n\\), giving energy \\(E_n = (n + \\tfrac{1}{2})\\hbar\\omega\\).", uses:['def-7.1','lem-7.1'], usedBy:[] },
+  'prop-7.2': { type:'proposition', name:'Ladder operator commutation relations', desc:"\\([a_-,a_+] = 1\\), \\([N,a_\\pm] = \\pm a_\\pm\\). Also \\(\\|a_-\\psi\\|^2 = \\langle\\psi|N\\psi\\rangle\\) and \\(\\|a_+\\psi\\|^2 = \\langle\\psi|(N+1)\\psi\\rangle\\).", uses:['def-7.1','def-7.2','prop-6.3'], usedBy:[] },
+  'lem-7.3': { type:'lemma', name:'Number operator eigenvalue properties', desc:"If \\(N\\psi = \\lambda\\psi\\) with \\(\\psi \\neq 0\\): (a) \\(a_\\pm\\psi\\) are eigenstates with eigenvalue \\(\\lambda \\pm 1\\) (if non-zero), and (b) \\(\\lambda \\geq 0\\) with equality iff \\(a_-\\psi = 0\\).", uses:['def-7.2','prop-7.2'], usedBy:[] },
+  'thm-7.4': { type:'theorem', name:'Spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\)', desc:"The spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\). If the ground state \\(\\psi_0\\) is unique, the full set of eigenstates is \\(\\{a_+^n\\psi_0 : n \\geq 0\\}\\), each with eigenvalue \\(n\\).", uses:['lem-7.3','prop-7.2'], usedBy:[] },
+  'prop-7.6': { type:'proposition', name:'Normalized stationary states \\(\\psi_n = a_+^n\\psi_0/\\sqrt{n!}\\)', desc:"The normalized stationary states are \\(\\psi_n = \\frac{1}{\\sqrt{n!}}a_+^n\\psi_0\\), forming an orthonormal set \\(\\langle\\psi_m|\\psi_n\\rangle = \\delta_{mn}\\).", uses:['thm-7.4','prop-5.2'], usedBy:[] },
+  'def-8.1': { type:'definition', name:'Angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\)', desc:"The orbital angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\) has components \\(L_i = \\sum \\epsilon_{ijk}X_jP_k\\). It is the quantum analogue of classical angular momentum.", uses:['def-5.4'], usedBy:[] },
+  'prop-8.1': { type:'proposition', name:'Angular momentum commutation \\([L_i,L_j] = i\\hbar\\epsilon_{ijk}L_k\\)', desc:"\\([L_i,X_j] = i\\hbar\\sum\\epsilon_{ijk}X_k\\), \\([L_i,P_j] = i\\hbar\\sum\\epsilon_{ijk}P_k\\), and \\([L_i,L_j] = i\\hbar\\sum\\epsilon_{ijk}L_k\\). The last says angular momentum components don\u2019t commute.", uses:['def-8.1','prop-6.3','prop-6.4'], usedBy:[] },
+  'def-8.2': { type:'definition', name:'General angular momentum \\([J_i,J_j] = i\\hbar\\epsilon_{ijk}J_k\\)', desc:"Any self-adjoint vector operator \\(\\mathbf{J} = (J_1,J_2,J_3)\\) satisfying \\([J_i,J_j] = i\\hbar\\sum\\epsilon_{ijk}J_k\\) is an angular momentum operator. This includes orbital \\(\\mathbf{L}\\) and spin.", uses:['prop-8.1'], usedBy:[] },
+  'def-8.3': { type:'definition', name:'Total angular momentum squared \\(J^2\\)', desc:"\\(J^2 = J_1^2 + J_2^2 + J_3^2\\) measures the total angular momentum. It is self-adjoint and non-negative.", uses:['def-8.2','lem-5.1'], usedBy:[] },
+  'prop-8.2': { type:'proposition', name:'\\(J^2\\) commutes with components', desc:"\\([J^2, J_i] = 0\\) for all \\(i\\). So \\(J^2\\) and any single component \\(J_i\\) can be simultaneously measured (they share eigenstates).", uses:['def-8.3','def-8.2'], usedBy:[] },
+  'thm-8.3': { type:'theorem', name:'Spectrum of angular momentum \\(j(j+1)\\hbar^2\\)', desc:"The simultaneous eigenvalues of \\(J^2\\) and \\(J_3\\) are \\(j(j+1)\\hbar^2\\) and \\(m\\hbar\\), where \\(j \\in \\tfrac{1}{2}\\mathbb{Z}_{\\geq 0}\\) and \\(m \\in \\{-j, -j+1, \\ldots, j\\}\\). For orbital AM, \\(j = l \\in \\mathbb{Z}_{\\geq 0}\\).", uses:['prop-8.2','def-8.2'], usedBy:[] },
+  'def-8.4': { type:'definition', name:'Spherical harmonics \\(Y_l^m(\\theta,\\phi)\\)', desc:"Spherical harmonics \\(Y_l^m(\\theta,\\phi)\\) are simultaneous eigenstates of \\(L^2\\) and \\(L_3\\) for orbital angular momentum. They form a complete orthonormal set on the sphere.", uses:['thm-8.3','def-8.1'], usedBy:[] },
+  'def-9.1': { type:'definition', name:'Central potential \\(V = V(r)\\)', desc:"A central potential \\(V = V(r)\\) depends only on the distance \\(r = |\\mathbf{x}|\\). The Schr\u00f6dinger equation separates in spherical coordinates, with angular part solved by spherical harmonics.", uses:['def-2.2','def-8.4'], usedBy:[] },
+  'thm-9.1': { type:'theorem', name:'Hydrogen atom spectrum \\(E_n = -m_ee^4/2\\hbar^2n^2\\)', desc:"The hydrogen atom energies are \\(E_n = -\\frac{m_e e^4}{2\\hbar^2 n^2}\\) for \\(n \\in \\mathbb{Z}_{>0}\\). Each level has degeneracy \\(n^2\\), explained by a hidden \\(SO(4)\\) symmetry.", uses:['def-9.1','def-8.4','def-1.1'], usedBy:[] },
+  // ── Equations ──
+  'eq-0.1': { type:'equation', name:'Newton\u2019s second law \\(m\\ddot{\\mathbf{x}} = -\\nabla V\\)', desc:"Newton\u2019s second law for a conservative force: the acceleration of a particle equals the force divided by mass. This is the starting point of classical mechanics.", uses:[], usedBy:[] },
+  'eq-0.3': { type:'equation', name:'Classical wave equation \\(v^{-2}\\partial_t^2\\phi = \\nabla^2\\phi\\)', desc:"The classical wave equation governs oscillations in continuous media. Its solutions are superpositions of plane waves with dispersion relation \\(\\omega = v|\\mathbf{k}|\\).", uses:[], usedBy:[] },
+  'eq-0.5': { type:'equation', name:'Plane wave \\(\\phi = Ae^{i(\\mathbf{k}\\cdot\\mathbf{x} - \\omega t)}\\)', desc:"A plane wave solution of the wave equation, characterized by wave vector \\(\\mathbf{k}\\) and angular frequency \\(\\omega\\). Serves as the prototype for quantum wave functions.", uses:['eq-0.3'], usedBy:[] },
+  'eq-1.1': { type:'equation', name:'Einstein\u2013Planck \\(E = \\hbar\\omega\\)', desc:"The energy of a photon is proportional to its angular frequency. This is the foundational relation connecting particle and wave descriptions of light.", uses:['def-1.1'], usedBy:[] },
+  'eq-1.2': { type:'equation', name:'De Broglie momentum \\(\\mathbf{p} = \\hbar\\mathbf{k}\\)', desc:"The momentum of a particle is related to its wave vector by Planck\u2019s constant. This extends wave-particle duality from photons to all matter.", uses:['def-1.2'], usedBy:[] },
+  'eq-2.1': { type:'equation', name:'Free Schr\u00f6dinger equation', desc:"The Schr\u00f6dinger equation for a free particle (\\(V = 0\\)): \\(i\\hbar\\partial_t\\Psi = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi\\). Plane waves are solutions.", uses:['def-2.1'], usedBy:[] },
+  'eq-2.4': { type:'equation', name:'General Schr\u00f6dinger equation', desc:"The full time-dependent Schr\u00f6dinger equation with potential: \\(i\\hbar\\partial_t\\Psi = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V\\Psi\\). The central equation of non-relativistic quantum mechanics.", uses:['def-2.1'], usedBy:[] },
+  'eq-2.7': { type:'equation', name:'Stationary state ansatz \\(\\Psi = \\psi e^{-iEt/\\hbar}\\)', desc:"The separation of variables ansatz for stationary states. Substituting into the Schr\u00f6dinger equation separates time and space dependence.", uses:['def-2.2'], usedBy:[] },
+  'eq-2.8': { type:'equation', name:'Time-independent Schr\u00f6dinger equation', desc:"The eigenvalue equation \\(-\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi = E\\psi\\) for stationary states. Solutions with boundary conditions determine the energy spectrum.", uses:['def-2.2','eq-2.7'], usedBy:[] },
+  'eq-2.15': { type:'equation', name:'Particle in box energies \\(E_n = n^2\\pi^2\\hbar^2/2ma^2\\)', desc:"The quantized energy levels of a particle confined to an interval \\([0,a]\\). The \\(n^2\\) scaling is characteristic of infinite square well potentials.", uses:['def-2.3','eq-2.8'], usedBy:[] },
+  'eq-2.22': { type:'equation', name:'Degeneracy counting formula', desc:"The degeneracy of an energy level in a 3D box equals the number of integer triples \\((n_1,n_2,n_3)\\) giving the same total energy.", uses:['def-2.4'], usedBy:[] },
+  'eq-3.1': { type:'equation', name:'Born rule \\(\\rho = |\\Psi|^2\\)', desc:"The probability density equals the squared modulus of the wave function. This is the fundamental interpretive postulate of quantum mechanics.", uses:['def-3.1'], usedBy:[] },
+  'eq-3.6': { type:'equation', name:'Probability current \\(\\mathbf{j}\\)', desc:"The probability current \\(\\mathbf{j} = \\frac{i\\hbar}{2m}(\\Psi\\nabla\\bar\\Psi - \\bar\\Psi\\nabla\\Psi)\\) describes the flow of probability density in space.", uses:['prop-3.1'], usedBy:[] },
+  'eq-3.7': { type:'equation', name:'Continuity equation \\(\\partial_t\\rho + \\nabla\\cdot\\mathbf{j} = 0\\)', desc:"The continuity equation for probability. It ensures that probability is locally conserved: changes in probability density are accounted for by probability current.", uses:['prop-3.1','eq-3.6'], usedBy:[] },
+  'eq-3.21': { type:'equation', name:'Energy measurement probability \\(P(E_n) = |c_n|^2\\)', desc:"The probability of measuring energy \\(E_n\\) in a superposition state equals the squared magnitude of the expansion coefficient \\(c_n\\).", uses:['def-3.4'], usedBy:[] },
+  'eq-4.4': { type:'equation', name:'Harmonic oscillator potential \\(V = \\tfrac{1}{2}m\\omega^2x^2\\)', desc:"The quadratic potential of the harmonic oscillator. Near any stable equilibrium, the potential is approximately quadratic, making this a universal model.", uses:[], usedBy:[] },
+  'eq-4.14': { type:'equation', name:'Hermite differential equation', desc:"The Hermite equation \\(h\u2019\u2019 - 2\\xi h\u2019 + 2nh = 0\\) arises after substituting the Gaussian ansatz into the oscillator Schr\u00f6dinger equation. Solutions are Hermite polynomials.", uses:['eq-4.4','eq-2.8'], usedBy:[] },
+  'eq-4.18': { type:'equation', name:'Oscillator energies \\(E_n = (n+\\tfrac{1}{2})\\hbar\\omega\\)', desc:"The energy eigenvalues of the quantum harmonic oscillator. The evenly spaced spectrum with zero-point energy \\(\\tfrac{1}{2}\\hbar\\omega\\) is a hallmark of quantum mechanics.", uses:['thm-4.1'], usedBy:[] },
+  'eq-5.1': { type:'equation', name:'Inner product axioms', desc:"The inner product \\(\\langle\\phi|\\psi\\rangle\\) is conjugate-symmetric, linear in the second argument, and positive-definite. These axioms define the geometric structure of quantum state space.", uses:['def-5.2'], usedBy:[] },
+  'eq-5.8': { type:'equation', name:'Position operator \\((X_i\\psi)(\\mathbf{x}) = x_i\\psi\\)', desc:"The position operator acts by multiplication: it multiplies the wave function by the coordinate. Its eigenstates are Dirac delta functions.", uses:['def-5.4'], usedBy:[] },
+  'eq-5.9': { type:'equation', name:'Momentum operator \\(P_i = -i\\hbar\\partial_{x_i}\\)', desc:"The momentum operator acts by differentiation. In position representation, it is \\(-i\\hbar\\) times the partial derivative. Its eigenstates are plane waves.", uses:['def-5.4'], usedBy:[] },
+  'eq-5.11': { type:'equation', name:'Hamiltonian \\(H = P^2/2m + V(X)\\)', desc:"The Hamiltonian operator is the quantum analogue of classical energy. It generates time evolution via the Schr\u00f6dinger equation.", uses:['def-5.5'], usedBy:[] },
+  'eq-5.16': { type:'equation', name:'Eigenvalue equation \\(A\\psi = \\alpha\\psi\\)', desc:"The eigenvalue equation for an observable. Solutions \\(\\psi\\) are eigenstates with definite measurement outcome \\(\\alpha\\).", uses:['def-5.6'], usedBy:[] },
+  'eq-5.32': { type:'equation', name:'Measurement postulate \\(P(\\alpha_n) = |c_n|^2\\)', desc:"The Born rule for general observables: the probability of measuring eigenvalue \\(\\alpha_n\\) is the squared magnitude of the expansion coefficient.", uses:['def-5.7'], usedBy:[] },
+  'eq-5.36': { type:'equation', name:'Operator Schr\u00f6dinger equation \\(i\\hbar\\partial_t\\ket{\\psi} = H\\ket{\\psi}\\)', desc:"The Schr\u00f6dinger equation in abstract operator form. This is representation-independent and applies to any quantum system.", uses:['def-5.5','def-2.1'], usedBy:[] },
+  'eq-6.1': { type:'equation', name:'Expectation value \\(E(A) = \\langle\\psi|A\\psi\\rangle\\)', desc:"The expectation value of an observable in a given state. It equals the weighted average of eigenvalues, weighted by measurement probabilities.", uses:['def-6.1'], usedBy:[] },
+  'eq-6.5': { type:'equation', name:'Dispersion formula \\(\\Delta^2 = E(A^2) - E(A)^2\\)', desc:"The variance of an observable\u2019s measurement outcomes. Zero dispersion characterizes eigenstates.", uses:['def-6.3'], usedBy:[] },
+  'eq-6.9': { type:'equation', name:'Canonical commutation \\([X,P] = i\\hbar\\)', desc:"The canonical commutation relation is the fundamental algebraic relation of quantum mechanics. It encodes the incompatibility of simultaneous position and momentum measurements.", uses:['prop-6.3'], usedBy:[] },
+  'eq-6.13': { type:'equation', name:'Uncertainty inequality \\(E(A^2)E(B^2) \\geq \\tfrac{1}{4}E(C)^2\\)', desc:"The general uncertainty inequality for non-commuting observables with \\([A,B] = iC\\). The foundation of all uncertainty relations.", uses:['prop-6.5'], usedBy:[] },
+  'eq-6.15': { type:'equation', name:'Heisenberg \\(\\Delta X\\,\\Delta P \\geq \\hbar/2\\)', desc:"The Heisenberg uncertainty principle for position and momentum. The most famous inequality in quantum mechanics.", uses:['cor-6.6'], usedBy:[] },
+  'eq-7.1': { type:'equation', name:'Ladder operators \\(a_\\pm = (\\mp iP + m\\omega X)/\\sqrt{2m\\omega\\hbar}\\)', desc:"The raising and lowering operators for the harmonic oscillator, defined as specific linear combinations of position and momentum.", uses:['def-7.1'], usedBy:[] },
+  'eq-7.5': { type:'equation', name:'Hamiltonian factorization \\(H = (N+\\tfrac{1}{2})\\hbar\\omega\\)', desc:"The harmonic oscillator Hamiltonian written in terms of the number operator. This algebraic factorization reveals the equally-spaced spectrum.", uses:['lem-7.1'], usedBy:[] },
+  'eq-7.12': { type:'equation', name:'Ladder action \\(N(a_\\pm\\psi) = (\\lambda\\pm 1)a_\\pm\\psi\\)', desc:"The raising operator \\(a_+\\) increases the number eigenvalue by 1, while \\(a_-\\) decreases it. This is the mechanism behind the equally-spaced spectrum.", uses:['lem-7.3'], usedBy:[] },
+  'eq-8.2': { type:'equation', name:'Angular momentum commutation \\([L_i,L_j] = i\\hbar\\epsilon_{ijk}L_k\\)', desc:"The commutation relations for angular momentum components. They form the Lie algebra \\(\\mathfrak{so}(3)\\) and prevent simultaneous sharp measurement of different components.", uses:['prop-8.1'], usedBy:[] },
+  'eq-8.11': { type:'equation', name:'\\(J^2\\) eigenvalue \\(j(j+1)\\hbar^2\\)', desc:"The eigenvalue of the total angular momentum squared. The quantum number \\(j\\) can be integer or half-integer.", uses:['thm-8.3'], usedBy:[] },
+  'eq-8.33': { type:'equation', name:'Spherical harmonics eigenvalues', desc:"The spherical harmonics \\(Y_l^m\\) satisfy \\(L^2Y_l^m = l(l+1)\\hbar^2Y_l^m\\) and \\(L_3Y_l^m = m\\hbar Y_l^m\\). They provide the angular part of any central potential problem.", uses:['def-8.4'], usedBy:[] },
+  'eq-9.10': { type:'equation', name:'Hydrogen Hamiltonian \\(H = -\\hbar^2\\nabla^2/2m_e - e^2/r\\)', desc:"The Hamiltonian for the hydrogen atom: kinetic energy of the electron plus the Coulomb potential of the proton.", uses:['def-9.1','def-5.5'], usedBy:[] },
+  'eq-9.14': { type:'equation', name:'Radial Schr\u00f6dinger equation', desc:"The radial equation after separating angular variables. The effective potential includes the centrifugal barrier \\(l(l+1)\\hbar^2/2mr^2\\).", uses:['def-9.1','eq-2.8'], usedBy:[] },
+  'eq-9.32': { type:'equation', name:'Hydrogen energies \\(E_n = -m_ee^4/2\\hbar^2n^2\\)', desc:"The bound-state energy spectrum of the hydrogen atom. The \\(1/n^2\\) scaling explains the observed spectral lines via Rydberg\u2019s formula.", uses:['thm-9.1'], usedBy:[] }
 };
-var GUIDE_DESCS = {
-    // Section 1
-    "def-1.1": "Light of angular frequency \\(\\omega\\) exists in quanta of energy \\(E = \\hbar\\omega\\). These photon packets explain the photoelectric effect, where electrons are emitted only when \\(\\omega > E_0/\\hbar\\).",
-    "def-1.2": "A free particle of energy \\(E\\) and momentum \\(\\mathbf{p}\\) is associated with a wave via \\(E = \\hbar\\omega\\) and \\(\\mathbf{p} = \\hbar\\mathbf{k}\\). This extends Einstein\u2019s photon relation to all particles, underpinning wave mechanics.",
-    // Section 2
-    "def-2.1": "A non-relativistic particle of mass \\(m\\) in potential \\(V(\\mathbf{x})\\) is governed by \\(i\\hbar\\frac{\\partial\\Psi}{\\partial t} = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V\\Psi\\). This complex linear PDE replaces Newton\u2019s second law at quantum scales.",
-    "def-2.2": "Separating \\(\\Psi = \\psi(\\mathbf{x})e^{-iEt/\\hbar}\\) yields the time-independent equation \\(-\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi = E\\psi\\). Solutions are stationary states with definite energy \\(E\\).",
-    "def-2.3": "When energies are discrete and bounded below, the lowest energy is the ground state (zero point) energy. Higher energies are the first, second, etc. excited states.",
-    "def-2.4": "An energy level \\(E\\) is \\(d\\)-fold degenerate if the space of stationary states with that energy has dimension \\(d > 1\\). Non-degenerate means \\(d = 1\\).",
-    // Section 3
-    "def-3.1": "The probability density is \\(\\rho = |\\Psi(\\mathbf{x},t)|^2\\). The probability of finding the particle in a region \\(D\\) is \\(\\int_D |\\Psi|^2 d^3x\\). This is the Born interpretation of the wave function.",
-    "def-3.2": "A wave function is normalizable if \\(0 < \\int |\\Psi|^2 d^3x < \\infty\\) and normalized if the integral equals 1. The Born interpretation requires normalization.",
-    "def-3.3": "The expectation value of \\(f(\\mathbf{x})\\) in state \\(\\Psi\\) is \\(E_\\Psi(f) = \\int f(\\mathbf{x})|\\Psi|^2 d^3x\\). This gives the average value of repeated position-dependent measurements.",
-    "prop-3.1": "The Schr\u00f6dinger equation implies \\(\\partial\\rho/\\partial t + \\nabla\\cdot\\mathbf{j} = 0\\) where \\(\\mathbf{j} = \\frac{i\\hbar}{2m}(\\Psi\\nabla\\bar\\Psi - \\bar\\Psi\\nabla\\Psi)\\) is the probability current. This is a conservation law for probability.",
-    "prop-3.2": "If the probability current decays sufficiently fast at infinity, then \\(\\int|\\Psi|^2 d^3x\\) is independent of time. A wave function normalized at one time stays normalized forever.",
-    "def-3.4": "For a state \\(\\Psi = \\sum c_n \\psi_n e^{-iE_nt/\\hbar}\\), the probability of measuring energy \\(E_n\\) is \\(|c_n|^2\\). This follows from orthonormality of stationary states.",
-    // Section 4
-    "def-4.1": "A 1D stationary state with \\(\\psi(-x) = \\psi(x)\\) has even parity; with \\(\\psi(-x) = -\\psi(x)\\) it has odd parity. For symmetric potentials, stationary states can always be chosen to have definite parity.",
-    "thm-4.1": "The 1D harmonic oscillator with angular frequency \\(\\omega\\) has energies \\(E_n = (n + \\tfrac{1}{2})\\hbar\\omega\\) for \\(n \\in \\mathbb{Z}_{\\geq 0}\\). Wave functions are \\(\\psi_n \\propto H_n(\\xi)e^{-\\xi^2/2}\\) with Hermite polynomials \\(H_n\\).",
-    // Section 5
-    "def-5.1": "The states of a quantum system are elements of a complex inner product space \\(\\mathcal{H}\\). Proportional vectors represent the same physical state.",
-    "def-5.2": "A complete complex inner product space is a Hilbert space. Completeness ensures infinite sums (superpositions) converge to elements of \\(\\mathcal{H}\\).",
-    "def-5.3": "Observables (measurable quantities) correspond to self-adjoint linear operators \\(A\\) on \\(\\mathcal{H}\\), satisfying \\(\\langle\\phi|A\\psi\\rangle = \\langle A\\phi|\\psi\\rangle\\) for all states.",
-    "def-5.4": "Position: \\((X_i\\psi)(\\mathbf{x}) = x_i\\psi(\\mathbf{x})\\). Momentum: \\((P_i\\psi)(\\mathbf{x}) = -i\\hbar\\frac{\\partial\\psi}{\\partial x_i}\\). Both are self-adjoint on suitable domains.",
-    "lem-5.1": "If \\(A, B\\) are self-adjoint, so are \\(A + B\\), \\(\\alpha A\\) (\\(\\alpha\\) real), and \\(A^2\\). This lets us build observables like the Hamiltonian from position and momentum.",
-    "def-5.5": "The Hamiltonian \\(H = \\frac{|\\mathbf{P}|^2}{2m} + V(\\mathbf{X})\\) is the energy observable. Acting on wave functions: \\((H\\psi)(\\mathbf{x}) = -\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi\\).",
-    "def-5.6": "An eigenstate of observable \\(A\\) satisfies \\(A\\psi = \\alpha\\psi\\) for eigenvalue \\(\\alpha\\). The set of all eigenvalues is the spectrum of \\(A\\).",
-    "prop-5.2": "Eigenvalues of self-adjoint operators are real. Eigenstates with distinct eigenvalues are orthogonal: \\(\\langle\\psi_1|\\psi_2\\rangle = 0\\) when \\(\\alpha_1 \\neq \\alpha_2\\).",
-    "thm-5.3": "If \\(A\\) is self-adjoint on a finite-dimensional \\(\\mathcal{H}\\), there exists a complete orthonormal basis of eigenvectors. This generalizes to infinite dimensions under suitable conditions.",
-    "def-5.7": "Measuring observable \\(A\\) yields eigenvalue \\(\\alpha_n\\) with probability \\(|c_n|^2\\) where \\(\\psi = \\sum c_n\\psi_n\\) in the eigenbasis. Only eigenvalues can be observed.",
-    "def-5.8": "After measuring \\(A\\) and obtaining eigenvalue \\(\\alpha_n\\), the state instantaneously collapses to the eigenstate \\(\\psi_n\\). All prior superposition information is lost.",
-    // Section 6
-    "def-6.1": "The expectation value of observable \\(A\\) in normalized state \\(\\psi\\) is \\(E_\\psi(A) = \\langle\\psi|A\\psi\\rangle = \\sum \\alpha_n|c_n|^2\\). It equals the average over repeated measurements.",
-    "def-6.2": "The identity operator \\(\\mathbf{1}\\) satisfies \\(\\mathbf{1}\\psi = \\psi\\). An operator \\(A\\) is non-negative if \\(\\langle\\psi|A\\psi\\rangle \\geq 0\\) for all \\(\\psi\\).",
-    "prop-6.1": "Expectation is linear: \\(E(A+B) = E(A) + E(B)\\), \\(E(\\alpha A) = \\alpha E(A)\\). For non-negative \\(A\\), \\(E(A) \\geq 0\\). Also \\(E(\\mathbf{1}) = 1\\).",
-    "def-6.3": "The dispersion \\(\\Delta_\\psi(A) = \\sqrt{E_\\psi(A^2) - (E_\\psi(A))^2}\\) measures the spread of measurement outcomes around the mean. It is the quantum analogue of standard deviation.",
-    "prop-6.2": "The dispersion \\(\\Delta_\\psi(A) = 0\\) if and only if \\(\\psi\\) is an eigenstate of \\(A\\). In that case the eigenvalue equals \\(E_\\psi(A)\\) and measurement is certain.",
-    "def-6.4": "The commutator \\([A,B] = AB - BA\\) measures non-commutativity of operators. It is central to the algebraic structure of quantum mechanics.",
-    "prop-6.3": "In 1D: \\([X,P] = i\\hbar\\mathbf{1}\\). In 3D: \\([X_i,P_j] = i\\hbar\\delta_{ij}\\mathbf{1}\\), \\([X_i,X_j] = 0 = [P_i,P_j]\\). The canonical commutation relations encode the fundamental quantum structure.",
-    "prop-6.4": "The commutator is antisymmetric (\\([A,B] = -[B,A]\\)), linear, satisfies the Leibniz rule (\\([A,BC] = B[A,C] + [A,B]C\\)), and the Jacobi identity. If \\([A,B] = iC\\) with \\(A,B\\) self-adjoint, then \\(C\\) is self-adjoint.",
-    "prop-6.5": "For self-adjoint \\(A,B\\) with \\([A,B] = iC\\): \\(E(A^2)E(B^2) \\geq \\tfrac{1}{4}(E(C))^2\\). Equality holds iff \\((A - is_0B)\\psi = 0\\) for some real \\(s_0\\).",
-    "cor-6.6": "Heisenberg\u2019s uncertainty principle: \\(\\Delta_\\psi(X)\\Delta_\\psi(P) \\geq \\frac{\\hbar}{2}\\). Equality holds for Gaussian wave functions (minimum uncertainty states). This is a direct consequence of \\([X,P] = i\\hbar\\).",
-    "cor-6.7": "For any self-adjoint \\(A,B\\): \\(\\Delta_\\psi(A)\\Delta_\\psi(B) \\geq \\frac{1}{2}|E_\\psi([A,B])|\\). Non-commuting observables cannot both be measured with arbitrary precision.",
-    // Section 7
-    "def-7.1": "The raising and lowering operators \\(a_\\pm = \\frac{1}{\\sqrt{2m\\omega\\hbar}}(\\mp iP + m\\omega X)\\) satisfy \\(a_+ = (a_-)^*\\). They provide an algebraic approach to the harmonic oscillator.",
-    "lem-7.1": "The Hamiltonian factorizes as \\(H = (N + \\tfrac{1}{2})\\hbar\\omega\\) where \\(N = a_+a_-\\) is the self-adjoint number operator. This follows from \\([X,P] = i\\hbar\\).",
-    "def-7.2": "The number operator \\(N = a_+a_-\\) counts the excitation level. Its eigenvalue on \\(\\psi_n\\) is \\(n\\), giving energy \\(E_n = (n + \\tfrac{1}{2})\\hbar\\omega\\).",
-    "prop-7.2": "\\([a_-,a_+] = 1\\), \\([N,a_\\pm] = \\pm a_\\pm\\). Also \\(\\|a_-\\psi\\|^2 = \\langle\\psi|N\\psi\\rangle\\) and \\(\\|a_+\\psi\\|^2 = \\langle\\psi|(N+1)\\psi\\rangle\\).",
-    "lem-7.3": "If \\(N\\psi = \\lambda\\psi\\) with \\(\\psi \\neq 0\\): (a) \\(a_\\pm\\psi\\) are eigenstates with eigenvalue \\(\\lambda \\pm 1\\) (if non-zero), and (b) \\(\\lambda \\geq 0\\) with equality iff \\(a_-\\psi = 0\\).",
-    "thm-7.4": "The spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\). If the ground state \\(\\psi_0\\) is unique, the full set of eigenstates is \\(\\{a_+^n\\psi_0 : n \\geq 0\\}\\), each with eigenvalue \\(n\\).",
-    "prop-7.6": "The normalized stationary states are \\(\\psi_n = \\frac{1}{\\sqrt{n!}}a_+^n\\psi_0\\), forming an orthonormal set \\(\\langle\\psi_m|\\psi_n\\rangle = \\delta_{mn}\\).",
-    // Section 8
-    "def-8.1": "The orbital angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\) has components \\(L_i = \\sum \\epsilon_{ijk}X_jP_k\\). It is the quantum analogue of classical angular momentum.",
-    "prop-8.1": "\\([L_i,X_j] = i\\hbar\\sum\\epsilon_{ijk}X_k\\), \\([L_i,P_j] = i\\hbar\\sum\\epsilon_{ijk}P_k\\), and \\([L_i,L_j] = i\\hbar\\sum\\epsilon_{ijk}L_k\\). The last says angular momentum components don\u2019t commute.",
-    "def-8.2": "Any self-adjoint vector operator \\(\\mathbf{J} = (J_1,J_2,J_3)\\) satisfying \\([J_i,J_j] = i\\hbar\\sum\\epsilon_{ijk}J_k\\) is an angular momentum operator. This includes orbital \\(\\mathbf{L}\\) and spin.",
-    "def-8.3": "\\(J^2 = J_1^2 + J_2^2 + J_3^2\\) measures the total angular momentum. It is self-adjoint and non-negative.",
-    "prop-8.2": "\\([J^2, J_i] = 0\\) for all \\(i\\). So \\(J^2\\) and any single component \\(J_i\\) can be simultaneously measured (they share eigenstates).",
-    "thm-8.3": "The simultaneous eigenvalues of \\(J^2\\) and \\(J_3\\) are \\(j(j+1)\\hbar^2\\) and \\(m\\hbar\\), where \\(j \\in \\tfrac{1}{2}\\mathbb{Z}_{\\geq 0}\\) and \\(m \\in \\{-j, -j+1, \\ldots, j\\}\\). For orbital AM, \\(j = l \\in \\mathbb{Z}_{\\geq 0}\\).",
-    "def-8.4": "Spherical harmonics \\(Y_l^m(\\theta,\\phi)\\) are simultaneous eigenstates of \\(L^2\\) and \\(L_3\\) for orbital angular momentum. They form a complete orthonormal set on the sphere.",
-    // Section 9
-    "def-9.1": "A central potential \\(V = V(r)\\) depends only on the distance \\(r = |\\mathbf{x}|\\). The Schr\u00f6dinger equation separates in spherical coordinates, with angular part solved by spherical harmonics.",
-    "thm-9.1": "The hydrogen atom energies are \\(E_n = -\\frac{m_e e^4}{2\\hbar^2 n^2}\\) for \\(n \\in \\mathbb{Z}_{>0}\\). Each level has degeneracy \\(n^2\\), explained by a hidden \\(SO(4)\\) symmetry."
-  };
-var GUIDE_OUTLINE = {
-    "sec0": "Classical particles and waves. Review of point particles (Newton\u2019s second law, conserved energy, momentum) and the wave equation. Sets notation for wave vector, angular frequency, wavelength. Everything here is classical background.",
-    "sec1": "Physical background and wave-particle duality. The photoelectric effect shows light comes in quanta (photons, \\(E = \\hbar\\omega\\)). Atomic spectra reveal discrete energy levels. The double slit experiment shows particles behave as waves. De Broglie\u2019s relations \\(E = \\hbar\\omega\\), \\(\\mathbf{p} = \\hbar\\mathbf{k}\\) unify these observations.",
-    "sec2": "Wave mechanics. The Schr\u00f6dinger equation is motivated from de Broglie\u2019s relations and classical energy. Stationary states separate time and space variables. Key examples: particle in a box (quantized energies \\(\\propto n^2\\)), degeneracy in 3D boxes, particle on a circle. Energy quantization emerges from boundary conditions.",
-    "sec3": "The Born interpretation. The wave function\u2019s absolute value squared gives the probability density. Normalizable/normalized wave functions, expectation values. The continuity equation ensures probability is conserved. Energy measurement: expanding in stationary states gives measurement probabilities \\(|c_n|^2\\).",
-    "sec4": "The harmonic oscillator. Near any potential minimum, physics looks like a harmonic oscillator. Solving the Schr\u00f6dinger equation via power series yields energies \\(E_n = (n + 1/2)\\hbar\\omega\\) with Hermite polynomial wave functions. Higher dimensions: separation of variables gives decoupled oscillators. Quantum tunnelling into classically forbidden regions.",
-    "sec5": "The mathematical structure of quantum theory. States live in a Hilbert space \\(\\mathcal{H}\\). Observables are self-adjoint operators. Key examples: position \\(X\\), momentum \\(P = -i\\hbar\\nabla\\), Hamiltonian \\(H\\). The spectral theorem gives eigenbases. Measurement postulate: outcomes are eigenvalues with probabilities \\(|c_n|^2\\). Wave function collapse after measurement.",
-    "sec6": "Statistical aspects. Expectation value \\(E(A) = \\langle\\psi|A\\psi\\rangle\\) and dispersion \\(\\Delta(A)\\). Zero dispersion iff eigenstate. Commutators encode algebraic structure: canonical \\([X,P] = i\\hbar\\), Leibniz rule, Jacobi identity. Heisenberg uncertainty principle \\(\\Delta(X)\\Delta(P) \\geq \\hbar/2\\) follows directly from the commutation relation. Minimum uncertainty states are Gaussians.",
-    "sec7": "The harmonic oscillator revisited. Algebraic approach using raising/lowering operators \\(a_\\pm\\). The Hamiltonian factors as \\(H = (N + 1/2)\\hbar\\omega\\). Ladder operators move between eigenstates: \\(a_+\\) raises, \\(a_-\\) lowers. Spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\). Normalized states \\(\\psi_n = (1/\\sqrt{n!})a_+^n\\psi_0\\). Derives Hermite polynomial formula.",
-    "sec8": "Angular momentum. Orbital angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\) satisfies \\([L_i,L_j] = i\\hbar\\epsilon_{ijk}L_k\\). General angular momentum operators \\(\\mathbf{J}\\) analyzed algebraically (same raising/lowering technique as harmonic oscillator). Eigenvalues: \\(J^2 \\to j(j+1)\\hbar^2\\), \\(J_3 \\to m\\hbar\\) with \\(m \\in \\{-j,\\ldots,j\\}\\). Orbital case: \\(j = l \\in \\mathbb{Z}_{\\geq 0}\\), spherical harmonics \\(Y_l^m\\).",
-    "sec9": "The hydrogen atom. Central potentials separate in spherical coordinates: angular part gives spherical harmonics, radial part gives the radial Schr\u00f6dinger equation. For Coulomb potential \\(V = -e^2/r\\), energies are \\(E_n = -m_ee^4/(2\\hbar^2n^2)\\), reproducing Rydberg\u2019s empirical formula. Degeneracy \\(n^2\\) from hidden symmetry.",
-    "sec10": "Quantum key distribution. Application of quantum mechanics to cryptography. The BB84 protocol uses the measurement postulate and no-cloning theorem to establish secure communication. Eavesdropping disturbs quantum states, making interception detectable."
-  };
 
 var TYPE_COLORS = {
   definition:'#93c5fd', theorem:'#fca5a5', lemma:'#86efac', proposition:'#d8b4fe',
-  corollary:'#fdba74', example:'#d1d5db', remark:'#e5e7eb', notation:'#e5e7eb', warning:'#fde68a'
+  corollary:'#fdba74', example:'#d1d5db', remark:'#e5e7eb', notation:'#e5e7eb', warning:'#fde68a',
+  equation:'#a5f3fc', section:'#fbbf24'
 };
 
 function getType(id) {
+  if (KNOWLEDGE_GRAPH[id]) return KNOWLEDGE_GRAPH[id].type;
+  if (id.indexOf('eq-')===0) return 'equation';
+  if (id.indexOf('sec')===0) return 'section';
   if (id.indexOf('def-')===0) return 'definition';
   if (id.indexOf('thm-')===0) return 'theorem';
   if (id.indexOf('lem-')===0) return 'lemma';
@@ -1545,9 +1919,16 @@ function getType(id) {
   return 'example';
 }
 
+function getKGEntry(id) { return KNOWLEDGE_GRAPH[id] || null; }
+
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+function stripLatex(s) {
+  return s.replace(/\\\(([^)]*)\\\)/g, '$1').replace(/\\[a-zA-Z]+/g, '').replace(/[{}\\]/g, '');
+}
+
 function buildGraph() {
+  // Build from HTML a.ref links
   document.querySelectorAll('.env[id]').forEach(function(env) {
     var id = env.id, head = env.querySelector('.env-head');
     if (head) labelMap[id] = head.textContent.trim().replace(/\.\s*$/, '');
@@ -1560,12 +1941,52 @@ function buildGraph() {
     refs.forEach(function(r) { if (r !== id && !seen[r]) { seen[r] = true; unique.push(r); } });
     graph[id] = { uses: unique, usedBy: [] };
   });
+  // Also process equations
+  document.querySelectorAll('.env.equation[id]').forEach(function(env) {
+    var id = env.id;
+    if (!labelMap[id]) {
+      var eqNum = env.querySelector('.eq-number');
+      labelMap[id] = eqNum ? 'Eq. ' + eqNum.textContent.replace(/[()]/g,'').trim() : id;
+    }
+    if (!graph[id]) {
+      var refs = [], seen = {};
+      env.querySelectorAll('a.ref').forEach(function(a) { if (a.dataset.ref) refs.push(a.dataset.ref); });
+      var unique = [];
+      refs.forEach(function(r) { if (r !== id && !seen[r]) { seen[r] = true; unique.push(r); } });
+      graph[id] = { uses: unique, usedBy: [] };
+    }
+  });
+  // Merge KNOWLEDGE_GRAPH uses into graph (for equations/items that have KG deps but no HTML refs)
+  for (var kgId in KNOWLEDGE_GRAPH) {
+    var entry = KNOWLEDGE_GRAPH[kgId];
+    if (entry.type === 'section') continue;
+    if (!graph[kgId]) {
+      graph[kgId] = { uses: entry.uses.slice(), usedBy: [] };
+    } else {
+      // Merge KG uses that aren't already in graph
+      entry.uses.forEach(function(dep) {
+        if (graph[kgId].uses.indexOf(dep) < 0) graph[kgId].uses.push(dep);
+      });
+    }
+  }
+  // Build usedBy
   Object.keys(graph).forEach(function(id) {
-    graph[id].uses.forEach(function(ref) { if (graph[ref]) graph[ref].usedBy.push(id); });
+    graph[id].uses.forEach(function(ref) {
+      if (graph[ref]) {
+        if (graph[ref].usedBy.indexOf(id) < 0) graph[ref].usedBy.push(id);
+      }
+    });
   });
 }
 
 function shortLabel(id) {
+  if (id.indexOf('eq-')===0) {
+    var num = id.replace('eq-','');
+    return 'Eq. ' + num;
+  }
+  if (id.indexOf('sec')===0 && KNOWLEDGE_GRAPH[id]) {
+    return KNOWLEDGE_GRAPH[id].name.split('.')[0] + '.';
+  }
   if (!labelMap[id]) return id;
   return labelMap[id].replace(/^Definition\s/,'Def ').replace(/^Theorem\s/,'Thm ')
     .replace(/^Lemma\s/,'Lem ').replace(/^Proposition\s/,'Prop ').replace(/^Corollary\s/,'Cor ')
@@ -1573,7 +1994,8 @@ function shortLabel(id) {
 }
 function fullLabel(id) {
   var s = shortLabel(id);
-  if (ENV_NAMES[id]) s += ' \u2014 ' + ENV_NAMES[id];
+  var kg = KNOWLEDGE_GRAPH[id];
+  if (kg && kg.name) s += ' \u2014 ' + stripLatex(kg.name);
   return s;
 }
 
@@ -1643,14 +2065,16 @@ function navigateTo(id, addHist) {
   if (!graph[id]) return;
   if (addHist !== false) { navHistory = navHistory.slice(0, navIndex+1); navHistory.push(id); navIndex = navHistory.length-1; }
   currentPanelId = id;
-  switchTab('deps');
-  showPanel(); updatePanel(id); updateNavButtons(); updateMinimapActive(id);
+  showPanel();
+  updateInspector(id);
+  updateNavButtons();
 }
-function navBack() { if(navIndex>0){navIndex--;currentPanelId=navHistory[navIndex];updatePanel(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);updateMinimapActive(currentPanelId);} }
-function navForward() { if(navIndex<navHistory.length-1){navIndex++;currentPanelId=navHistory[navIndex];updatePanel(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);updateMinimapActive(currentPanelId);} }
+function navBack() { if(navIndex>0){navIndex--;currentPanelId=navHistory[navIndex];updateInspector(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);} }
+function navForward() { if(navIndex<navHistory.length-1){navIndex++;currentPanelId=navHistory[navIndex];updateInspector(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);} }
 function updateNavButtons() {
   var b=document.getElementById('nav-back'),f=document.getElementById('nav-forward'),l=document.getElementById('nav-label');
-  if(b)b.disabled=(navIndex<=0); if(f)f.disabled=(navIndex>=navHistory.length-1); if(l)l.textContent=shortLabel(currentPanelId);
+  if(b)b.disabled=(navIndex<=0); if(f)f.disabled=(navIndex>=navHistory.length-1);
+  if(l) l.textContent = currentPanelId ? shortLabel(currentPanelId) : 'Course Index';
 }
 function scrollToEnv(id) { var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
 
@@ -1664,39 +2088,246 @@ function hidePanel() {
   document.body.style.setProperty('--panel-width','0px');
 }
 
-// ── Panel content (collapsible items) ──
-function updatePanel(id) {
-  var gC=document.getElementById('graph-container'),
-      cC=document.getElementById('panel-content');
-  gC.style.display='block'; cC.style.display='block';
-  gC.innerHTML = renderGraph(id);
-  gC.querySelectorAll('.graph-node').forEach(function(n){n.addEventListener('click',function(){var nid=n.getAttribute('data-id');if(nid){navigateTo(nid);scrollToEnv(nid);}});});
+// ── Context Inspector: Course Index ──
+function buildCourseIndex() {
+  inspectorMode = 'index';
+  currentPanelId = null;
+  var gC = document.getElementById('graph-container');
+  gC.style.display = 'none';
+  var iC = document.getElementById('inspector-content');
 
-  var ml=collectMultiLevel(id), html='';
-  function renderSection(label, items) {
-    html+='<div class="panel-section"><div class="panel-section-label"><span>'+label+' ('+items.length+')</span>';
-    if(items.length>0) html+='<span class="panel-section-controls"><button data-action="expand-all">expand all</button><button data-action="collapse-all">collapse all</button></span>';
-    html+='</div>';
-    if(items.length===0) { html+='<div class="panel-section-empty">None.</div>'; }
-    else { items.forEach(function(itemId){ var env=document.getElementById(itemId); if(!env)return;
-      var itemDesc = GUIDE_DESCS[itemId] || '';
-      html+='<div class="stacked-item" data-item-id="'+itemId+'"><div class="stacked-header" data-id="'+itemId+'"><span class="toggle-icon">&#9656;</span>'+esc(fullLabel(itemId))+'</div>';
-      html+='<div class="stacked-body">'+env.outerHTML+'</div>';
-      if (itemDesc) { html+='<div class="stacked-desc-toggle" data-desc-for="'+itemId+'">describe \u25BE</div>'; html+='<div class="stacked-summary hidden">'+itemDesc+'</div>'; }
-      html+='</div>'; }); }
-    html+='</div>';
+  // Collect sections and items
+  var sections = [];
+  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
+    sections.push({ id: h.id, label: h.textContent.trim(), items: [] });
+  });
+  var secMap = {};
+  sections.forEach(function(s) { secMap[s.id] = s; });
+  var curSec = null;
+  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
+    if (el.tagName === 'H2') curSec = secMap[el.id];
+    else if (curSec && graph[el.id]) curSec.items.push(el.id);
+  });
+
+  // Count types
+  var typeCounts = { all: 0 };
+  var typeOrder = ['definition','theorem','lemma','proposition','corollary','equation','example','remark'];
+  var typeShort = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',equation:'Eq',example:'Ex',remark:'Rmk'};
+  typeOrder.forEach(function(t) { typeCounts[t] = 0; });
+  sections.forEach(function(sec) {
+    sec.items.forEach(function(id) {
+      var t = getType(id);
+      typeCounts.all++;
+      if (typeCounts[t] !== undefined) typeCounts[t]++;
+    });
+  });
+
+  var html = '<div class="inspector-index">';
+  // Type filters + expand/collapse
+  html += '<div class="inspector-type-filters">';
+  html += '<span class="inspector-type-filter active" data-itype="all">All</span>';
+  typeOrder.forEach(function(t) {
+    if (typeCounts[t] > 0) html += '<span class="inspector-type-filter" data-itype="'+t+'">'+typeShort[t]+'</span>';
+  });
+  html += '<span class="inspector-desc-controls"><button id="ci-collapse-descs">hide descs</button><button id="ci-expand-descs">show descs</button></span>';
+  html += '</div>';
+
+  // Section groups
+  sections.forEach(function(sec) {
+    html += '<div class="inspector-section-group" data-sec="'+sec.id+'">';
+    html += '<div class="inspector-section-head" data-sec-click="'+sec.id+'">'+esc(sec.label)+'</div>';
+    sec.items.forEach(function(id) {
+      var kg = KNOWLEDGE_GRAPH[id];
+      var typ = getType(id);
+      var color = TYPE_COLORS[typ] || '#e5e7eb';
+      var name = kg ? stripLatex(kg.name) : '';
+      var desc = kg ? kg.desc : '';
+      html += '<div class="inspector-item" data-id="'+id+'" data-itype="'+typ+'" data-search="'+ esc((shortLabel(id)+' '+name+' '+desc).toLowerCase()) +'">';
+      html += '<div class="ii-row">';
+      html += '<span class="ii-dot" style="background:'+color+'"></span>';
+      html += '<span class="ii-label">'+esc(shortLabel(id))+'</span>';
+      if (name) html += '<span class="ii-name">\u2014 '+esc(name)+'</span>';
+      html += '</div>';
+      if (desc) html += '<div class="ii-desc">'+desc+'</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+
+  iC.innerHTML = html;
+
+  // Wire up section head clicks
+  iC.querySelectorAll('.inspector-section-head[data-sec-click]').forEach(function(sh) {
+    sh.addEventListener('click', function() {
+      var secEl = document.getElementById(sh.getAttribute('data-sec-click'));
+      if (secEl) secEl.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  });
+
+  // Wire up item clicks
+  iC.querySelectorAll('.inspector-item[data-id]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var id = item.getAttribute('data-id');
+      if (id) { scrollToEnv(id); if (graph[id]) navigateTo(id); }
+    });
+  });
+
+  // Wire up type filters
+  iC.querySelectorAll('.inspector-type-filter').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      iC.querySelectorAll('.inspector-type-filter').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      inspectorFilter = btn.getAttribute('data-itype');
+      applyInspectorFilters();
+    });
+  });
+
+  // Wire up individual desc toggle (click item row toggles its desc)
+  iC.querySelectorAll('.inspector-item .ii-row').forEach(function(row) {
+    row.addEventListener('dblclick', function(e) {
+      e.stopPropagation();
+      var desc = row.parentElement.querySelector('.ii-desc');
+      if (desc) desc.classList.toggle('collapsed');
+    });
+  });
+
+  // Wire up expand/collapse all descriptions
+  var colBtn = document.getElementById('ci-collapse-descs');
+  var expBtn = document.getElementById('ci-expand-descs');
+  if (colBtn) colBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    iC.querySelectorAll('.ii-desc').forEach(function(d) { d.classList.add('collapsed'); });
+  });
+  if (expBtn) expBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    iC.querySelectorAll('.ii-desc').forEach(function(d) { d.classList.remove('collapsed'); });
+  });
+
+  // Typeset math in descriptions
+  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+    var descs = iC.querySelectorAll('.ii-desc');
+    if (descs.length > 0) MathJax.typesetPromise(Array.from(descs)).catch(function(){});
   }
-  var allDeps=[], allUB=[];
+
+  // Set nav label
+  document.getElementById('nav-label').textContent = 'Course Index';
+}
+
+function applyInspectorFilters() {
+  var q = (document.getElementById('inspector-search').value || '').toLowerCase().trim();
+  document.querySelectorAll('.inspector-item').forEach(function(item) {
+    var matchType = inspectorFilter === 'all' || item.getAttribute('data-itype') === inspectorFilter;
+    var matchSearch = !q || (item.getAttribute('data-search') || '').indexOf(q) >= 0;
+    if (matchType && matchSearch) item.classList.remove('filtered-out');
+    else item.classList.add('filtered-out');
+  });
+  // Hide empty sections
+  document.querySelectorAll('.inspector-section-group').forEach(function(grp) {
+    var visible = grp.querySelectorAll('.inspector-item:not(.filtered-out)').length > 0;
+    grp.style.display = visible ? '' : 'none';
+  });
+}
+
+// ── Context Inspector: Active Item View ──
+function updateInspector(id) {
+  inspectorMode = 'active';
+  var gC = document.getElementById('graph-container');
+  var iC = document.getElementById('inspector-content');
+
+  // Show graph
+  gC.style.display = 'block';
+  gC.innerHTML = renderGraph(id);
+  gC.querySelectorAll('.graph-node').forEach(function(n){
+    n.addEventListener('click',function(){
+      var nid=n.getAttribute('data-id');
+      if(nid){navigateTo(nid);scrollToEnv(nid);}
+    });
+  });
+
+  var kg = KNOWLEDGE_GRAPH[id];
+  var ml = collectMultiLevel(id);
+  var html = '<div class="inspector-active">';
+
+  // Back to index link
+  html += '<div style="padding:6px 12px 0;"><span class="inspector-back-btn" id="inspector-back">\u25C0 Back to Course Index</span></div>';
+
+  // Header
+  html += '<div class="inspector-active-header">';
+  html += '<div class="inspector-active-name">' + (kg ? kg.name : esc(fullLabel(id))) + '</div>';
+  if (kg && kg.desc) html += '<div class="inspector-active-desc">' + kg.desc + '</div>';
+  html += '</div>';
+
+  // Prerequisites
+  var allDeps = [];
   var maxDL=0; for(var k in ml.depsLevels) if(+k>maxDL) maxDL=+k;
   for(var dd=maxDL;dd>=1;dd--)(ml.depsLevels[dd]||[]).forEach(function(x){allDeps.push(x);});
+
+  html += '<div class="panel-section"><div class="panel-section-label"><span>Prerequisites ('+allDeps.length+')</span>';
+  if(allDeps.length>0) html += '<span class="panel-section-controls"><button data-action="expand-all">expand all</button><button data-action="collapse-all">collapse all</button><button data-action="hide-descs">hide descs</button><button data-action="show-descs">show descs</button></span>';
+  html += '</div>';
+  if(allDeps.length===0) { html += '<div class="panel-section-empty">None.</div>'; }
+  else {
+    allDeps.forEach(function(itemId){
+      var env = document.getElementById(itemId);
+      var itemKg = KNOWLEDGE_GRAPH[itemId];
+      var itemDesc = itemKg ? itemKg.desc : '';
+      html += '<div class="stacked-item" data-item-id="'+itemId+'">';
+      html += '<div class="stacked-header" data-id="'+itemId+'"><span class="toggle-icon">&#9656;</span>'+esc(fullLabel(itemId))+'</div>';
+      if (env) html += '<div class="stacked-body">'+env.outerHTML+'</div>';
+      if (itemDesc) {
+        html += '<div class="stacked-summary">'+itemDesc+'</div>';
+      }
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // Used by
+  var allUB = [];
   var maxUL=0; for(var k2 in ml.usedByLevels) if(+k2>maxUL) maxUL=+k2;
   for(var uu=1;uu<=maxUL;uu++)(ml.usedByLevels[uu]||[]).forEach(function(x){allUB.push(x);});
-  renderSection('Prerequisites', allDeps);
-  renderSection('Referenced by', allUB);
-  cC.innerHTML = html;
 
-  // Wire up collapsible items
-  cC.querySelectorAll('.stacked-header').forEach(function(hdr){
+  html += '<div class="panel-section"><div class="panel-section-label"><span>Referenced by ('+allUB.length+')</span>';
+  if(allUB.length>0) html += '<span class="panel-section-controls"><button data-action="expand-all">expand all</button><button data-action="collapse-all">collapse all</button></span>';
+  html += '</div>';
+  if(allUB.length===0) { html += '<div class="panel-section-empty">None.</div>'; }
+  else {
+    allUB.forEach(function(itemId){
+      var env = document.getElementById(itemId);
+      var itemKg = KNOWLEDGE_GRAPH[itemId];
+      var itemDesc = itemKg ? itemKg.desc : '';
+      html += '<div class="stacked-item" data-item-id="'+itemId+'">';
+      html += '<div class="stacked-header" data-id="'+itemId+'"><span class="toggle-icon">&#9656;</span>'+esc(fullLabel(itemId))+'</div>';
+      if (env) html += '<div class="stacked-body">'+env.outerHTML+'</div>';
+      if (itemDesc) {
+        html += '<div class="stacked-summary">'+itemDesc+'</div>';
+      }
+      html += '</div>';
+    });
+  }
+  html += '</div></div>';
+
+  iC.innerHTML = html;
+
+  // Typeset math in header
+  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+    var hdr = iC.querySelector('.inspector-active-header');
+    if (hdr) MathJax.typesetPromise([hdr]).catch(function(){});
+  }
+
+  // Wire up back button
+  var backBtn = document.getElementById('inspector-back');
+  if (backBtn) backBtn.addEventListener('click', function() { showCourseIndex(); });
+
+  // Typeset descriptions (shown by default)
+  var summaries = iC.querySelectorAll('.stacked-summary');
+  if (summaries.length > 0 && typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+    MathJax.typesetPromise(Array.from(summaries)).catch(function(){});
+  }
+
+  // Wire up collapsible items — click header toggles full math content
+  iC.querySelectorAll('.stacked-header').forEach(function(hdr){
     hdr.addEventListener('click', function(e){ e.stopPropagation();
       var item=hdr.closest('.stacked-item'); if(!item)return; item.classList.toggle('expanded');
       if(item.classList.contains('expanded')&&!item.dataset.typeset){ item.dataset.typeset='1';
@@ -1704,34 +2335,56 @@ function updatePanel(id) {
     });
     hdr.addEventListener('dblclick', function(){var hid=hdr.getAttribute('data-id');if(hid){navigateTo(hid);scrollToEnv(hid);}});
   });
-  cC.querySelectorAll('.stacked-desc-toggle').forEach(function(tog){
-    tog.addEventListener('click', function(e){
-      e.stopPropagation();
-      var sum = tog.nextElementSibling;
-      if (sum) { sum.classList.toggle('hidden'); tog.textContent = sum.classList.contains('hidden') ? 'describe \u25BE' : 'hide \u25B4'; }
+  // Wire up individual desc toggle — click summary to collapse/expand it
+  iC.querySelectorAll('.stacked-summary').forEach(function(sum){
+    sum.style.cursor = 'pointer';
+    sum.addEventListener('click', function(e){ e.stopPropagation(); sum.classList.toggle('collapsed'); });
+  });
+  // Wire up section controls: expand/collapse content + show/hide descs
+  iC.querySelectorAll('.panel-section-controls button').forEach(function(btn){
+    btn.addEventListener('click',function(e){e.stopPropagation();var sec=btn.closest('.panel-section'),act=btn.getAttribute('data-action');
+      if(act==='expand-all'){sec.querySelectorAll('.stacked-item').forEach(function(item){item.classList.add('expanded');if(!item.dataset.typeset){item.dataset.typeset='1';var b=item.querySelector('.stacked-body');if(b&&typeof MathJax!=='undefined'&&MathJax.typesetPromise)MathJax.typesetPromise([b]).catch(function(){});}});}
+      else if(act==='collapse-all'){sec.querySelectorAll('.stacked-item').forEach(function(item){item.classList.remove('expanded');});}
+      else if(act==='hide-descs'){sec.querySelectorAll('.stacked-summary').forEach(function(s){s.classList.add('collapsed');});}
+      else if(act==='show-descs'){sec.querySelectorAll('.stacked-summary').forEach(function(s){s.classList.remove('collapsed');});}
     });
   });
-  cC.querySelectorAll('.panel-section-controls button').forEach(function(btn){
-    btn.addEventListener('click',function(e){e.stopPropagation();var sec=btn.closest('.panel-section'),act=btn.getAttribute('data-action');
-      sec.querySelectorAll('.stacked-item').forEach(function(item){
-        if(act==='expand-all'){item.classList.add('expanded');if(!item.dataset.typeset){item.dataset.typeset='1';var b=item.querySelector('.stacked-body');if(b&&typeof MathJax!=='undefined'&&MathJax.typesetPromise)MathJax.typesetPromise([b]).catch(function(){});}}
-        else item.classList.remove('expanded');});});
-  });
-  cC.querySelectorAll('a.ref').forEach(function(ref){
+  iC.querySelectorAll('a.ref').forEach(function(ref){
     ref.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var tid=ref.getAttribute('data-ref');if(tid){if(graph[tid])navigateTo(tid);scrollToEnv(tid);}});
   });
+
+  // Highlight active env in content
   document.querySelectorAll('.env.panel-active').forEach(function(el){el.classList.remove('panel-active');});
   var ae=document.getElementById(id); if(ae) ae.classList.add('panel-active');
+
+  // Update nav label
+  document.getElementById('nav-label').textContent = shortLabel(id);
+}
+
+function showCourseIndex() {
+  currentPanelId = null;
+  navHistory = []; navIndex = -1;
+  document.querySelectorAll('.env.panel-active').forEach(function(el){el.classList.remove('panel-active');});
+  buildCourseIndex();
+  updateNavButtons();
 }
 
 // ── Floating peek popover ──
 function showPeek(refId, anchor) {
   var pop=document.getElementById('peek-popover'), lbl=document.getElementById('peek-label'),
       body=document.getElementById('peek-popover-body'), env=document.getElementById(refId);
-  if(!env||!pop) return;
+  if(!pop) return;
   clearTimeout(peekTimeout);
+  var kg = KNOWLEDGE_GRAPH[refId];
   lbl.textContent = fullLabel(refId);
-  body.innerHTML = env.outerHTML;
+  if (env) {
+    body.innerHTML = env.outerHTML;
+    if (kg && kg.desc) body.innerHTML += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;font-size:12px;color:#4b5563;font-style:italic;">' + kg.desc + '</div>';
+  } else if (kg) {
+    body.innerHTML = '<div style="font-size:13px;color:#4b5563;">' + kg.desc + '</div>';
+  } else {
+    return;
+  }
   pop.classList.add('visible');
   pop.style.width = peekWidth+'px';
   pop.style.maxHeight = peekHeight+'px';
@@ -1810,158 +2463,12 @@ function initResize() {
   });
 }
 
-// ── Minimap (overview graph) ──
-var minimapPos = {};
-
-function renderMinimap() {
-  var container = document.getElementById('minimap-container');
-  var sections = [], secMap = {};
-  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
-    var lbl = h.textContent.trim();
-    if (lbl.length > 22) lbl = lbl.substring(0,20) + '\u2026';
-    secMap[h.id] = { id: h.id, label: lbl, items: [] };
-    sections.push(secMap[h.id]);
-  });
-  var curSec = null;
-  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
-    if (el.tagName === 'H2') curSec = secMap[el.id];
-    else if (curSec && graph[el.id]) curSec.items.push(el.id);
-  });
-
-  var cW=14, cH=14, gap=2, rowGap=6, lblW=95, pad=4;
-  var maxItems=0; sections.forEach(function(s){if(s.items.length>maxItems) maxItems=s.items.length;});
-  var tW = lblW + maxItems*(cW+gap) + pad*2;
-  var tH = sections.length*(cH+rowGap) - rowGap + pad*2;
-  minimapPos = {};
-
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+tW+'" height="'+tH+'" id="minimap-svg">';
-  // No edge lines - highlighting uses colored glows instead
-
-  for (var si=0; si<sections.length; si++) {
-    var sec=sections[si], ry=pad+si*(cH+rowGap);
-    svg += '<text x="'+pad+'" y="'+(ry+cH-3)+'" font-size="8.5" fill="#6b7280" font-weight="600" font-family="Computer Modern Sans,sans-serif">'+esc(sec.label)+'</text>';
-    for (var ii=0; ii<sec.items.length; ii++) {
-      var itemId=sec.items[ii], cx=lblW+ii*(cW+gap), color=TYPE_COLORS[getType(itemId)]||'#e5e7eb';
-      minimapPos[itemId] = {x:cx, y:ry, cx:cx+cW/2, cy:ry+cH/2};
-      svg += '<g class="minimap-node" data-id="'+itemId+'"><rect x="'+cx+'" y="'+ry+'" width="'+cW+'" height="'+cH+'" rx="2" fill="'+color+'"/></g>';
-    }
-  }
-  svg += '</svg>';
-
-  // Legend
-  var legend = '<div class="minimap-legend">';
-  var types = [['Def','definition'],['Thm','theorem'],['Lem','lemma'],['Prop','proposition'],['Cor','corollary'],['Ex','example'],['Rmk','remark']];
-  types.forEach(function(t) {
-    legend += '<span style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:1px;background:'+TYPE_COLORS[t[1]]+'"></span>'+t[0]+'</span>';
-  });
-  legend += '</div>';
-
-  var zoomControls = '<div id="minimap-zoom-controls"><button id="minimap-zoom-in" title="Zoom in">+</button><button id="minimap-zoom-out" title="Zoom out">&minus;</button><button id="minimap-zoom-reset" title="Reset zoom">&#8634;</button></div>';
-  container.innerHTML = zoomControls + svg + legend;
-  minimapBuilt = true;
-
-  // Zoom
-  var svgEl = document.getElementById('minimap-svg');
-  var minimapScale = 1;
-  function applyMinimapZoom() {
-    svgEl.style.transform = 'scale('+minimapScale+')';
-    svgEl.style.width = (tW * minimapScale) + 'px';
-    svgEl.style.height = (tH * minimapScale) + 'px';
-  }
-  document.getElementById('minimap-zoom-in').addEventListener('click', function(e) {
-    e.stopPropagation(); minimapScale = Math.min(3, minimapScale * 1.25); applyMinimapZoom();
-  });
-  document.getElementById('minimap-zoom-out').addEventListener('click', function(e) {
-    e.stopPropagation(); minimapScale = Math.max(0.5, minimapScale / 1.25); applyMinimapZoom();
-  });
-  document.getElementById('minimap-zoom-reset').addEventListener('click', function(e) {
-    e.stopPropagation(); minimapScale = 1; applyMinimapZoom();
-  });
-  container.addEventListener('wheel', function(e) {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      if (e.deltaY < 0) minimapScale = Math.min(3, minimapScale * 1.1);
-      else minimapScale = Math.max(0.5, minimapScale / 1.1);
-      applyMinimapZoom();
-    }
-  }, {passive: false});
-
-  // Interactions — hover shows label in nav bar instead of cluttering tooltip
-  var navLabel = document.getElementById('nav-label');
-  svgEl.querySelectorAll('.minimap-node').forEach(function(node) {
-    node.addEventListener('mouseenter', function() {
-      var id = node.getAttribute('data-id');
-      if (navLabel) { navLabel.textContent = shortLabel(id); navLabel.classList.add('minimap-hover'); }
-      highlightMinimapDeps(id);
-    });
-    node.addEventListener('mouseleave', function() {
-      if (navLabel) { navLabel.textContent = currentPanelId ? shortLabel(currentPanelId) : ''; navLabel.classList.remove('minimap-hover'); }
-      clearMinimapHighlights();
-    });
-    node.addEventListener('click', function() {
-      var id = node.getAttribute('data-id');
-      if (id) { navigateTo(id); scrollToEnv(id); }
-    });
-  });
-
-  // Apply current scroll highlight
-  if (currentScrollId) updateMinimapScroll(currentScrollId);
-}
-
-function highlightMinimapDeps(centerId) {
-  var deps = graph[centerId] ? graph[centerId].uses : [];
-  var usedBy = graph[centerId] ? graph[centerId].usedBy : [];
-  var related = {}; related[centerId] = 'center';
-  deps.forEach(function(d){related[d]='dep';}); usedBy.forEach(function(u){related[u]='usedby';});
-
-  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n) {
-    var nid = n.getAttribute('data-id');
-    n.classList.remove('active','dep-highlight','usedby-highlight','dimmed');
-    if (nid===centerId) n.classList.add('active');
-    else if (related[nid]==='dep') n.classList.add('dep-highlight');
-    else if (related[nid]==='usedby') n.classList.add('usedby-highlight');
-    else n.classList.add('dimmed');
-  });
-
-  // No edge arrows - colored glows on nodes are cleaner
-}
-
-function clearMinimapHighlights() {
-  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n){n.classList.remove('active','dep-highlight','usedby-highlight','dimmed');});
-  // Reset panel highlight only (no scroll tracking on minimap)
-  if (currentPanelId) updateMinimapActive(currentPanelId);
-}
-
-function updateMinimapScroll(id) {
-  document.querySelectorAll('#minimap-svg .minimap-node.scroll-active').forEach(function(n){n.classList.remove('scroll-active');});
-  var node = document.querySelector('#minimap-svg .minimap-node[data-id="'+id+'"]');
-  if (node) node.classList.add('scroll-active');
-}
-
-function updateMinimapActive(id) {
-  // Clear all highlight state to avoid stale glows
-  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n){
-    n.classList.remove('panel-selected','active','dep-highlight','usedby-highlight','dimmed');
-  });
-  var node = document.querySelector('#minimap-svg .minimap-node[data-id="'+id+'"]');
-  if (node) node.classList.add('panel-selected');
-}
-
-function toggleMinimap() {
-  var mc = document.getElementById('minimap-container'), btn = document.getElementById('btn-map');
-  if (mc.classList.contains('hidden')) {
-    mc.classList.remove('hidden'); btn.classList.add('active');
-  } else {
-    mc.classList.add('hidden'); btn.classList.remove('active');
-  }
-}
-
 // ── Sidebar filter tabs ──
 var activeFilter = 'all';
 
 function buildFilters() {
-  var types = ['definition','theorem','lemma','proposition','corollary','example','remark','notation'];
-  var typeLabels = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not'};
+  var types = ['definition','theorem','lemma','proposition','corollary','equation','example','remark','notation'];
+  var typeLabels = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',equation:'Eq',example:'Ex',remark:'Rmk',notation:'Not'};
   var counts = {all:0};
   types.forEach(function(t){counts[t]=0;});
   document.querySelectorAll('.env[id]').forEach(function(env){
@@ -1996,16 +2503,77 @@ function applyFilter() {
   });
 }
 
+// ── Sidebar search ──
+function initSidebarSearch() {
+  var input = document.getElementById('sidebar-search');
+  var results = document.getElementById('sidebar-search-results');
+  input.addEventListener('input', function() {
+    var q = input.value.toLowerCase().trim();
+    if (!q) { results.classList.remove('visible'); results.innerHTML = ''; return; }
+    var matches = [];
+    for (var id in KNOWLEDGE_GRAPH) {
+      var kg = KNOWLEDGE_GRAPH[id];
+      if (kg.type === 'section') continue;
+      var searchStr = (shortLabel(id) + ' ' + stripLatex(kg.name) + ' ' + kg.desc).toLowerCase();
+      if (searchStr.indexOf(q) >= 0) matches.push(id);
+      if (matches.length >= 15) break;
+    }
+    if (matches.length === 0) { results.classList.remove('visible'); results.innerHTML = ''; return; }
+    var html = '';
+    matches.forEach(function(id) {
+      var kg = KNOWLEDGE_GRAPH[id];
+      var color = TYPE_COLORS[kg.type] || '#e5e7eb';
+      html += '<div class="sidebar-search-item" data-id="'+id+'">';
+      html += '<span class="ss-dot" style="background:'+color+'"></span>';
+      html += '<span class="ss-label">'+esc(shortLabel(id))+'</span>';
+      html += '<span class="ss-name">'+esc(stripLatex(kg.name))+'</span>';
+      html += '</div>';
+    });
+    results.innerHTML = html;
+    results.classList.add('visible');
+    results.querySelectorAll('.sidebar-search-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var id = item.getAttribute('data-id');
+        if (id) {
+          scrollToEnv(id);
+          if (graph[id]) navigateTo(id);
+          input.value = '';
+          results.classList.remove('visible');
+          results.innerHTML = '';
+        }
+      });
+    });
+  });
+  // Close on blur
+  input.addEventListener('blur', function() {
+    setTimeout(function() { results.classList.remove('visible'); }, 200);
+  });
+}
+
+// ── Inspector search ──
+function initInspectorSearch() {
+  var input = document.getElementById('inspector-search');
+  input.addEventListener('input', function() {
+    if (inspectorMode === 'index') {
+      applyInspectorFilters();
+    } else {
+      // If in active mode, switch to index with search
+      showCourseIndex();
+      setTimeout(function() { applyInspectorFilters(); }, 50);
+    }
+  });
+}
+
 // ── Event listeners ──
 document.addEventListener('click', function(e) {
   var ph = e.target.closest('.proof-head');
   if (ph) { e.stopPropagation(); ph.closest('.proof').classList.toggle('collapsed'); return; }
   var eh = e.target.closest('.env-head');
-  if (eh && !eh.closest('#panel-content') && !eh.closest('#peek-popover')) {
+  if (eh && !eh.closest('#inspector-content') && !eh.closest('#peek-popover')) {
     var env = eh.closest('.env[id]'); if (env) navigateTo(env.id); return;
   }
   var ref = e.target.closest('a.ref');
-  if (ref && !ref.closest('#panel-content') && !ref.closest('#peek-popover')) {
+  if (ref && !ref.closest('#inspector-content') && !ref.closest('#peek-popover')) {
     e.preventDefault(); var tid=ref.getAttribute('data-ref'); if(!tid) return;
     document.getElementById('peek-popover').classList.remove('visible');
     if(graph[tid]) navigateTo(tid); scrollToEnv(tid);
@@ -2055,7 +2623,7 @@ document.querySelectorAll('.toc-items a').forEach(function(a) {
   });
 });
 
-// ── Scroll observer (TOC + minimap tracking) ──
+// ── Scroll observer ──
 function setupScrollObserver() {
   var content = document.getElementById('content');
   var secObs = new IntersectionObserver(function(entries) {
@@ -2087,10 +2655,11 @@ function setupScrollObserver() {
 function addTOCNames() {
   document.querySelectorAll('.toc-items a[data-id]').forEach(function(a) {
     var id = a.getAttribute('data-id');
-    if (ENV_NAMES[id]) {
+    var kg = KNOWLEDGE_GRAPH[id];
+    if (kg && kg.name) {
       var nameSpan = document.createElement('span');
       nameSpan.className = 'toc-name';
-      nameSpan.textContent = ' \u2014 ' + ENV_NAMES[id];
+      nameSpan.textContent = ' \u2014 ' + stripLatex(kg.name);
       a.appendChild(nameSpan);
     }
   });
@@ -2100,243 +2669,21 @@ function addTOCNames() {
 function addRefNames() {
   document.querySelectorAll('#content a.ref[data-ref]').forEach(function(a) {
     var id = a.getAttribute('data-ref');
-    if (ENV_NAMES[id] && !a.querySelector('.ref-name')) {
+    var kg = KNOWLEDGE_GRAPH[id];
+    if (kg && kg.name && !a.querySelector('.ref-name')) {
       var nameSpan = document.createElement('span');
       nameSpan.className = 'ref-name';
-      nameSpan.textContent = ' \u2014 ' + ENV_NAMES[id];
+      nameSpan.textContent = ' \u2014 ' + stripLatex(kg.name);
       a.appendChild(nameSpan);
     }
   });
 }
 
-// ── Guide panel ──
-function buildGuide() {
-  var body = document.getElementById('guide-body');
-
-  // 1. Collect sections (B2.1 uses h2.section-heading, no chapter level)
-  var sections = [], secMap = {};
-  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
-    var sec = { id: h.id, label: h.textContent.trim(), items: [] };
-    secMap[h.id] = sec;
-    sections.push(sec);
-  });
-
-  // 2. Assign items to sections
-  var curSec = null;
-  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
-    if (el.tagName === 'H2') curSec = secMap[el.id];
-    else if (curSec) curSec.items.push(el.id);
-  });
-
-  // 3. Render guide with section > item hierarchy
-  var html = '';
-  sections.forEach(function(sec) {
-    if (sec.items.length === 0) return;
-    var secOutline = GUIDE_OUTLINE[sec.id] || '';
-    html += '<div class="guide-section" data-sec="'+sec.id+'">';
-    html += '<div class="guide-section-head" data-sec-click="'+sec.id+'">'+esc(sec.label)+'</div>';
-    if (secOutline) html += '<div class="guide-section-outline">'+secOutline+'</div>';
-    sec.items.forEach(function(id) {
-      var typ = getType(id);
-      var color = TYPE_COLORS[typ] || '#e5e7eb';
-      var name = ENV_NAMES[id] || '';
-      var desc = GUIDE_DESCS[id] || '';
-      html += '<div class="guide-entry" data-id="'+id+'" data-search="'+esc((shortLabel(id)+' '+name+' '+desc).toLowerCase())+'">';
-      html += '<span class="entry-chevron">&#9656;</span>';
-      html += '<span class="guide-type-dot" style="background:'+color+'"></span>';
-      html += '<span class="guide-label">'+esc(shortLabel(id))+'</span>';
-      if (name) html += ' <span style="color:#6b7280">\u2014 '+esc(name)+'</span>';
-      html += '<div class="guide-entry-detail"><div class="entry-math-content" data-env-id="'+id+'"></div>';
-      if (desc) html += '<div class="entry-desc-text">'+desc+'</div>';
-      html += '</div></div>';
-    });
-    html += '</div>';
-  });
-  body.innerHTML = html;
-  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
-
-  // 4. Section head click → scroll to section in content
-  body.querySelectorAll('.guide-section-head[data-sec-click]').forEach(function(sh) {
-    sh.addEventListener('click', function() {
-      var secEl = document.getElementById(sh.getAttribute('data-sec-click'));
-      if (secEl) secEl.scrollIntoView({behavior:'smooth',block:'start'});
-    });
-  });
-
-  // 5. Entry click → expand/collapse; label click → navigate
-  body.querySelectorAll('.guide-entry').forEach(function(entry) {
-    entry.addEventListener('click', function(e) {
-      if (e.target.closest('.guide-label')) {
-        var id = entry.getAttribute('data-id');
-        if (id) { scrollToEnv(id); navigateTo(id); }
-        return;
-      }
-      entry.classList.toggle('expanded');
-      if (entry.classList.contains('expanded')) {
-        var mc = entry.querySelector('.entry-math-content');
-        if (mc && !mc.dataset.loaded) {
-          mc.dataset.loaded = '1';
-          var envId = mc.getAttribute('data-env-id');
-          var env = document.getElementById(envId);
-          if (env) { mc.innerHTML = env.outerHTML; if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([mc]).catch(function(){}); }
-        }
-      }
-    });
-  });
-}
-
-// ── Tab switching ──
-var activeTab = 'deps';
-function switchTab(tabName) {
-  activeTab = tabName;
-  document.querySelectorAll('.panel-tab').forEach(function(t) {
-    t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
-  });
-  document.querySelectorAll('.panel-tab-content').forEach(function(c) {
-    c.classList.toggle('active', c.id === 'tab-' + tabName);
-  });
-  // Lazy build guide/glossary
-  if (tabName === 'guide') {
-    var gb = document.getElementById('guide-body');
-    if (!gb.dataset.built) { buildGuide(); gb.dataset.built = '1'; }
-  } else if (tabName === 'glossary') {
-    var glb = document.getElementById('glossary-body');
-    if (!glb.dataset.built) { buildGlossary(); glb.dataset.built = '1'; }
-  }
-}
-
-function toggleGuide() { switchTab(activeTab === 'guide' ? 'deps' : 'guide'); }
-
-function initGuideSearch() {
-  var input = document.getElementById('guide-search');
-  input.addEventListener('input', function() {
-    var q = input.value.toLowerCase().trim();
-    document.querySelectorAll('.guide-entry').forEach(function(entry) {
-      var searchText = entry.getAttribute('data-search') || '';
-      if (!q || searchText.indexOf(q) >= 0) entry.classList.remove('filtered-out');
-      else entry.classList.add('filtered-out');
-    });
-  });
-}
-
-// -- Glossary panel --
-var glossaryFilter = 'all';
-
-function buildGlossary() {
-  var body = document.getElementById('glossary-body');
-  var filtersEl = document.getElementById('glossary-type-filters');
-
-  // Collect all items with ENV_NAMES, sorted alphabetically by name
-  var items = [];
-  for (var id in ENV_NAMES) {
-    var name = ENV_NAMES[id];
-    if (!name) continue;
-    items.push({ id: id, name: name, type: getType(id), desc: GUIDE_DESCS[id] || '' });
-  }
-  items.sort(function(a, b) {
-    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-  });
-
-  // Build type filter buttons
-  var types = {};
-  items.forEach(function(it) { types[it.type] = (types[it.type] || 0) + 1; });
-  var filterHtml = '<span class="glossary-type-filter active" data-gtype="all">All (' + items.length + ')</span>';
-  var typeOrder = ['definition','theorem','lemma','proposition','corollary','example','remark','notation','warning'];
-  var typeShort = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not',warning:'Warn'};
-  typeOrder.forEach(function(t) {
-    if (types[t]) filterHtml += '<span class="glossary-type-filter" data-gtype="' + t + '">' + typeShort[t] + ' (' + types[t] + ')</span>';
-  });
-  filtersEl.innerHTML = filterHtml;
-
-  // Group by first letter
-  var groups = {};
-  items.forEach(function(it) {
-    var letter = it.name.charAt(0).toUpperCase();
-    if (!/[A-Z]/.test(letter)) letter = '#';
-    if (!groups[letter]) groups[letter] = [];
-    groups[letter].push(it);
-  });
-
-  var letters = Object.keys(groups).sort();
-  var html = '';
-  letters.forEach(function(letter) {
-    html += '<div class="glossary-letter-group" data-letter="' + letter + '">';
-    html += '<div class="glossary-letter-head">' + letter + '</div>';
-    groups[letter].forEach(function(it) {
-      var color = TYPE_COLORS[it.type] || '#e5e7eb';
-      html += '<div class="glossary-term" data-id="' + it.id + '" data-gtype="' + it.type + '" data-search="' + esc((it.name + ' ' + shortLabel(it.id) + ' ' + it.desc).toLowerCase()) + '">';
-      html += '<span class="entry-chevron">&#9656;</span>';
-      html += '<span class="glossary-term-type-dot" style="background:' + color + '"></span>';
-      html += '<span class="glossary-term-name">' + esc(it.name) + '</span>';
-      html += '<span class="glossary-term-ref">' + esc(shortLabel(it.id)) + '</span>';
-      html += '<div class="glossary-term-detail"><div class="entry-math-content" data-env-id="' + it.id + '"></div>';
-      if (it.desc) html += '<div class="entry-desc-text">' + it.desc + '</div>';
-      html += '</div></div>';
-    });
-    html += '</div>';
-  });
-  body.innerHTML = html;
-  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
-
-  // Click handlers for terms — expand/collapse; ref click → navigate
-  body.querySelectorAll('.glossary-term').forEach(function(term) {
-    term.addEventListener('click', function(e) {
-      if (e.target.closest('.glossary-term-ref')) {
-        var id = term.getAttribute('data-id');
-        if (id) { scrollToEnv(id); navigateTo(id); }
-        return;
-      }
-      term.classList.toggle('expanded');
-      if (term.classList.contains('expanded')) {
-        var mc = term.querySelector('.entry-math-content');
-        if (mc && !mc.dataset.loaded) {
-          mc.dataset.loaded = '1';
-          var envId = mc.getAttribute('data-env-id');
-          var env = document.getElementById(envId);
-          if (env) { mc.innerHTML = env.outerHTML; if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([mc]).catch(function(){}); }
-        }
-      }
-    });
-  });
-
-  // Click handlers for type filters
-  filtersEl.querySelectorAll('.glossary-type-filter').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      filtersEl.querySelectorAll('.glossary-type-filter').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      glossaryFilter = btn.getAttribute('data-gtype');
-      applyGlossaryFilters();
-    });
-  });
-}
-
-function applyGlossaryFilters() {
-  var q = (document.getElementById('glossary-search').value || '').toLowerCase().trim();
-  document.querySelectorAll('.glossary-term').forEach(function(term) {
-    var matchType = glossaryFilter === 'all' || term.getAttribute('data-gtype') === glossaryFilter;
-    var matchSearch = !q || (term.getAttribute('data-search') || '').indexOf(q) >= 0;
-    if (matchType && matchSearch) term.classList.remove('filtered-out');
-    else term.classList.add('filtered-out');
-  });
-  // Hide empty letter groups
-  document.querySelectorAll('.glossary-letter-group').forEach(function(grp) {
-    var visible = grp.querySelectorAll('.glossary-term:not(.filtered-out)').length > 0;
-    grp.style.display = visible ? '' : 'none';
-  });
-}
-
-function toggleGlossary() { switchTab(activeTab === 'glossary' ? 'deps' : 'glossary'); }
-
-function initGlossarySearch() {
-  document.getElementById('glossary-search').addEventListener('input', applyGlossaryFilters);
-}
-
 // ── Init ──
 function initApp() {
   buildGraph();
-  renderMinimap();
   showPanel();
-  document.getElementById('btn-map').classList.add('active');
+  buildCourseIndex();
   buildFilters();
   addTOCNames();
   addRefNames();
@@ -2344,16 +2691,11 @@ function initApp() {
   initResize();
   initPeek();
   initPeekResize();
+  initSidebarSearch();
+  initInspectorSearch();
   expandSection('sec0');
   document.getElementById('nav-back').addEventListener('click', navBack);
   document.getElementById('nav-forward').addEventListener('click', navForward);
-  document.getElementById('btn-map').addEventListener('click', toggleMinimap);
-  // Tab switching
-  document.querySelectorAll('.panel-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() { switchTab(tab.getAttribute('data-tab')); });
-  });
-  initGuideSearch();
-  initGlossarySearch();
   document.getElementById('btn-close-panel').addEventListener('click', hidePanel);
   // Sidebar expand/collapse all
   document.getElementById('btn-expand-all').addEventListener('click', expandAllSections);
@@ -2373,8 +2715,8 @@ function initApp() {
   // Bidirectional parent shell communication
   var _parentMsg = false;
   var _origNav = navigateTo;
-  navigateTo = function(id) {
-    _origNav(id);
+  navigateTo = function(id, addHist) {
+    _origNav(id, addHist);
     if (!_parentMsg && window.parent !== window) {
       window.parent.postMessage({ type: 'viewer', action: 'itemClicked', course: 'a11', id: id }, '*');
     }

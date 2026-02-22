@@ -8,17 +8,29 @@ VIEWER.registerCourse({
   term: 'Michaelmas',
   year: 2024,
   instructor: 'Márk Mezei',
-  items: 52,
+  items: 91,
   path: '../Part_A/Michaelmas/A11_Quantum_Theory/index.html',
   envNames: {
+    // Section 0: Classical background (equations only)
+    "eq-0.1": "Newton\u2019s second law",
+    "eq-0.3": "Classical wave equation",
+    "eq-0.5": "Plane wave solution",
     // Section 1: Physical background
     "def-1.1": "Einstein\u2013Planck relation",
     "def-1.2": "De Broglie relations",
+    "eq-1.1": "Einstein\u2013Planck energy",
+    "eq-1.2": "De Broglie momentum",
     // Section 2: Wave mechanics
     "def-2.1": "Schr\u00f6dinger equation",
     "def-2.2": "Stationary state Schr\u00f6dinger equation",
     "def-2.3": "Ground state energy",
     "def-2.4": "Degeneracy",
+    "eq-2.1": "Free Schr\u00f6dinger equation",
+    "eq-2.4": "General Schr\u00f6dinger equation",
+    "eq-2.7": "Stationary state ansatz",
+    "eq-2.8": "Time-independent Schr\u00f6dinger equation",
+    "eq-2.15": "Particle in box energies",
+    "eq-2.22": "Degeneracy counting formula",
     // Section 3: The Born interpretation
     "def-3.1": "Born rule",
     "def-3.2": "Normalizable wave function",
@@ -26,9 +38,16 @@ VIEWER.registerCourse({
     "prop-3.1": "Continuity equation",
     "prop-3.2": "Conservation of probability",
     "def-3.4": "Energy measurement probability",
+    "eq-3.1": "Born rule probability density",
+    "eq-3.6": "Probability current",
+    "eq-3.7": "Continuity equation",
+    "eq-3.21": "Energy measurement probability",
     // Section 4: The harmonic oscillator
     "def-4.1": "Parity state",
     "thm-4.1": "Harmonic oscillator energies",
+    "eq-4.4": "Harmonic oscillator potential",
+    "eq-4.14": "Hermite differential equation",
+    "eq-4.18": "Oscillator energy eigenvalues",
     // Section 5: Mathematical structure
     "def-5.1": "Quantum states",
     "def-5.2": "Hilbert space",
@@ -41,6 +60,13 @@ VIEWER.registerCourse({
     "thm-5.3": "Spectral theorem",
     "def-5.7": "Quantum measurement postulate",
     "def-5.8": "Collapse of the wave function",
+    "eq-5.1": "Inner product axioms",
+    "eq-5.8": "Position operator",
+    "eq-5.9": "Momentum operator",
+    "eq-5.11": "Hamiltonian operator",
+    "eq-5.16": "Eigenvalue equation",
+    "eq-5.32": "Measurement postulate",
+    "eq-5.36": "Operator Schr\u00f6dinger equation",
     // Section 6: Statistical aspects
     "def-6.1": "Expectation value",
     "def-6.2": "Identity and non-negative operators",
@@ -53,6 +79,11 @@ VIEWER.registerCourse({
     "prop-6.5": "Uncertainty inequality",
     "cor-6.6": "Heisenberg uncertainty principle",
     "cor-6.7": "General uncertainty relation",
+    "eq-6.1": "Expectation value formula",
+    "eq-6.5": "Dispersion formula",
+    "eq-6.9": "Canonical commutation relation",
+    "eq-6.13": "Uncertainty inequality",
+    "eq-6.15": "Heisenberg uncertainty principle",
     // Section 7: Harmonic oscillator revisited
     "def-7.1": "Raising and lowering operators",
     "lem-7.1": "Hamiltonian factorization",
@@ -61,6 +92,9 @@ VIEWER.registerCourse({
     "lem-7.3": "Number operator eigenvalue properties",
     "thm-7.4": "Spectrum of the number operator",
     "prop-7.6": "Normalized stationary states",
+    "eq-7.1": "Ladder operators",
+    "eq-7.5": "Hamiltonian factorization",
+    "eq-7.12": "Ladder action on eigenstates",
     // Section 8: Angular momentum
     "def-8.1": "Angular momentum operator",
     "prop-8.1": "Angular momentum commutation relations",
@@ -69,19 +103,37 @@ VIEWER.registerCourse({
     "prop-8.2": "J\u00b2 commutes with components",
     "thm-8.3": "Spectrum of angular momentum",
     "def-8.4": "Spherical harmonics",
+    "eq-8.2": "Angular momentum commutation",
+    "eq-8.11": "J\u00b2 eigenvalue",
+    "eq-8.33": "Spherical harmonics eigenvalues",
     // Section 9: The hydrogen atom
     "def-9.1": "Central potential",
-    "thm-9.1": "Hydrogen atom spectrum"
+    "thm-9.1": "Hydrogen atom spectrum",
+    "eq-9.10": "Hydrogen Hamiltonian",
+    "eq-9.14": "Radial Schr\u00f6dinger equation",
+    "eq-9.32": "Hydrogen energy spectrum"
   },
   guideDescs: {
+    // Section 0 (equations)
+    "eq-0.1": "Newton\u2019s second law for a conservative force: the acceleration of a particle equals the force divided by mass. This is the starting point of classical mechanics.",
+    "eq-0.3": "The classical wave equation governs oscillations in continuous media. Its solutions are superpositions of plane waves with dispersion relation \\(\\omega = v|\\mathbf{k}|\\).",
+    "eq-0.5": "A plane wave solution of the wave equation, characterized by wave vector \\(\\mathbf{k}\\) and angular frequency \\(\\omega\\). Serves as the prototype for quantum wave functions.",
     // Section 1
     "def-1.1": "Light of angular frequency \\(\\omega\\) exists in quanta of energy \\(E = \\hbar\\omega\\). These photon packets explain the photoelectric effect, where electrons are emitted only when \\(\\omega > E_0/\\hbar\\).",
     "def-1.2": "A free particle of energy \\(E\\) and momentum \\(\\mathbf{p}\\) is associated with a wave via \\(E = \\hbar\\omega\\) and \\(\\mathbf{p} = \\hbar\\mathbf{k}\\). This extends Einstein\u2019s photon relation to all particles, underpinning wave mechanics.",
+    "eq-1.1": "The energy of a photon is proportional to its angular frequency. This is the foundational relation connecting particle and wave descriptions of light.",
+    "eq-1.2": "The momentum of a particle is related to its wave vector by Planck\u2019s constant. This extends wave-particle duality from photons to all matter.",
     // Section 2
     "def-2.1": "A non-relativistic particle of mass \\(m\\) in potential \\(V(\\mathbf{x})\\) is governed by \\(i\\hbar\\frac{\\partial\\Psi}{\\partial t} = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V\\Psi\\). This complex linear PDE replaces Newton\u2019s second law at quantum scales.",
     "def-2.2": "Separating \\(\\Psi = \\psi(\\mathbf{x})e^{-iEt/\\hbar}\\) yields the time-independent equation \\(-\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi = E\\psi\\). Solutions are stationary states with definite energy \\(E\\).",
     "def-2.3": "When energies are discrete and bounded below, the lowest energy is the ground state (zero point) energy. Higher energies are the first, second, etc. excited states.",
     "def-2.4": "An energy level \\(E\\) is \\(d\\)-fold degenerate if the space of stationary states with that energy has dimension \\(d > 1\\). Non-degenerate means \\(d = 1\\).",
+    "eq-2.1": "The Schr\u00f6dinger equation for a free particle (\\(V = 0\\)): \\(i\\hbar\\partial_t\\Psi = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi\\). Plane waves are solutions.",
+    "eq-2.4": "The full time-dependent Schr\u00f6dinger equation with potential: \\(i\\hbar\\partial_t\\Psi = -\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V\\Psi\\). The central equation of non-relativistic quantum mechanics.",
+    "eq-2.7": "The separation of variables ansatz for stationary states. Substituting into the Schr\u00f6dinger equation separates time and space dependence.",
+    "eq-2.8": "The eigenvalue equation \\(-\\frac{\\hbar^2}{2m}\\nabla^2\\psi + V\\psi = E\\psi\\) for stationary states. Solutions with boundary conditions determine the energy spectrum.",
+    "eq-2.15": "The quantized energy levels of a particle confined to an interval \\([0,a]\\). The \\(n^2\\) scaling is characteristic of infinite square well potentials.",
+    "eq-2.22": "The degeneracy of an energy level in a 3D box equals the number of integer triples \\((n_1,n_2,n_3)\\) giving the same total energy.",
     // Section 3
     "def-3.1": "The probability density is \\(\\rho = |\\Psi(\\mathbf{x},t)|^2\\). The probability of finding the particle in a region \\(D\\) is \\(\\int_D |\\Psi|^2 d^3x\\). This is the Born interpretation of the wave function.",
     "def-3.2": "A wave function is normalizable if \\(0 < \\int |\\Psi|^2 d^3x < \\infty\\) and normalized if the integral equals 1. The Born interpretation requires normalization.",
@@ -89,9 +141,16 @@ VIEWER.registerCourse({
     "prop-3.1": "The Schr\u00f6dinger equation implies \\(\\partial\\rho/\\partial t + \\nabla\\cdot\\mathbf{j} = 0\\) where \\(\\mathbf{j} = \\frac{i\\hbar}{2m}(\\Psi\\nabla\\bar\\Psi - \\bar\\Psi\\nabla\\Psi)\\) is the probability current. This is a conservation law for probability.",
     "prop-3.2": "If the probability current decays sufficiently fast at infinity, then \\(\\int|\\Psi|^2 d^3x\\) is independent of time. A wave function normalized at one time stays normalized forever.",
     "def-3.4": "For a state \\(\\Psi = \\sum c_n \\psi_n e^{-iE_nt/\\hbar}\\), the probability of measuring energy \\(E_n\\) is \\(|c_n|^2\\). This follows from orthonormality of stationary states.",
+    "eq-3.1": "The probability density equals the squared modulus of the wave function. This is the fundamental interpretive postulate of quantum mechanics.",
+    "eq-3.6": "The probability current \\(\\mathbf{j} = \\frac{i\\hbar}{2m}(\\Psi\\nabla\\bar\\Psi - \\bar\\Psi\\nabla\\Psi)\\) describes the flow of probability density in space.",
+    "eq-3.7": "The continuity equation for probability. It ensures that probability is locally conserved: changes in probability density are accounted for by probability current.",
+    "eq-3.21": "The probability of measuring energy \\(E_n\\) in a superposition state equals the squared magnitude of the expansion coefficient \\(c_n\\).",
     // Section 4
     "def-4.1": "A 1D stationary state with \\(\\psi(-x) = \\psi(x)\\) has even parity; with \\(\\psi(-x) = -\\psi(x)\\) it has odd parity. For symmetric potentials, stationary states can always be chosen to have definite parity.",
     "thm-4.1": "The 1D harmonic oscillator with angular frequency \\(\\omega\\) has energies \\(E_n = (n + \\tfrac{1}{2})\\hbar\\omega\\) for \\(n \\in \\mathbb{Z}_{\\geq 0}\\). Wave functions are \\(\\psi_n \\propto H_n(\\xi)e^{-\\xi^2/2}\\) with Hermite polynomials \\(H_n\\).",
+    "eq-4.4": "The quadratic potential of the harmonic oscillator. Near any stable equilibrium, the potential is approximately quadratic, making this a universal model.",
+    "eq-4.14": "The Hermite equation \\(h'' - 2\\xi h' + 2nh = 0\\) arises after substituting the Gaussian ansatz into the oscillator Schr\u00f6dinger equation. Solutions are Hermite polynomials.",
+    "eq-4.18": "The energy eigenvalues of the quantum harmonic oscillator. The evenly spaced spectrum with zero-point energy \\(\\tfrac{1}{2}\\hbar\\omega\\) is a hallmark of quantum mechanics.",
     // Section 5
     "def-5.1": "The states of a quantum system are elements of a complex inner product space \\(\\mathcal{H}\\). Proportional vectors represent the same physical state.",
     "def-5.2": "A complete complex inner product space is a Hilbert space. Completeness ensures infinite sums (superpositions) converge to elements of \\(\\mathcal{H}\\).",
@@ -104,6 +163,13 @@ VIEWER.registerCourse({
     "thm-5.3": "If \\(A\\) is self-adjoint on a finite-dimensional \\(\\mathcal{H}\\), there exists a complete orthonormal basis of eigenvectors. This generalizes to infinite dimensions under suitable conditions.",
     "def-5.7": "Measuring observable \\(A\\) yields eigenvalue \\(\\alpha_n\\) with probability \\(|c_n|^2\\) where \\(\\psi = \\sum c_n\\psi_n\\) in the eigenbasis. Only eigenvalues can be observed.",
     "def-5.8": "After measuring \\(A\\) and obtaining eigenvalue \\(\\alpha_n\\), the state instantaneously collapses to the eigenstate \\(\\psi_n\\). All prior superposition information is lost.",
+    "eq-5.1": "The inner product \\(\\langle\\phi|\\psi\\rangle\\) is conjugate-symmetric, linear in the second argument, and positive-definite. These axioms define the geometric structure of quantum state space.",
+    "eq-5.8": "The position operator acts by multiplication: it multiplies the wave function by the coordinate. Its eigenstates are Dirac delta functions.",
+    "eq-5.9": "The momentum operator acts by differentiation. In position representation, it is \\(-i\\hbar\\) times the partial derivative. Its eigenstates are plane waves.",
+    "eq-5.11": "The Hamiltonian operator is the quantum analogue of classical energy. It generates time evolution via the Schr\u00f6dinger equation.",
+    "eq-5.16": "The eigenvalue equation for an observable. Solutions \\(\\psi\\) are eigenstates with definite measurement outcome \\(\\alpha\\).",
+    "eq-5.32": "The Born rule for general observables: the probability of measuring eigenvalue \\(\\alpha_n\\) is the squared magnitude of the expansion coefficient.",
+    "eq-5.36": "The Schr\u00f6dinger equation in abstract operator form. This is representation-independent and applies to any quantum system.",
     // Section 6
     "def-6.1": "The expectation value of observable \\(A\\) in normalized state \\(\\psi\\) is \\(E_\\psi(A) = \\langle\\psi|A\\psi\\rangle = \\sum \\alpha_n|c_n|^2\\). It equals the average over repeated measurements.",
     "def-6.2": "The identity operator \\(\\mathbf{1}\\) satisfies \\(\\mathbf{1}\\psi = \\psi\\). An operator \\(A\\) is non-negative if \\(\\langle\\psi|A\\psi\\rangle \\geq 0\\) for all \\(\\psi\\).",
@@ -116,6 +182,11 @@ VIEWER.registerCourse({
     "prop-6.5": "For self-adjoint \\(A,B\\) with \\([A,B] = iC\\): \\(E(A^2)E(B^2) \\geq \\tfrac{1}{4}(E(C))^2\\). Equality holds iff \\((A - is_0B)\\psi = 0\\) for some real \\(s_0\\).",
     "cor-6.6": "Heisenberg\u2019s uncertainty principle: \\(\\Delta_\\psi(X)\\Delta_\\psi(P) \\geq \\frac{\\hbar}{2}\\). Equality holds for Gaussian wave functions (minimum uncertainty states). This is a direct consequence of \\([X,P] = i\\hbar\\).",
     "cor-6.7": "For any self-adjoint \\(A,B\\): \\(\\Delta_\\psi(A)\\Delta_\\psi(B) \\geq \\frac{1}{2}|E_\\psi([A,B])|\\). Non-commuting observables cannot both be measured with arbitrary precision.",
+    "eq-6.1": "The expectation value of an observable in a given state. It equals the weighted average of eigenvalues, weighted by measurement probabilities.",
+    "eq-6.5": "The variance of an observable\u2019s measurement outcomes. Zero dispersion characterizes eigenstates.",
+    "eq-6.9": "The canonical commutation relation is the fundamental algebraic relation of quantum mechanics. It encodes the incompatibility of simultaneous position and momentum measurements.",
+    "eq-6.13": "The general uncertainty inequality for non-commuting observables with \\([A,B] = iC\\). The foundation of all uncertainty relations.",
+    "eq-6.15": "The Heisenberg uncertainty principle for position and momentum. The most famous inequality in quantum mechanics.",
     // Section 7
     "def-7.1": "The raising and lowering operators \\(a_\\pm = \\frac{1}{\\sqrt{2m\\omega\\hbar}}(\\mp iP + m\\omega X)\\) satisfy \\(a_+ = (a_-)^*\\). They provide an algebraic approach to the harmonic oscillator.",
     "lem-7.1": "The Hamiltonian factorizes as \\(H = (N + \\tfrac{1}{2})\\hbar\\omega\\) where \\(N = a_+a_-\\) is the self-adjoint number operator. This follows from \\([X,P] = i\\hbar\\).",
@@ -124,6 +195,9 @@ VIEWER.registerCourse({
     "lem-7.3": "If \\(N\\psi = \\lambda\\psi\\) with \\(\\psi \\neq 0\\): (a) \\(a_\\pm\\psi\\) are eigenstates with eigenvalue \\(\\lambda \\pm 1\\) (if non-zero), and (b) \\(\\lambda \\geq 0\\) with equality iff \\(a_-\\psi = 0\\).",
     "thm-7.4": "The spectrum of \\(N\\) is \\(\\mathbb{Z}_{\\geq 0}\\). If the ground state \\(\\psi_0\\) is unique, the full set of eigenstates is \\(\\{a_+^n\\psi_0 : n \\geq 0\\}\\), each with eigenvalue \\(n\\).",
     "prop-7.6": "The normalized stationary states are \\(\\psi_n = \\frac{1}{\\sqrt{n!}}a_+^n\\psi_0\\), forming an orthonormal set \\(\\langle\\psi_m|\\psi_n\\rangle = \\delta_{mn}\\).",
+    "eq-7.1": "The raising and lowering operators for the harmonic oscillator, defined as specific linear combinations of position and momentum.",
+    "eq-7.5": "The harmonic oscillator Hamiltonian written in terms of the number operator. This algebraic factorization reveals the equally-spaced spectrum.",
+    "eq-7.12": "The raising operator \\(a_+\\) increases the number eigenvalue by 1, while \\(a_-\\) decreases it. This is the mechanism behind the equally-spaced spectrum.",
     // Section 8
     "def-8.1": "The orbital angular momentum \\(\\mathbf{L} = \\mathbf{X} \\wedge \\mathbf{P}\\) has components \\(L_i = \\sum \\epsilon_{ijk}X_jP_k\\). It is the quantum analogue of classical angular momentum.",
     "prop-8.1": "\\([L_i,X_j] = i\\hbar\\sum\\epsilon_{ijk}X_k\\), \\([L_i,P_j] = i\\hbar\\sum\\epsilon_{ijk}P_k\\), and \\([L_i,L_j] = i\\hbar\\sum\\epsilon_{ijk}L_k\\). The last says angular momentum components don\u2019t commute.",
@@ -132,9 +206,15 @@ VIEWER.registerCourse({
     "prop-8.2": "\\([J^2, J_i] = 0\\) for all \\(i\\). So \\(J^2\\) and any single component \\(J_i\\) can be simultaneously measured (they share eigenstates).",
     "thm-8.3": "The simultaneous eigenvalues of \\(J^2\\) and \\(J_3\\) are \\(j(j+1)\\hbar^2\\) and \\(m\\hbar\\), where \\(j \\in \\tfrac{1}{2}\\mathbb{Z}_{\\geq 0}\\) and \\(m \\in \\{-j, -j+1, \\ldots, j\\}\\). For orbital AM, \\(j = l \\in \\mathbb{Z}_{\\geq 0}\\).",
     "def-8.4": "Spherical harmonics \\(Y_l^m(\\theta,\\phi)\\) are simultaneous eigenstates of \\(L^2\\) and \\(L_3\\) for orbital angular momentum. They form a complete orthonormal set on the sphere.",
+    "eq-8.2": "The commutation relations for angular momentum components. They form the Lie algebra \\(\\mathfrak{so}(3)\\) and prevent simultaneous sharp measurement of different components.",
+    "eq-8.11": "The eigenvalue of the total angular momentum squared. The quantum number \\(j\\) can be integer or half-integer.",
+    "eq-8.33": "The spherical harmonics \\(Y_l^m\\) satisfy \\(L^2Y_l^m = l(l+1)\\hbar^2Y_l^m\\) and \\(L_3Y_l^m = m\\hbar Y_l^m\\). They provide the angular part of any central potential problem.",
     // Section 9
     "def-9.1": "A central potential \\(V = V(r)\\) depends only on the distance \\(r = |\\mathbf{x}|\\). The Schr\u00f6dinger equation separates in spherical coordinates, with angular part solved by spherical harmonics.",
-    "thm-9.1": "The hydrogen atom energies are \\(E_n = -\\frac{m_e e^4}{2\\hbar^2 n^2}\\) for \\(n \\in \\mathbb{Z}_{>0}\\). Each level has degeneracy \\(n^2\\), explained by a hidden \\(SO(4)\\) symmetry."
+    "thm-9.1": "The hydrogen atom energies are \\(E_n = -\\frac{m_e e^4}{2\\hbar^2 n^2}\\) for \\(n \\in \\mathbb{Z}_{>0}\\). Each level has degeneracy \\(n^2\\), explained by a hidden \\(SO(4)\\) symmetry.",
+    "eq-9.10": "The Hamiltonian for the hydrogen atom: kinetic energy of the electron plus the Coulomb potential of the proton.",
+    "eq-9.14": "The radial equation after separating angular variables. The effective potential includes the centrifugal barrier \\(l(l+1)\\hbar^2/2mr^2\\).",
+    "eq-9.32": "The bound-state energy spectrum of the hydrogen atom. The \\(1/n^2\\) scaling explains the observed spectral lines via Rydberg\u2019s formula."
   },
   guideOutline: {
     "sec0": "Classical particles and waves. Review of point particles (Newton\u2019s second law, conserved energy, momentum) and the wave equation. Sets notation for wave vector, angular frequency, wavelength. Everything here is classical background.",

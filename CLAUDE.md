@@ -7,6 +7,7 @@ Self-contained HTML viewers for Oxford mathematics lecture notes. Each course is
 **Current courses:**
 - `Part_B/Michaelmas/B2.1_Representation_Theory/index.html` (fully converted, 134 items)
 - `Part_B/Hilary/B2.3_Lie_Algebras/index.html` (fully converted, 205 items)
+- `Part_A/Michaelmas/A11_Quantum_Theory/index.html` (fully converted, 91 items — KNOWLEDGE_GRAPH architecture)
 - `Part_B/Michaelmas/B2.1_Introduction_to_Representation_Theory/index.html` (original/legacy B2.1 — simpler viewer, committed)
 
 **Multi-course viewer:** `viewer/index.html` — iframe shell with combined glossary (see Multi-Course Viewer section below).
@@ -17,6 +18,9 @@ Self-contained HTML viewers for Oxford mathematics lecture notes. Each course is
 
 ### File Structure
 ```
+Part_A/
+  Michaelmas/
+    A11_Quantum_Theory/index.html                    (converted, KNOWLEDGE_GRAPH arch)
 Part_B/
   Michaelmas/
     B2.1_Representation_Theory/index.html           (converted)
@@ -194,15 +198,30 @@ var TYPE_COLORS = {
 
 ## Course-Specific Differences
 
-| Aspect | B2.1 Representation Theory | B2.3 Lie Algebras |
-|--------|---------------------------|-------------------|
-| Hierarchy | Flat: `h2.section-heading` only (7 sections) | Nested: `h2.chapter-heading` + `h3.section-heading` + `h4` subsections |
-| Item IDs | `def-1.2`, `thm-3.4` (flat numbering) | `def-1.1.1`, `thm-3.4.2` (nested numbering) |
-| Items | 134 | 205 |
-| Sections | 7 (no chapters) | 6 chapters + background + appendices |
-| Guide structure | Sections only (no chapter grouping) | Chapter > Section > Item |
-| Subsection TOC | Not needed | `addSubsectionsTOC()` for h4 entries |
-| Chapter TOC | Not needed | `initChapterTOC()` for collapsible chapters |
+| Aspect | B2.1 Representation Theory | B2.3 Lie Algebras | A11 Quantum Theory |
+|--------|---------------------------|-------------------|--------------------|
+| Hierarchy | Flat: `h2.section-heading` only (7 sections) | Nested: `h2.chapter-heading` + `h3.section-heading` + `h4` subsections | Flat: `h2.section-heading` (11 sections) + `h3` subsections |
+| Item IDs | `def-1.2`, `thm-3.4` (flat numbering) | `def-1.1.1`, `thm-3.4.2` (nested numbering) | `def-5.4`, `eq-2.8` (flat + equations) |
+| Items | 134 | 205 | 91 (52 formal + 39 equations) |
+| Sections | 7 (no chapters) | 6 chapters + background + appendices | 11 (sec0-sec10) |
+| Data model | ENV_NAMES + GUIDE_DESCS + GUIDE_OUTLINE | ENV_NAMES + GUIDE_DESCS + GUIDE_OUTLINE | **KNOWLEDGE_GRAPH** (unified) |
+| Right panel | Tabbed (Deps/Guide/Glossary) + Minimap | Tabbed (Deps/Guide/Glossary) + Minimap | **Context Inspector** (no tabs, no minimap) |
+| Equations as entities | No | No | Yes (`div.env.equation`, `eq-` prefix IDs) |
+
+### A11 KNOWLEDGE_GRAPH Architecture
+A11 uses a single unified `KNOWLEDGE_GRAPH` object instead of separate ENV_NAMES/GUIDE_DESCS/GUIDE_OUTLINE:
+```javascript
+var KNOWLEDGE_GRAPH = {
+  'def-5.4': { type:'definition', name:'Position and momentum operators', desc:'...', uses:['def-5.3'], usedBy:['lem-5.1'] },
+  'eq-6.9':  { type:'equation', name:'Canonical commutation \\([X,P] = i\\hbar\\)', desc:'...', uses:['prop-6.3'], usedBy:[] },
+  'sec5':    { type:'section', name:'5. The mathematical structure of quantum theory', desc:'...', uses:[], usedBy:[] },
+};
+```
+
+### A11 Context Inspector (replaces tabbed panel + minimap)
+- **Default state (Course Index)**: All items grouped by section with type filter tabs. Descriptions shown by default under each item. Expand/collapse all descriptions. Double-click item row to toggle its description. Click navigates to item.
+- **Active state (Item Inspector)**: Dependency graph SVG + expandable Prerequisites/Referenced by sections. Each prerequisite/dependent shows its description by default, and can be expanded to show full mathematical content. Show/hide descs and expand/collapse all controls per section.
+- **No minimap, no guide tab, no glossary tab** — all consolidated.
 
 When adapting `buildGuide()` for flat-section courses (like B2.1), skip chapter grouping — sections ARE the top-level groups in the revision notes.
 
