@@ -318,6 +318,17 @@ a.ref {
 a.ref:hover { color: #1d4ed8; background: #eff6ff; border-radius: 2px; }
 a.ref .ref-name { color: #6b7280; font-size: 0.88em; font-weight: 400; white-space: nowrap; }
 
+/* Cross-course references */
+a.xref {
+  color: #7c3aed;
+  text-decoration: none;
+  border-bottom: 1px dashed #c4b5fd;
+  cursor: pointer;
+  white-space: nowrap;
+}
+a.xref:hover { color: #6d28d9; background: #f5f3ff; border-radius: 2px; }
+a.xref .xref-course { font-size: 0.82em; color: #a78bfa; font-weight: 600; }
+
 /* Character tables */
 table.char-table {
   border-collapse: collapse;
@@ -775,10 +786,22 @@ body.loading #ref-panel { opacity: 0; transition: opacity 0.3s; }
   border-radius: 50%; animation: spin 0.8s linear infinite; z-index: 200;
 }
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+/* Back to courses link */
+.back-to-courses {
+  position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+  z-index: 100; font-size: 12px; color: #6b7280; text-decoration: none;
+  background: rgba(255,255,255,0.95); padding: 4px 14px; border-radius: 4px;
+  border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-family: "Computer Modern Sans", system-ui, sans-serif;
+  transition: all 0.15s;
+}
+.back-to-courses:hover { color: #1e40af; border-color: #93c5fd; background: #fff; }
+@media (max-width: 768px) { .back-to-courses { display: none; } }
 </style>
 </head>
 <body class="loading">
 <a href="#content" class="skip-link">Skip to content</a>
+<a href="../../../index.html" class="back-to-courses">← All Courses</a>
 <div class="loading-spinner" id="loading-spinner"></div>
 <button class="mobile-toggle" id="mobile-sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
 <button class="mobile-toggle" id="mobile-panel-toggle" aria-label="Toggle panel">&#9783;</button>
@@ -4273,6 +4296,15 @@ var MAX_DEPTH = 2, MAX_PER_COL = 8;
 var inspectorMode = 'index'; // 'index' or 'active'
 var inspectorFilter = 'all';
 
+var COURSE_PATHS = {
+  b21: '../../Part_B/Michaelmas/B2.1_Representation_Theory/index.html',
+  b23: '../../Part_B/Hilary/B2.3_Lie_Algebras/index.html',
+  a11: '',
+  a3:  '../Hilary/A3_Rings_and_Modules/index.html',
+  a0:  'A0_Linear_Algebra/index.html',
+  a21: 'A2.1_Metric_Spaces/index.html'
+};
+
 var KNOWLEDGE_GRAPH = {
   // ── Sections ──
   'sec0': { type:'section', name:'0. Classical particles and waves', desc:"Classical particles and waves. Review of point particles (Newton\u2019s second law, conserved energy, momentum) and the wave equation. Sets notation for wave vector, angular frequency, wavelength. Everything here is classical background.", uses:[], usedBy:[] },
@@ -4447,11 +4479,11 @@ var KNOWLEDGE_GRAPH = {
   'eq-7.18': { type:'equation', name:'Normalised ladder action \\(a_\\pm\\psi_n\\)', desc:"\\(a_-\\psi_n = \\sqrt{n}\\,\\psi_{n-1}\\) and \\(a_+\\psi_n = \\sqrt{n+1}\\,\\psi_{n+1}\\): the normalised action of ladder operators on eigenstates.", uses:['prop-7.2'], usedBy:[] },
   'eq-7.24': { type:'equation', name:'Hermite polynomial wave functions', desc:"Explicit normalised wave functions: \\(\\psi_n = \\frac{1}{\\sqrt{2^n n!}}(m\\omega/\\pi\\hbar)^{1/4}H_n(\\xi)e^{-\\xi^2/2}\\), derived from applying \\(a_+^n\\) to \\(\\psi_0\\).", uses:['prop-7.6'], usedBy:[] },
   'eq-8.13': { type:'equation', name:'Raising/lowering operators \\(J_\\pm = J_1 \\pm iJ_2\\)', desc:"The angular momentum raising and lowering operators, complex combinations of \\(J_1\\) and \\(J_2\\). They shift the \\(J_3\\) eigenvalue by \\(\\pm\\hbar\\).", uses:['def-8.2'], usedBy:[] },
-  'eq-8.19': { type:'equation', name:'Normalised \\(J_\\pm\\) action on \\(\\ket{j,m}\\)', desc:"\\(J_\\pm\\ket{j,m} = \\hbar\\sqrt{j(j+1)-m(m\\pm 1)}\\ket{j,m\\pm 1}\\): the explicit action with Clebsch\u2013Gordan-type coefficients.", uses:['thm-8.6','prop-8.5'], usedBy:[] }
-  'eq-0.3': { type:'equation', name:'Energy conservation', desc:"The total energy is constant along solutions of Newton's second law: the time derivative vanishes identically when \(\mathbf{F} = -\nabla V\). This is the fundamental conservation law for a particle in a conservative force field.", uses:[], usedBy:[] },
-  'eq-0.4': { type:'equation', name:'Kinetic energy via momentum', desc:"The kinetic energy rewritten in terms of momentum \(\mathbf{p} = m\dot{\mathbf{x}}\). This form carries over directly into quantum mechanics, where \(\mathbf{p}\) becomes an operator.", uses:[], usedBy:[] },
-  'eq-0.7': { type:'equation', name:'Wave phase velocity', desc:"The phase velocity of a plane wave equals angular frequency divided by the magnitude of the wave vector. Equivalently, \(v = \nu\lambda\).", uses:[], usedBy:[] },
-  'eq-1.3': { type:'equation', name:'Hydrogen atom energy levels', desc:"The quantized energy levels of the hydrogen atom, labelled by a positive integer \(n\). The discrete spectrum follows from the Rydberg formula and is derived theoretically at the end of the course.", uses:[], usedBy:[] },
+  'eq-8.19': { type:'equation', name:'Normalised \\(J_\\pm\\) action on \\(\\ket{j,m}\\)', desc:"\\(J_\\pm\\ket{j,m} = \\hbar\\sqrt{j(j+1)-m(m\\pm 1)}\\ket{j,m\\pm 1}\\): the explicit action with Clebsch\u2013Gordan-type coefficients.", uses:['thm-8.6','prop-8.5'], usedBy:[] },
+  'eq-0.3': { type:'equation', name:'Energy conservation', desc:"The total energy is constant along solutions of Newton's second law: the time derivative vanishes identically when \\(\\mathbf{F} = -\\nabla V\\). This is the fundamental conservation law for a particle in a conservative force field.", uses:[], usedBy:[] },
+  'eq-0.4': { type:'equation', name:'Kinetic energy via momentum', desc:"The kinetic energy rewritten in terms of momentum \\(\\mathbf{p} = m\\dot{\\mathbf{x}}\\). This form carries over directly into quantum mechanics, where \\(\\mathbf{p}\\) becomes an operator.", uses:[], usedBy:[] },
+  'eq-0.7': { type:'equation', name:'Wave phase velocity', desc:"The phase velocity of a plane wave equals angular frequency divided by the magnitude of the wave vector. Equivalently, \\(v = \\nu\\lambda\\).", uses:[], usedBy:[] },
+  'eq-1.3': { type:'equation', name:'Hydrogen atom energy levels', desc:"The quantized energy levels of the hydrogen atom, labelled by a positive integer \\(n\\). The discrete spectrum follows from the Rydberg formula and is derived theoretically at the end of the course.", uses:[], usedBy:[] },
   'eq-2.1': { type:'equation', name:'De Broglie plane wave', desc:"The plane wave ansatz reinterpreted as a de Broglie matter-wave for a free particle of wave vector k and angular frequency omega.", uses:[], usedBy:[] },
   'eq-2.2': { type:'equation', name:'Energy-momentum operator identities', desc:"Applying time and spatial derivatives to the plane wave reproduces the de Broglie relations, identifying the differential operators with energy and momentum.", uses:[], usedBy:[] },
   'eq-2.3': { type:'equation', name:'Free particle dispersion relation', desc:"The dispersion relation for a free particle of mass m, fixing angular frequency in terms of wave vector via the kinetic energy relation E = |p|^2/2m.", uses:[], usedBy:[] },
@@ -4505,90 +4537,90 @@ var KNOWLEDGE_GRAPH = {
   'eq-3.33': { type:'equation', name:'Parabolic state time evolution', desc:"The full time-dependent wave function for the parabolic initial condition, expanded as a sum over odd-n stationary states with the appropriate energy phase factors.", uses:[], usedBy:[] },
   'eq-3.34': { type:'equation', name:'Ground state probability estimate', desc:"The probability of measuring the ground state energy for the parabolic initial condition. The value is very close to 1 because x(a - x) closely approximates the ground state wave function.", uses:[], usedBy:[] },
   'eq-4.1': { type:'equation', name:'Taylor expansion of potential', desc:"Near a critical point the potential is approximated by a quadratic term, justifying the harmonic oscillator model for small oscillations around stable equilibria.", uses:[], usedBy:[] },
-  'eq-4.2': { type:'equation', name:'Quadratic potential near equilibrium', desc:"With the equilibrium at the origin and \(\omega^2 = V''(0)/m\), the potential reduces to a constant plus the harmonic oscillator form.", uses:[], usedBy:[] },
-  'eq-4.4': { type:'equation', name:'Classical harmonic oscillator EOM', desc:"Newton's second law for the harmonic potential gives simple harmonic motion with angular frequency \(\omega\).", uses:[], usedBy:[] },
-  'eq-4.6': { type:'equation', name:'Dimensionless energy and position', desc:"Rescaling energy and position removes physical constants from the Schrodinger equation, yielding a single dimensionless parameter \(\epsilon\).", uses:[], usedBy:[] },
-  'eq-4.8': { type:'equation', name:'Dimensionless wave function', desc:"The stationary state wave function is rewritten in terms of the dimensionless coordinate \(\xi\).", uses:[], usedBy:[] },
-  'eq-4.9': { type:'equation', name:'Gaussian solution derivatives', desc:"Direct computation shows that \(\chi(\xi) = e^{\mp\xi^2/2}\) solves the dimensionless Schrodinger equation with \(\epsilon = \pm 1\).", uses:[], usedBy:[] },
+  'eq-4.2': { type:'equation', name:'Quadratic potential near equilibrium', desc:"With the equilibrium at the origin and \\(\\omega^2 = V''(0)/m\\), the potential reduces to a constant plus the harmonic oscillator form.", uses:[], usedBy:[] },
+  'eq-4.4': { type:'equation', name:'Classical harmonic oscillator EOM', desc:"Newton's second law for the harmonic potential gives simple harmonic motion with angular frequency \\(\\omega\\).", uses:[], usedBy:[] },
+  'eq-4.6': { type:'equation', name:'Dimensionless energy and position', desc:"Rescaling energy and position removes physical constants from the Schrodinger equation, yielding a single dimensionless parameter \\(\\epsilon\\).", uses:[], usedBy:[] },
+  'eq-4.8': { type:'equation', name:'Dimensionless wave function', desc:"The stationary state wave function is rewritten in terms of the dimensionless coordinate \\(\\xi\\).", uses:[], usedBy:[] },
+  'eq-4.9': { type:'equation', name:'Gaussian solution derivatives', desc:"Direct computation shows that \\(\\chi(\\xi) = e^{\\mp\\xi^2/2}\\) solves the dimensionless Schrodinger equation with \\(\\epsilon = \\pm 1\\).", uses:[], usedBy:[] },
   'eq-4.10': { type:'equation', name:'Normalizability condition', desc:"A stationary state wave function must be square-integrable to have a probabilistic interpretation.", uses:[], usedBy:[] },
   'eq-4.11': { type:'equation', name:'Normalizability integral for Gaussian', desc:"After changing variables, the normalizability integral is finite only for the minus sign (Gaussian), ruling out the growing exponential.", uses:[], usedBy:[] },
-  'eq-4.13': { type:'equation', name:'Derivatives of Gaussian ansatz', desc:"Substituting \(\chi(\xi) = f(\xi)\,e^{-\xi^2/2}\) and differentiating yields expressions used to derive the Hermite equation.", uses:[], usedBy:[] },
-  'eq-4.15': { type:'equation', name:'Power series ansatz for f', desc:"The function \(f(\xi)\) is expanded as a Taylor series to solve the Hermite differential equation by the method of Frobenius.", uses:[], usedBy:[] },
-  'eq-4.16': { type:'equation', name:'Series for xi times f prime', desc:"Term-by-term differentiation and multiplication by \(\xi\) expresses \(\xi f'(\xi)\) as a power series with the same indexing.", uses:[], usedBy:[] },
-  'eq-4.17': { type:'equation', name:'Series for f double prime', desc:"The second derivative of the power series, re-indexed so each term is proportional to \(\xi^k\), ready for substitution into the ODE.", uses:[], usedBy:[] },
-  'eq-4.18': { type:'equation', name:'Combined power series equation', desc:"Substituting the series into the Hermite equation and collecting powers of \(\xi\) gives a single equation whose every coefficient must vanish.", uses:[], usedBy:[] },
+  'eq-4.13': { type:'equation', name:'Derivatives of Gaussian ansatz', desc:"Substituting \\(\\chi(\\xi) = f(\\xi)\\,e^{-\\xi^2/2}\\) and differentiating yields expressions used to derive the Hermite equation.", uses:[], usedBy:[] },
+  'eq-4.15': { type:'equation', name:'Power series ansatz for f', desc:"The function \\(f(\\xi)\\) is expanded as a Taylor series to solve the Hermite differential equation by the method of Frobenius.", uses:[], usedBy:[] },
+  'eq-4.16': { type:'equation', name:'Series for xi times f prime', desc:"Term-by-term differentiation and multiplication by \\(\\xi\\) expresses \\(\\xi f'(\\xi)\\) as a power series with the same indexing.", uses:[], usedBy:[] },
+  'eq-4.17': { type:'equation', name:'Series for f double prime', desc:"The second derivative of the power series, re-indexed so each term is proportional to \\(\\xi^k\\), ready for substitution into the ODE.", uses:[], usedBy:[] },
+  'eq-4.18': { type:'equation', name:'Combined power series equation', desc:"Substituting the series into the Hermite equation and collecting powers of \\(\\xi\\) gives a single equation whose every coefficient must vanish.", uses:[], usedBy:[] },
   'eq-4.20': { type:'equation', name:'Even and odd series solutions', desc:"The recurrence relation decouples into two independent series corresponding to even and odd parity stationary states.", uses:[], usedBy:[] },
-  'eq-4.21': { type:'equation', name:'Asymptotic coefficient ratio', desc:"If the series does not terminate, its coefficients grow like those of \(e^{\xi^2}\), making the wave function non-normalizable.", uses:[], usedBy:[] },
-  'eq-4.22': { type:'equation', name:'Power series for exp(xi squared)', desc:"Expanding \(e^{\xi^2}\) as a power series provides the comparison function for the asymptotic growth argument.", uses:[], usedBy:[] },
-  'eq-4.23': { type:'equation', name:'Coefficients of exp(xi squared)', desc:"The even-indexed coefficients of \(e^{\xi^2}\) are \(1/q!\) and the odd-indexed coefficients vanish.", uses:[], usedBy:[] },
-  'eq-4.24': { type:'equation', name:'Ratio test for exp(xi squared)', desc:"The ratio of consecutive even coefficients of \(e^{\xi^2}\) has the same \(2/k\) asymptotic behaviour as the non-terminating series solution.", uses:[], usedBy:[] },
-  'eq-4.25': { type:'equation', name:'Non-normalizable asymptotic behaviour', desc:"If the series does not terminate, the wave function grows like \(e^{\xi^2/2}\) and is therefore not normalizable.", uses:[], usedBy:[] },
-  'eq-4.26': { type:'equation', name:'Termination condition', desc:"For the power series to terminate at degree \(n\), the dimensionless energy must satisfy \(\epsilon = 2n + 1\), quantizing the energy levels.", uses:[], usedBy:[] },
+  'eq-4.21': { type:'equation', name:'Asymptotic coefficient ratio', desc:"If the series does not terminate, its coefficients grow like those of \\(e^{\\xi^2}\\), making the wave function non-normalizable.", uses:[], usedBy:[] },
+  'eq-4.22': { type:'equation', name:'Power series for exp(xi squared)', desc:"Expanding \\(e^{\\xi^2}\\) as a power series provides the comparison function for the asymptotic growth argument.", uses:[], usedBy:[] },
+  'eq-4.23': { type:'equation', name:'Coefficients of exp(xi squared)', desc:"The even-indexed coefficients of \\(e^{\\xi^2}\\) are \\(1/q!\\) and the odd-indexed coefficients vanish.", uses:[], usedBy:[] },
+  'eq-4.24': { type:'equation', name:'Ratio test for exp(xi squared)', desc:"The ratio of consecutive even coefficients of \\(e^{\\xi^2}\\) has the same \\(2/k\\) asymptotic behaviour as the non-terminating series solution.", uses:[], usedBy:[] },
+  'eq-4.25': { type:'equation', name:'Non-normalizable asymptotic behaviour', desc:"If the series does not terminate, the wave function grows like \\(e^{\\xi^2/2}\\) and is therefore not normalizable.", uses:[], usedBy:[] },
+  'eq-4.26': { type:'equation', name:'Termination condition', desc:"For the power series to terminate at degree \\(n\\), the dimensionless energy must satisfy \\(\\epsilon = 2n + 1\\), quantizing the energy levels.", uses:[], usedBy:[] },
   'eq-4.29': { type:'equation', name:'Ground state normalization integral', desc:"Imposing unit norm on the ground state Gaussian wave function determines the normalization constant via a standard Gaussian integral.", uses:[], usedBy:[] },
   'eq-4.30': { type:'equation', name:'Ground state normalization constant', desc:"Evaluating the Gaussian integral gives the squared modulus of the ground state normalization constant.", uses:[], usedBy:[] },
-  'eq-4.31': { type:'equation', name:'Normalized ground state wave function', desc:"The full time-dependent ground state of the harmonic oscillator, combining the Gaussian spatial part with the phase factor \(e^{-iE_0 t/\hbar}\).", uses:[], usedBy:[] },
-  'eq-4.32': { type:'equation', name:'Harmonic oscillator energy levels', desc:"The energy spectrum of the quantum harmonic oscillator is equally spaced with quantum number \(n \in \mathbb{Z}_{\geq 0}\) and zero-point energy \(\tfrac{1}{2}\hbar\omega\).", uses:[], usedBy:[] },
-  'eq-4.33': { type:'equation', name:'Normalized oscillator wave functions', desc:"The stationary state wave functions of the harmonic oscillator, expressed in terms of Hermite polynomials \(H_n\) and the dimensionless coordinate \(\xi = \sqrt{m\omega/\hbar}\,x\).", uses:[], usedBy:[] },
-  'eq-4.34': { type:'equation', name:'Hermite polynomial closed form', desc:"A closed-form expression for the Hermite polynomials using the raising operator applied \(n\) times to the Gaussian ground state.", uses:[], usedBy:[] },
-  'eq-4.36': { type:'equation', name:'Classically forbidden region probability', desc:"The ground state has about 15.7% probability of being found in the classically forbidden region \(|\xi| > 1\), illustrating quantum tunnelling.", uses:[], usedBy:[] },
+  'eq-4.31': { type:'equation', name:'Normalized ground state wave function', desc:"The full time-dependent ground state of the harmonic oscillator, combining the Gaussian spatial part with the phase factor \\(e^{-iE_0 t/\\hbar}\\).", uses:[], usedBy:[] },
+  'eq-4.32': { type:'equation', name:'Harmonic oscillator energy levels', desc:"The energy spectrum of the quantum harmonic oscillator is equally spaced with quantum number \\(n \\in \\mathbb{Z}_{\\geq 0}\\) and zero-point energy \\(\\tfrac{1}{2}\\hbar\\omega\\).", uses:[], usedBy:[] },
+  'eq-4.33': { type:'equation', name:'Normalized oscillator wave functions', desc:"The stationary state wave functions of the harmonic oscillator, expressed in terms of Hermite polynomials \\(H_n\\) and the dimensionless coordinate \\(\\xi = \\sqrt{m\\omega/\\hbar}\\,x\\).", uses:[], usedBy:[] },
+  'eq-4.34': { type:'equation', name:'Hermite polynomial closed form', desc:"A closed-form expression for the Hermite polynomials using the raising operator applied \\(n\\) times to the Gaussian ground state.", uses:[], usedBy:[] },
+  'eq-4.36': { type:'equation', name:'Classically forbidden region probability', desc:"The ground state has about 15.7% probability of being found in the classically forbidden region \\(|\\xi| > 1\\), illustrating quantum tunnelling.", uses:[], usedBy:[] },
   'eq-4.37': { type:'equation', name:'2D harmonic oscillator potential', desc:"A two-dimensional harmonic oscillator with generally different frequencies along the two axes.", uses:[], usedBy:[] },
   'eq-4.38': { type:'equation', name:'2D Schrodinger equation', desc:"The stationary state Schrodinger equation for a particle in a two-dimensional potential, separable when the potential is a sum of one-dimensional terms.", uses:[], usedBy:[] },
-  'eq-4.39': { type:'equation', name:'Separated 1D oscillator equations', desc:"After writing \(\psi(x,y) = X(x)Y(y)\), the 2D Schrodinger equation separates into two independent 1D harmonic oscillator equations with \(E_1 + E_2 = E\).", uses:[], usedBy:[] },
+  'eq-4.39': { type:'equation', name:'Separated 1D oscillator equations', desc:"After writing \\(\\psi(x,y) = X(x)Y(y)\\), the 2D Schrodinger equation separates into two independent 1D harmonic oscillator equations with \\(E_1 + E_2 = E\\).", uses:[], usedBy:[] },
   'eq-4.41': { type:'equation', name:'Product wave function (2D)', desc:"The normalized 2D oscillator wave functions factor as products of the corresponding 1D stationary states.", uses:[], usedBy:[] },
-  'eq-4.42': { type:'equation', name:'Coupled oscillator potential', desc:"A quadratic potential with a cross-term \(xy\) written in matrix form, ready for diagonalization by an orthogonal change of coordinates.", uses:[], usedBy:[] },
-  'eq-4.43': { type:'equation', name:'Diagonalized oscillator potential', desc:"In the rotated normal coordinates \((u,v)\), the coupled potential becomes a sum of two decoupled oscillators with frequencies \(\sqrt{3}\,\omega\) and \(\omega\).", uses:[], usedBy:[] },
+  'eq-4.42': { type:'equation', name:'Coupled oscillator potential', desc:"A quadratic potential with a cross-term \\(xy\\) written in matrix form, ready for diagonalization by an orthogonal change of coordinates.", uses:[], usedBy:[] },
+  'eq-4.43': { type:'equation', name:'Diagonalized oscillator potential', desc:"In the rotated normal coordinates \\((u,v)\\), the coupled potential becomes a sum of two decoupled oscillators with frequencies \\(\\sqrt{3}\\,\\omega\\) and \\(\\omega\\).", uses:[], usedBy:[] },
   'eq-4.44': { type:'equation', name:'Laplacian invariance under rotation', desc:"The Laplacian is invariant under orthogonal coordinate transformations, so the kinetic energy term is unchanged in normal coordinates.", uses:[], usedBy:[] },
-  'eq-4.45': { type:'equation', name:'Isotropic 2D oscillator energies', desc:"For equal frequencies \(\omega_1 = \omega_2 = \omega\) the energies depend only on \(n = n_1 + n_2\), with degeneracy \(n+1\) at each level.", uses:[], usedBy:[] },
+  'eq-4.45': { type:'equation', name:'Isotropic 2D oscillator energies', desc:"For equal frequencies \\(\\omega_1 = \\omega_2 = \\omega\\) the energies depend only on \\(n = n_1 + n_2\\), with degeneracy \\(n+1\\) at each level.", uses:[], usedBy:[] },
   'eq-5.2': { type:'equation', name:'Schwarz inequality for integrals', desc:"The integral form of the Cauchy--Schwarz inequality guarantees the inner product of two normalizable functions is finite.", uses:[], usedBy:[] },
-  'eq-5.3': { type:'equation', name:'Square norm definition', desc:"The square norm of a state is defined as its inner product with itself; a normalized state satisfies \(\|\psi\|^2 = 1\).", uses:[], usedBy:[] },
+  'eq-5.3': { type:'equation', name:'Square norm definition', desc:"The square norm of a state is defined as its inner product with itself; a normalized state satisfies \\(\\|\\psi\\|^2 = 1\\).", uses:[], usedBy:[] },
   'eq-5.4': { type:'equation', name:'Inner product properties', desc:"The four defining properties of the complex inner product: conjugate symmetry, linearity in the second entry, conjugate-linearity in the first, and non-negativity.", uses:[], usedBy:[] },
   'eq-5.5': { type:'equation', name:'Positive definiteness', desc:"For continuous functions, the only state with zero norm is the zero function, completing the inner product axioms.", uses:[], usedBy:[] },
   'eq-5.6': { type:'equation', name:'Linearity of operators', desc:"A linear operator on a complex vector space preserves linear combinations, the basic requirement for representing quantum observables.", uses:[], usedBy:[] },
-  'eq-5.10': { type:'equation', name:'Position and momentum operators (3D)', desc:"In three dimensions the position operator multiplies by \(x\) and the momentum operator acts as \(-i\hbar\nabla\).", uses:[], usedBy:[] },
-  'eq-5.11': { type:'equation', name:'Position and momentum operators (1D)', desc:"In one dimension the momentum operator reduces to \(-i\hbar\, d/dx\) acting on the wave function.", uses:[], usedBy:[] },
-  'eq-5.12': { type:'equation', name:'Norms of X psi, P psi', desc:"The square norms of \(X\psi\) and \(P\psi\) must be finite, restricting the domain of these operators to suitably well-behaved wave functions.", uses:[], usedBy:[] },
-  'eq-5.13': { type:'equation', name:'Self-adjointness of f(X)', desc:"Any real-valued multiplication operator \(f(X)\) is self-adjoint, since \(f(x)\) can be moved freely between the two entries of the inner product.", uses:[], usedBy:[] },
-  'eq-5.14': { type:'equation', name:'Self-adjointness of momentum', desc:"Integration by parts, with wave functions vanishing at infinity, shows that the momentum operator \(P = -i\hbar\,d/dx\) is self-adjoint.", uses:[], usedBy:[] },
-  'eq-5.15': { type:'equation', name:'Inner product in 3D', desc:"The three-dimensional inner product integrates \(\overline{\varphi}\,\psi\) over all of \(\mathbb{R}^3\).", uses:[], usedBy:[] },
-  'eq-5.16': { type:'equation', name:'Adjoint of composite operator', desc:"Using self-adjointness of \(A\) then \(B\) shows \((AB)^* = BA\), so \(AB\) is self-adjoint if and only if \(A\) and \(B\) commute.", uses:[], usedBy:[] },
+  'eq-5.10': { type:'equation', name:'Position and momentum operators (3D)', desc:"In three dimensions the position operator multiplies by \\(x\\) and the momentum operator acts as \\(-i\\hbar\\nabla\\).", uses:[], usedBy:[] },
+  'eq-5.11': { type:'equation', name:'Position and momentum operators (1D)', desc:"In one dimension the momentum operator reduces to \\(-i\\hbar\\, d/dx\\) acting on the wave function.", uses:[], usedBy:[] },
+  'eq-5.12': { type:'equation', name:'Norms of X psi, P psi', desc:"The square norms of \\(X\\psi\\) and \\(P\\psi\\) must be finite, restricting the domain of these operators to suitably well-behaved wave functions.", uses:[], usedBy:[] },
+  'eq-5.13': { type:'equation', name:'Self-adjointness of f(X)', desc:"Any real-valued multiplication operator \\(f(X)\\) is self-adjoint, since \\(f(x)\\) can be moved freely between the two entries of the inner product.", uses:[], usedBy:[] },
+  'eq-5.14': { type:'equation', name:'Self-adjointness of momentum', desc:"Integration by parts, with wave functions vanishing at infinity, shows that the momentum operator \\(P = -i\\hbar\\,d/dx\\) is self-adjoint.", uses:[], usedBy:[] },
+  'eq-5.15': { type:'equation', name:'Inner product in 3D', desc:"The three-dimensional inner product integrates \\(\\overline{\\varphi}\\,\\psi\\) over all of \\(\\mathbb{R}^3\\).", uses:[], usedBy:[] },
+  'eq-5.16': { type:'equation', name:'Adjoint of composite operator', desc:"Using self-adjointness of \\(A\\) then \\(B\\) shows \\((AB)^* = BA\\), so \\(AB\\) is self-adjoint if and only if \\(A\\) and \\(B\\) commute.", uses:[], usedBy:[] },
   'eq-5.17': { type:'equation', name:'Classical energy', desc:"The total classical energy is kinetic plus potential, which upon canonical quantization becomes the Hamiltonian operator.", uses:[], usedBy:[] },
   'eq-5.19': { type:'equation', name:'Hamiltonian acting on wave function', desc:"The Hamiltonian operator acts on a 3D wave function as the sum of the kinetic energy (Laplacian) and potential energy terms.", uses:[], usedBy:[] },
-  'eq-5.20': { type:'equation', name:'1D Hamiltonian action', desc:"In one dimension the Hamiltonian acts as \(-\frac{\hbar^2}{2m}\psi'' + V\psi\), recovering the familiar stationary Schrodinger equation.", uses:[], usedBy:[] },
-  'eq-5.23': { type:'equation', name:'Norm conservation via self-adjointness', desc:"Self-adjointness \(H = H^*\) ensures the norm of the quantum state is conserved under Schrodinger time evolution, providing an elegant abstract proof.", uses:[], usedBy:[] },
-  'eq-5.24': { type:'equation', name:'XP acting on psi', desc:"The composite operator \(XP\) first differentiates, then multiplies by \(x\).", uses:[], usedBy:[] },
-  'eq-5.25': { type:'equation', name:'PX acting on psi', desc:"The composite operator \(PX\) first multiplies by \(x\) and then differentiates, picking up an extra \(-i\hbar\psi\) by the product rule.", uses:[], usedBy:[] },
-  'eq-5.26': { type:'equation', name:'Canonical commutation relation', desc:"Position and momentum do not commute: their commutator \([X,P] = i\hbar\) is a fundamental relation of quantum mechanics.", uses:[], usedBy:[] },
+  'eq-5.20': { type:'equation', name:'1D Hamiltonian action', desc:"In one dimension the Hamiltonian acts as \\(-\\frac{\\hbar^2}{2m}\\psi'' + V\\psi\\), recovering the familiar stationary Schrodinger equation.", uses:[], usedBy:[] },
+  'eq-5.23': { type:'equation', name:'Norm conservation via self-adjointness', desc:"Self-adjointness \\(H = H^*\\) ensures the norm of the quantum state is conserved under Schrodinger time evolution, providing an elegant abstract proof.", uses:[], usedBy:[] },
+  'eq-5.24': { type:'equation', name:'XP acting on psi', desc:"The composite operator \\(XP\\) first differentiates, then multiplies by \\(x\\).", uses:[], usedBy:[] },
+  'eq-5.25': { type:'equation', name:'PX acting on psi', desc:"The composite operator \\(PX\\) first multiplies by \\(x\\) and then differentiates, picking up an extra \\(-i\\hbar\\psi\\) by the product rule.", uses:[], usedBy:[] },
+  'eq-5.26': { type:'equation', name:'Canonical commutation relation', desc:"Position and momentum do not commute: their commutator \\([X,P] = i\\hbar\\) is a fundamental relation of quantum mechanics.", uses:[], usedBy:[] },
   'eq-5.28': { type:'equation', name:'Orthogonality of eigenstates', desc:"Eigenstates of a self-adjoint operator with distinct eigenvalues are necessarily orthogonal.", uses:[], usedBy:[] },
-  'eq-5.29': { type:'equation', name:'Reality of eigenvalues proof', desc:"Using linearity, self-adjointness, and conjugate-linearity of the inner product shows \(\alpha = \bar{\alpha}\), hence eigenvalues are real.", uses:[], usedBy:[] },
-  'eq-5.30': { type:'equation', name:'Orthogonality proof chain', desc:"For distinct real eigenvalues \(\alpha_1 \neq \alpha_2\), this chain of equalities forces \(\langle\psi_2|\psi_1\rangle = 0\).", uses:[], usedBy:[] },
+  'eq-5.29': { type:'equation', name:'Reality of eigenvalues proof', desc:"Using linearity, self-adjointness, and conjugate-linearity of the inner product shows \\(\\alpha = \\bar{\\alpha}\\), hence eigenvalues are real.", uses:[], usedBy:[] },
+  'eq-5.30': { type:'equation', name:'Orthogonality proof chain', desc:"For distinct real eigenvalues \\(\\alpha_1 \\neq \\alpha_2\\), this chain of equalities forces \\(\\langle\\psi_2|\\psi_1\\rangle = 0\\).", uses:[], usedBy:[] },
   'eq-5.31': { type:'equation', name:'Orthonormality of eigenstates', desc:"A complete set of eigenstates of an observable can always be chosen to be orthonormal.", uses:[], usedBy:[] },
   'eq-5.32': { type:'equation', name:'Eigenstate expansion', desc:"Any quantum state can be written as a linear combination of the complete orthonormal eigenstates of an observable.", uses:[], usedBy:[] },
-  'eq-5.33': { type:'equation', name:'Expansion coefficient formula', desc:"The coefficient \(c_m\) in the eigenstate expansion is extracted by taking the inner product with \(\psi_m\), using orthonormality.", uses:[], usedBy:[] },
-  'eq-5.34': { type:'equation', name:'Degenerate eigenstate expansion', desc:"When eigenvalues are degenerate, the expansion includes a sum over an orthonormal basis \(\{\psi_{n,i}\}\) for each eigenspace.", uses:[], usedBy:[] },
+  'eq-5.33': { type:'equation', name:'Expansion coefficient formula', desc:"The coefficient \\(c_m\\) in the eigenstate expansion is extracted by taking the inner product with \\(\\psi_m\\), using orthonormality.", uses:[], usedBy:[] },
+  'eq-5.34': { type:'equation', name:'Degenerate eigenstate expansion', desc:"When eigenvalues are degenerate, the expansion includes a sum over an orthonormal basis \\(\\{\\psi_{n,i}\\}\\) for each eigenspace.", uses:[], usedBy:[] },
   'eq-5.36': { type:'equation', name:'Measurement probability (degenerate)', desc:"For a degenerate eigenvalue, the measurement probability sums the squared coefficients over the entire eigenspace.", uses:[], usedBy:[] },
-  'eq-5.37': { type:'equation', name:'Parseval identity for probabilities', desc:"Normalization of the state together with orthonormality ensures the measurement probabilities \(|c_n|^2\) sum to one.", uses:[], usedBy:[] },
-  'eq-5.38': { type:'equation', name:'Hermite polynomial orthogonality', desc:"The Hermite polynomials are orthogonal with respect to the Gaussian weight \(e^{-\xi^2}\), a consequence of the self-adjointness of the harmonic oscillator Hamiltonian.", uses:[], usedBy:[] },
-  'eq-5.39': { type:'equation', name:'Hermite polynomial completeness', desc:"Any normalizable function on \(\mathbb{R}\) can be expanded in the complete orthonormal basis of harmonic oscillator eigenstates.", uses:[], usedBy:[] },
-  'eq-5.40': { type:'equation', name:'Position eigenstate equation', desc:"The eigenvalue equation for the position operator forces the wave function to vanish for all \(x \neq x_0\), leading to the Dirac delta function.", uses:[], usedBy:[] },
-  'eq-5.41': { type:'equation', name:'Dirac delta sifting property', desc:"The defining property of the Dirac delta function: it extracts the value of any continuous function at the point \(x_0\).", uses:[], usedBy:[] },
-  'eq-5.42': { type:'equation', name:'Position eigenstate completeness', desc:"Any wave function can be expanded in the generalized eigenstates \(\psi_y(x) = \delta(x - y)\) of the position operator, analogous to a discrete eigenstate expansion.", uses:[], usedBy:[] },
+  'eq-5.37': { type:'equation', name:'Parseval identity for probabilities', desc:"Normalization of the state together with orthonormality ensures the measurement probabilities \\(|c_n|^2\\) sum to one.", uses:[], usedBy:[] },
+  'eq-5.38': { type:'equation', name:'Hermite polynomial orthogonality', desc:"The Hermite polynomials are orthogonal with respect to the Gaussian weight \\(e^{-\\xi^2}\\), a consequence of the self-adjointness of the harmonic oscillator Hamiltonian.", uses:[], usedBy:[] },
+  'eq-5.39': { type:'equation', name:'Hermite polynomial completeness', desc:"Any normalizable function on \\(\\mathbb{R}\\) can be expanded in the complete orthonormal basis of harmonic oscillator eigenstates.", uses:[], usedBy:[] },
+  'eq-5.40': { type:'equation', name:'Position eigenstate equation', desc:"The eigenvalue equation for the position operator forces the wave function to vanish for all \\(x \\neq x_0\\), leading to the Dirac delta function.", uses:[], usedBy:[] },
+  'eq-5.41': { type:'equation', name:'Dirac delta sifting property', desc:"The defining property of the Dirac delta function: it extracts the value of any continuous function at the point \\(x_0\\).", uses:[], usedBy:[] },
+  'eq-5.42': { type:'equation', name:'Position eigenstate completeness', desc:"Any wave function can be expanded in the generalized eigenstates \\(\\psi_y(x) = \\delta(x - y)\\) of the position operator, analogous to a discrete eigenstate expansion.", uses:[], usedBy:[] },
   'eq-5.43': { type:'equation', name:'Delta function orthonormality', desc:"The generalized position eigenstates satisfy a continuous analogue of orthonormality, with the Dirac delta replacing the Kronecker delta.", uses:[], usedBy:[] },
   'eq-5.44': { type:'equation', name:'Momentum eigenstate equation', desc:"The eigenvalue equation for the momentum operator is a first-order ODE whose solutions are plane waves.", uses:[], usedBy:[] },
-  'eq-5.46': { type:'equation', name:'Inverse Fourier transform expansion', desc:"Any wave function can be written as a superposition of momentum eigenstates \(\psi_p(x) = (2\pi\hbar)^{-1/2} e^{ipx/\hbar}\), with \(\tilde{\psi}(p)\) the Fourier transform.", uses:[], usedBy:[] },
+  'eq-5.46': { type:'equation', name:'Inverse Fourier transform expansion', desc:"Any wave function can be written as a superposition of momentum eigenstates \\(\\psi_p(x) = (2\\pi\\hbar)^{-1/2} e^{ipx/\\hbar}\\), with \\(\\tilde{\\psi}(p)\\) the Fourier transform.", uses:[], usedBy:[] },
   'eq-5.47': { type:'equation', name:'Momentum eigenstate orthonormality', desc:"Plane wave momentum eigenstates are orthonormal in the distributional sense, with the Dirac delta replacing the Kronecker delta.", uses:[], usedBy:[] },
-  'eq-5.48': { type:'equation', name:'Momentum measurement probability', desc:"The probability of measuring momentum in \([p_1, p_2]\) is given by integrating the momentum-space probability density \(|\tilde{\psi}(p)|^2\).", uses:[], usedBy:[] },
-  'eq-5.50': { type:'equation', name:'Particle on circle eigenstates', desc:"The energy eigenstates of a particle on a circle of radius \(R\) are plane waves labelled by integer \(n\), forming an eigenbasis for both \(H\) and \(P\).", uses:[], usedBy:[] },
-  'eq-5.51': { type:'equation', name:'Momentum eigenvalues on circle', desc:"On the circle the momentum operator has discrete eigenvalues \(p_n = \hbar n/R\) with normalizable eigenstates.", uses:[], usedBy:[] },
-  'eq-5.52': { type:'equation', name:'Degenerate collapse postulate', desc:"Upon measuring a degenerate eigenvalue \(\alpha_n\), the state collapses to its orthogonal projection onto the corresponding eigenspace.", uses:[], usedBy:[] },
-  'eq-5.53': { type:'equation', name:'Time-dependent eigenstate expansion', desc:"The quantum state evolves deterministically via the Schrodinger equation, with time-dependent coefficients \(c_n(t)\) in the eigenstate basis of any observable.", uses:[], usedBy:[] },
-  'eq-5.54': { type:'equation', name:'Measurement probability at time t0', desc:"At the instant of measurement, the probability of outcome \(\alpha_n\) is the squared modulus of the overlap between the state and the eigenstate \(\psi_n\).", uses:[], usedBy:[] },
-  'eq-5.55': { type:'equation', name:'Two-state Hamiltonian', desc:"A simple \(2 \times 2\) Hermitian Hamiltonian for a two-state system with energy eigenvalues \(\pm\hbar\omega\).", uses:[], usedBy:[] },
-  'eq-5.56': { type:'equation', name:'Two-state energy eigenstates', desc:"The standard basis vectors are the normalized stationary states of the diagonal Hamiltonian, with energies \(E_\pm = \pm\hbar\omega\).", uses:[], usedBy:[] },
-  'eq-5.57': { type:'equation', name:'Two-state general solution', desc:"The general solution to the Schrodinger equation for the two-state system, with constants \(c_\pm\) determined by the initial condition.", uses:[], usedBy:[] },
-  'eq-5.58': { type:'equation', name:'Two-state observable A', desc:"A self-adjoint off-diagonal operator representing the observable to be measured, with eigenvalues \(\pm\tfrac{1}{2}\hbar\).", uses:[], usedBy:[] },
-  'eq-5.59': { type:'equation', name:'Eigenstates of observable A', desc:"The normalized eigenstates of the off-diagonal observable \(A\), forming an orthonormal basis rotated by \(45^\circ\) from the energy eigenstates.", uses:[], usedBy:[] },
-  'eq-5.60': { type:'equation', name:'Time evolution after measurement', desc:"Starting from the eigenstate \(\varphi_+\) at \(t = 0\), the state evolves as a superposition of energy eigenstates with oscillating phases.", uses:[], usedBy:[] },
-  'eq-5.61': { type:'equation', name:'Oscillating measurement probabilities', desc:"The probabilities of measuring \(\pm\tfrac{1}{2}\hbar\) oscillate sinusoidally in time, demonstrating quantum mechanical interference between energy eigenstates.", uses:[], usedBy:[] },
+  'eq-5.48': { type:'equation', name:'Momentum measurement probability', desc:"The probability of measuring momentum in \\([p_1, p_2]\\) is given by integrating the momentum-space probability density \\(|\\tilde{\\psi}(p)|^2\\).", uses:[], usedBy:[] },
+  'eq-5.50': { type:'equation', name:'Particle on circle eigenstates', desc:"The energy eigenstates of a particle on a circle of radius \\(R\\) are plane waves labelled by integer \\(n\\), forming an eigenbasis for both \\(H\\) and \\(P\\).", uses:[], usedBy:[] },
+  'eq-5.51': { type:'equation', name:'Momentum eigenvalues on circle', desc:"On the circle the momentum operator has discrete eigenvalues \\(p_n = \\hbar n/R\\) with normalizable eigenstates.", uses:[], usedBy:[] },
+  'eq-5.52': { type:'equation', name:'Degenerate collapse postulate', desc:"Upon measuring a degenerate eigenvalue \\(\\alpha_n\\), the state collapses to its orthogonal projection onto the corresponding eigenspace.", uses:[], usedBy:[] },
+  'eq-5.53': { type:'equation', name:'Time-dependent eigenstate expansion', desc:"The quantum state evolves deterministically via the Schrodinger equation, with time-dependent coefficients \\(c_n(t)\\) in the eigenstate basis of any observable.", uses:[], usedBy:[] },
+  'eq-5.54': { type:'equation', name:'Measurement probability at time t0', desc:"At the instant of measurement, the probability of outcome \\(\\alpha_n\\) is the squared modulus of the overlap between the state and the eigenstate \\(\\psi_n\\).", uses:[], usedBy:[] },
+  'eq-5.55': { type:'equation', name:'Two-state Hamiltonian', desc:"A simple \\(2 \\times 2\\) Hermitian Hamiltonian for a two-state system with energy eigenvalues \\(\\pm\\hbar\\omega\\).", uses:[], usedBy:[] },
+  'eq-5.56': { type:'equation', name:'Two-state energy eigenstates', desc:"The standard basis vectors are the normalized stationary states of the diagonal Hamiltonian, with energies \\(E_\\pm = \\pm\\hbar\\omega\\).", uses:[], usedBy:[] },
+  'eq-5.57': { type:'equation', name:'Two-state general solution', desc:"The general solution to the Schrodinger equation for the two-state system, with constants \\(c_\\pm\\) determined by the initial condition.", uses:[], usedBy:[] },
+  'eq-5.58': { type:'equation', name:'Two-state observable A', desc:"A self-adjoint off-diagonal operator representing the observable to be measured, with eigenvalues \\(\\pm\\tfrac{1}{2}\\hbar\\).", uses:[], usedBy:[] },
+  'eq-5.59': { type:'equation', name:'Eigenstates of observable A', desc:"The normalized eigenstates of the off-diagonal observable \\(A\\), forming an orthonormal basis rotated by \\(45^\\circ\\) from the energy eigenstates.", uses:[], usedBy:[] },
+  'eq-5.60': { type:'equation', name:'Time evolution after measurement', desc:"Starting from the eigenstate \\(\\varphi_+\\) at \\(t = 0\\), the state evolves as a superposition of energy eigenstates with oscillating phases.", uses:[], usedBy:[] },
+  'eq-5.61': { type:'equation', name:'Oscillating measurement probabilities', desc:"The probabilities of measuring \\(\\pm\\tfrac{1}{2}\\hbar\\) oscillate sinusoidally in time, demonstrating quantum mechanical interference between energy eigenstates.", uses:[], usedBy:[] },
   'eq-6.2': { type:'equation', name:'Expectation of position function', desc:"The expectation value of a function of the position operator f(X) expressed as a weighted integral against the probability density |Psi|^2.", uses:[], usedBy:[] },
   'eq-6.3': { type:'equation', name:'Expectation as eigenvalue sum', desc:"The expectation value of A equals the sum of eigenvalues alpha_n weighted by the probabilities |c_n|^2 of measuring each eigenvalue.", uses:[], usedBy:[] },
   'eq-6.4': { type:'equation', name:'Self-adjoint expectation is real', desc:"For a self-adjoint operator A, the expectation value equals its own complex conjugate and is therefore real.", uses:[], usedBy:[] },
@@ -4868,34 +4900,82 @@ function collectMultiLevel(centerId) {
 // ── Per-item dependency graph SVG ──
 function renderGraph(centerId) {
   var ml = collectMultiLevel(centerId), dl = ml.depsLevels, ul = ml.usedByLevels;
-  var columns = [], maxDL = 0, maxUL = 0;
+  var columns = [], colDepths = [], maxDL = 0, maxUL = 0, overflows = {};
   for (var k in dl) if (+k > maxDL) maxDL = +k;
-  for (var dd = maxDL; dd >= 1; dd--) { var it = (dl[dd]||[]).slice(0,MAX_PER_COL); if (it.length||dd===1) columns.push(it); }
+  for (var dd = maxDL; dd >= 1; dd--) {
+    var full = dl[dd] || [], shown = full.slice(0, MAX_PER_COL);
+    if (full.length > MAX_PER_COL) overflows[columns.length] = full.length - MAX_PER_COL;
+    if (shown.length || dd === 1) { columns.push(shown); colDepths.push(dd); }
+  }
   var cci = columns.length;
-  columns.push([centerId]);
+  columns.push([centerId]); colDepths.push(0);
   for (var k2 in ul) if (+k2 > maxUL) maxUL = +k2;
-  for (var uu = 1; uu <= maxUL; uu++) { var it2 = (ul[uu]||[]).slice(0,MAX_PER_COL); if (it2.length||uu===maxUL) columns.push(it2); }
-  var filt=[], nc=0;
-  for (var ci=0; ci<columns.length; ci++) { if (columns[ci].length||ci===cci) { if (ci===cci) nc=filt.length; filt.push(columns[ci]); } }
-  columns=filt; cci=nc;
-  var nW=72, nH=24, pX=12, pY=8, gp=36, numC=columns.length;
-  if (numC<=3){nW=85;gp=44;} else if(numC>=5){nW=62;gp=24;}
-  var mx=1; columns.forEach(function(c){if(c.length>mx)mx=c.length;});
-  var tW=numC*nW+(numC-1)*gp+pX*2, tH=Math.max(mx*(nH+pY)-pY+40,70);
-  var np={};
-  for(var c=0;c<columns.length;c++){var col=columns[c],cx=pX+c*(nW+gp)+nW/2,bH=col.length*(nH+pY)-pY,sY=(tH-16)/2-bH/2;
-    for(var n=0;n<col.length;n++) np[col[n]]={x:cx,y:sY+n*(nH+pY)+nH/2};}
-  var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+tW+'" height="'+tH+'">';
-  function edge(a,b){var p1=np[a],p2=np[b];if(!p1||!p2)return;var x1=p1.x+nW/2,y1=p1.y,x2=p2.x-nW/2,y2=p2.y,mx2=(x1+x2)/2;
-    s+='<path d="M'+x1+','+y1+' C'+mx2+','+y1+' '+mx2+','+y2+' '+x2+','+y2+'" fill="none" stroke="#c4c8cf" stroke-width="1.2"/>';
-    s+='<polygon points="'+x2+','+y2+' '+(x2-5)+','+(y2-3)+' '+(x2-5)+','+(y2+3)+'" fill="#c4c8cf"/>';}
-  ml.depsEdges.forEach(function(e){edge(e[0],e[1]);}); ml.usedByEdges.forEach(function(e){edge(e[0],e[1]);});
-  for(var id in np){var p=np[id],cur=id===centerId;
-    s+='<g class="graph-node" data-id="'+id+'"><rect x="'+(p.x-nW/2)+'" y="'+(p.y-nH/2)+'" width="'+nW+'" height="'+nH+'" rx="4" fill="'+(cur?'#dbeafe':'#f8f9fa')+'" stroke="'+(cur?'#1e40af':'#d1d5db')+'" stroke-width="'+(cur?2:1)+'"/>';
-    s+='<text x="'+p.x+'" y="'+(p.y+4)+'" text-anchor="middle" fill="#111" font-weight="'+(cur?'bold':'normal')+'">'+esc(shortLabel(id))+'</text></g>';}
-  for(var li=0;li<columns.length;li++){var lbl=li<cci?(cci-li===1?'deps':'depth '+(cci-li)):li===cci?'current':(li-cci===1?'used by':'depth '+(li-cci));
-    s+='<text class="graph-label" x="'+(pX+li*(nW+gp)+nW/2)+'" y="'+(tH-3)+'" text-anchor="middle" fill="#9ca3af" font-size="8.5" font-style="italic">'+lbl+'</text>';}
-  s+='</svg>'; return s;
+  for (var uu = 1; uu <= maxUL; uu++) {
+    var full2 = ul[uu] || [], shown2 = full2.slice(0, MAX_PER_COL);
+    if (full2.length > MAX_PER_COL) overflows[columns.length] = full2.length - MAX_PER_COL;
+    if (shown2.length || uu === maxUL) { columns.push(shown2); colDepths.push(uu); }
+  }
+  var filt = [], filtD = [], nc = 0;
+  for (var ci = 0; ci < columns.length; ci++) {
+    if (columns[ci].length || ci === cci) {
+      if (ci === cci) nc = filt.length;
+      filt.push(columns[ci]); filtD.push(colDepths[ci]);
+      if (overflows[ci]) overflows[filt.length - 1] = overflows[ci];
+    }
+  }
+  columns = filt; colDepths = filtD; cci = nc;
+  var nW = 72, nH = 24, pX = 12, pY = 8, gp = 36, numC = columns.length;
+  if (numC <= 3) { nW = 85; gp = 44; } else if (numC >= 5) { nW = 62; gp = 24; }
+  var mx = 1; columns.forEach(function(c, ci2) {
+    var h = c.length + (overflows[ci2] ? 1 : 0);
+    if (h > mx) mx = h;
+  });
+  var tW = numC * nW + (numC - 1) * gp + pX * 2, tH = Math.max(mx * (nH + pY) - pY + 40, 70);
+  var np = {};
+  for (var c = 0; c < columns.length; c++) {
+    var col = columns[c], extra = overflows[c] ? 1 : 0;
+    var cx = pX + c * (nW + gp) + nW / 2;
+    var bH = (col.length + extra) * (nH + pY) - pY;
+    var sY = (tH - 16) / 2 - bH / 2;
+    for (var n = 0; n < col.length; n++) np[col[n]] = { x: cx, y: sY + n * (nH + pY) + nH / 2, depth: colDepths[c] };
+    if (overflows[c]) np['_overflow_' + c] = { x: cx, y: sY + col.length * (nH + pY) + nH / 2, overflow: overflows[c] };
+  }
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + tW + '" height="' + tH + '">';
+  function edge(a, b) {
+    var p1 = np[a], p2 = np[b]; if (!p1 || !p2) return;
+    var x1 = p1.x + nW / 2, y1 = p1.y, x2 = p2.x - nW / 2, y2 = p2.y, mx2 = (x1 + x2) / 2;
+    s += '<path d="M' + x1 + ',' + y1 + ' C' + mx2 + ',' + y1 + ' ' + mx2 + ',' + y2 + ' ' + x2 + ',' + y2 + '" fill="none" stroke="#c4c8cf" stroke-width="1.2"/>';
+    s += '<polygon points="' + x2 + ',' + y2 + ' ' + (x2 - 5) + ',' + (y2 - 3) + ' ' + (x2 - 5) + ',' + (y2 + 3) + '" fill="#c4c8cf"/>';
+  }
+  ml.depsEdges.forEach(function(e) { edge(e[0], e[1]); });
+  ml.usedByEdges.forEach(function(e) { edge(e[0], e[1]); });
+  for (var id in np) {
+    var p = np[id];
+    if (p.overflow) {
+      s += '<g><rect x="' + (p.x - nW / 2) + '" y="' + (p.y - nH / 2) + '" width="' + nW + '" height="' + nH + '" rx="4" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" stroke-dasharray="3,2"/>';
+      s += '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" fill="#9ca3af" font-size="10" font-style="italic">+' + p.overflow + ' more</text></g>';
+      continue;
+    }
+    var cur = id === centerId;
+    var kgE = KNOWLEDGE_GRAPH[id] || {};
+    var typeColor = TYPE_COLORS[kgE.type] || '#f8f9fa';
+    var depth = p.depth || 0;
+    var isDirect = (depth <= 1);
+    var fill = cur ? '#dbeafe' : typeColor + '30';
+    var stroke = cur ? '#1e40af' : (isDirect ? '#94a3b8' : '#d1d5db');
+    var strokeW = cur ? 2 : 1;
+    var dash = isDirect ? '' : ' stroke-dasharray="4,2"';
+    var tooltip = esc(stripLatex(fullLabel(id)));
+    s += '<g class="graph-node" data-id="' + id + '">';
+    s += '<title>' + tooltip + '</title>';
+    s += '<rect x="' + (p.x - nW / 2) + '" y="' + (p.y - nH / 2) + '" width="' + nW + '" height="' + nH + '" rx="4" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + strokeW + '"' + dash + '/>';
+    s += '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" fill="#111" font-weight="' + (cur ? 'bold' : 'normal') + '">' + esc(shortLabel(id)) + '</text></g>';
+  }
+  for (var li = 0; li < columns.length; li++) {
+    var lbl = li < cci ? (cci - li === 1 ? 'deps' : 'depth ' + (cci - li)) : li === cci ? 'current' : (li - cci === 1 ? 'used by' : 'depth ' + (li - cci));
+    s += '<text class="graph-label" x="' + (pX + li * (nW + gp) + nW / 2) + '" y="' + (tH - 3) + '" text-anchor="middle" fill="#9ca3af" font-size="8.5" font-style="italic">' + lbl + '</text>';
+  }
+  s += '</svg>'; return s;
 }
 
 // ── Navigation ──
@@ -5417,6 +5497,15 @@ document.addEventListener('click', function(e) {
     document.getElementById('peek-popover').classList.remove('visible');
     if (!graph[tid] && !document.getElementById(tid)) { showToast('Reference "' + tid + '" not found'); return; }
     if(graph[tid]) navigateTo(tid); scrollToEnv(tid);
+  }
+  var xref = e.target.closest('a.xref');
+  if (xref) {
+    e.preventDefault();
+    var course = xref.getAttribute('data-course');
+    var xid = xref.getAttribute('data-ref');
+    if (course && xid && COURSE_PATHS[course]) {
+      window.location.href = COURSE_PATHS[course] + '#' + xid;
+    }
   }
 });
 

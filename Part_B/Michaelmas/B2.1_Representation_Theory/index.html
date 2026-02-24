@@ -28,6 +28,9 @@ MathJax = {
     pageReady: function() {
       return MathJax.startup.defaultPageReady().then(function() {
         initApp();
+        document.body.classList.remove('loading');
+        var sp = document.getElementById('loading-spinner');
+        if (sp) sp.remove();
       });
     }
   }
@@ -65,9 +68,51 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
+#sidebar-search-wrap {
+  flex-shrink: 0;
+  padding: 0.5rem 0.6rem 0.3rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+#sidebar-search {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+#sidebar-search:focus { outline: none; border-color: #93c5fd; }
+#sidebar-search-results {
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafbfc;
+  font-size: 11px;
+}
+#sidebar-search-results.visible { display: block; }
+.sidebar-search-item {
+  padding: 4px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.sidebar-search-item:hover { background: #eff6ff; }
+.sidebar-search-item .ss-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.sidebar-search-item .ss-label { font-weight: 600; color: #1e40af; }
+.sidebar-search-item .ss-name { color: #6b7280; font-size: 10px; }
 #sidebar-filters {
   flex-shrink: 0;
-  padding: 0.6rem 0.6rem 0.3rem;
+  padding: 0.4rem 0.6rem 0.3rem;
   border-bottom: 1px solid #e5e7eb;
 }
 .filter-tabs {
@@ -158,7 +203,7 @@ body {
   color: #1e40af;
   font-weight: 600;
 }
-#sidebar .toc-items a .toc-name { color: #9ca3af; font-weight: 400; font-size: 10px; }
+#sidebar .toc-items a .toc-name { color: #6b7280; font-weight: 400; font-size: 10px; }
 
 /* ── Center Content ── */
 #content {
@@ -191,7 +236,7 @@ h2.section-heading {
   margin: 2.5rem 0 1rem;
 }
 
-/* Theorem-like environments — monochrome LaTeX style */
+/* Theorem-like environments */
 .env {
   margin: 1.2rem 0;
   padding: 0.5rem 0 0.5rem 1rem;
@@ -208,7 +253,6 @@ h2.section-heading {
 .env-head:hover { color: #1e40af; }
 .env-name { font-style: italic; font-weight: 400; }
 
-/* Remove all type-specific coloring */
 .env.definition, .env.theorem, .env.lemma, .env.proposition,
 .env.corollary, .env.example, .env.remark, .env.notation, .env.warning {
   border-color: #d1d5db;
@@ -242,11 +286,11 @@ h2.section-heading {
   user-select: none;
 }
 .proof-head::after {
-  content: ' ▾';
+  content: ' \25BE';
   font-size: 0.7em;
   color: #9ca3af;
 }
-.proof.collapsed .proof-head::after { content: ' ▸'; }
+.proof.collapsed .proof-head::after { content: ' \25B8'; }
 .proof.collapsed .proof-body { display: none; }
 .proof-body { margin-top: 0.3rem; }
 .qed {
@@ -255,7 +299,7 @@ h2.section-heading {
   margin-top: 0.1rem;
 }
 
-/* Cross-references — dark blue, no underline */
+/* Cross-references */
 a.ref {
   color: #1e40af;
   text-decoration: none;
@@ -264,9 +308,20 @@ a.ref {
   white-space: nowrap;
 }
 a.ref:hover { color: #1d4ed8; background: #eff6ff; border-radius: 2px; }
-a.ref .ref-name { color: #9ca3af; font-size: 0.88em; font-weight: 400; white-space: nowrap; }
+a.ref .ref-name { color: #6b7280; font-size: 0.88em; font-weight: 400; white-space: nowrap; }
 
-/* Character tables — booktabs style */
+/* Cross-course references */
+a.xref {
+  color: #7c3aed;
+  text-decoration: none;
+  border-bottom: 1px dashed #c4b5fd;
+  cursor: pointer;
+  white-space: nowrap;
+}
+a.xref:hover { color: #6d28d9; background: #f5f3ff; border-radius: 2px; }
+a.xref .xref-course { font-size: 0.82em; color: #a78bfa; font-weight: 600; }
+
+/* Character tables */
 table.char-table {
   border-collapse: collapse;
   margin: 1rem auto;
@@ -294,9 +349,6 @@ table.char-table th {
   background: #fff;
   overflow: hidden;
   position: relative;
-}
-#ref-panel .panel-empty {
-  display: none;
 }
 
 /* Resize handle */
@@ -334,28 +386,155 @@ table.char-table th {
 }
 #panel-nav button:hover:not(:disabled) { background: #f3f4f6; color: #111; }
 #panel-nav button:disabled { opacity: 0.3; cursor: default; }
-/* nav-label now lives in #nav-label-bar inside tab-deps */
+#panel-nav .nav-label {
+  flex: 1;
+  font-weight: 600;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+#inspector-search {
+  width: 140px;
+  padding: 3px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: inherit;
+}
+#inspector-search:focus { outline: none; border-color: #93c5fd; }
+
+/* Close panel button */
+#panel-nav .btn-close-panel { font-size: 13px; padding: 1px 5px; }
+
+/* Inspector content area */
+#inspector-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Inspector: Course Index */
+.inspector-index { padding: 0; }
+.inspector-type-filters {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  padding: 6px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+.inspector-type-filter {
+  font-size: 9px;
+  padding: 1px 5px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  color: #4b5563;
+  line-height: 1.3;
+}
+.inspector-type-filter:hover { background: #f3f4f6; }
+.inspector-type-filter.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+.inspector-section-group { border-bottom: 1px solid #f3f4f6; }
+.inspector-section-head {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  padding: 6px 12px 3px;
+  background: #fafbfc;
+  cursor: pointer;
+  position: sticky;
+  top: 28px;
+  z-index: 1;
+}
+.inspector-section-head:hover { color: #374151; }
+.inspector-item {
+  padding: 5px 12px 5px 20px;
+  cursor: pointer;
+  font-size: 11.5px;
+  line-height: 1.35;
+  border-bottom: 1px solid #f0f1f3;
+}
+.inspector-item:hover { background: #eff6ff; }
+.inspector-item .ii-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.inspector-item .ii-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.inspector-item .ii-label { font-weight: 600; color: #1e40af; white-space: nowrap; }
+.inspector-item .ii-name { color: #6b7280; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inspector-item .ii-desc {
+  font-size: 10.5px;
+  color: #4b5563;
+  line-height: 1.35;
+  padding: 2px 0 1px 10px;
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+.inspector-item .ii-desc.collapsed { max-height: 0; padding: 0 0 0 10px; }
+.inspector-item.filtered-out { display: none; }
+.inspector-desc-controls {
+  display: inline-flex; gap: 6px; margin-left: auto; font-weight: 400;
+}
+.inspector-desc-controls button {
+  background: none; border: none; cursor: pointer;
+  font-size: 9px; color: #6b7280; text-decoration: underline;
+}
+.inspector-desc-controls button:hover { color: #1e40af; }
+
+/* Inspector: Active Item View */
+.inspector-active { padding: 0; }
+.inspector-active-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+.inspector-active-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 4px;
+}
+.inspector-active-desc {
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+.inspector-back-btn {
+  display: inline-block;
+  font-size: 10px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 2px 0;
+  margin-bottom: 4px;
+}
+.inspector-back-btn:hover { color: #1e40af; }
 
 /* Graph container */
 #graph-container {
   flex-shrink: 0;
   border-bottom: 1px solid #e5e7eb;
   padding: 0.6rem;
-  min-height: 100px;
+  min-height: 80px;
   overflow-x: auto;
   overflow-y: hidden;
 }
 #graph-container svg { display: block; margin: 0 auto; }
 
-/* Panel content area */
-#panel-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  position: relative;
-}
-
-/* Section labels in panel content */
+/* Panel section labels */
 .panel-section {
   padding: 0.4rem 0.8rem 0;
 }
@@ -424,13 +603,13 @@ table.char-table th {
   border-bottom: 1px solid #e5e7eb;
 }
 .panel-section-empty {
-  color: #9ca3af;
+  color: #6b7280;
   font-size: 12px;
   font-style: italic;
   padding: 0.3rem 0.8rem;
 }
 
-/* Floating peek popover — appears near hovered reference */
+/* Floating peek popover */
 #peek-popover {
   position: fixed;
   width: 380px;
@@ -504,53 +683,6 @@ table.char-table th {
 }
 .peek-zoom-controls button:hover { background: #f3f4f6; color: #111; }
 
-/* Minimap overview */
-#minimap-container {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 6px 8px;
-  overflow: auto;
-  flex-shrink: 0;
-  position: relative;
-  max-height: 300px;
-}
-#minimap-container.hidden { display: none; }
-#minimap-zoom-controls {
-  position: absolute; top: 4px; right: 6px; z-index: 5;
-  display: flex; gap: 2px;
-}
-#minimap-zoom-controls button {
-  width: 20px; height: 20px; border: 1px solid #d1d5db; border-radius: 3px;
-  background: #f9fafb; cursor: pointer; font-size: 12px; line-height: 1;
-  display: flex; align-items: center; justify-content: center; color: #374151;
-}
-#minimap-zoom-controls button:hover { background: #e5e7eb; }
-#minimap-svg { transform-origin: 0 0; }
-.minimap-node { cursor: pointer; }
-.minimap-node rect { transition: opacity 0.15s, filter 0.15s; }
-.minimap-node.dimmed rect { opacity: 0.12; }
-.minimap-node.scroll-active rect { stroke: #111; stroke-width: 2; }
-.minimap-node.active rect { stroke: #1e40af; stroke-width: 2.5; filter: drop-shadow(0 0 3px rgba(30,64,175,0.5)); }
-.minimap-node.dep-highlight rect { stroke: #2563eb; stroke-width: 2; filter: drop-shadow(0 0 2px rgba(37,99,235,0.6)); }
-.minimap-node.usedby-highlight rect { stroke: #dc2626; stroke-width: 2; filter: drop-shadow(0 0 2px rgba(220,38,38,0.6)); }
-.minimap-node.panel-selected rect { stroke: #1e40af; stroke-width: 2; }
-#nav-label.minimap-hover { color: #6b7280; font-style: italic; }
-.minimap-legend {
-  display: flex; gap: 8px; flex-wrap: wrap;
-  padding: 4px 0 2px; font-size: 9px; color: #6b7280;
-}
-.minimap-legend span::before {
-  content: ''; display: inline-block;
-  width: 8px; height: 8px; border-radius: 1px;
-  margin-right: 2px; vertical-align: middle;
-}
-
-/* Map toggle button */
-#panel-nav .btn-map { margin-left: auto; font-size: 10px; }
-#panel-nav .btn-map.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
-
-/* Close panel button */
-#panel-nav .btn-close-panel { font-size: 13px; padding: 1px 5px; }
-
 /* Graph node styling */
 .graph-node { cursor: pointer; }
 .graph-node rect { rx: 4; ry: 4; }
@@ -558,161 +690,9 @@ table.char-table th {
 .graph-node text { font-family: "Computer Modern Serif", Georgia, serif; font-size: 10.5px; }
 .graph-label { font-family: "Computer Modern Serif", Georgia, serif; }
 
-#tab-guide { background: #fff; }
-#guide-search {
-  width: 100%;
-  padding: 5px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 12px;
-  font-family: inherit;
-  margin: 6px 12px;
-  box-sizing: border-box;
-}
-#guide-search:focus { outline: none; border-color: #93c5fd; }
-#guide-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-}
-/* Guide: section groups */
-.guide-section {
-  border-bottom: 1px solid #f3f4f6;
-}
-.guide-section-head {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  letter-spacing: 0.3px;
-  padding: 6px 12px 2px;
-  background: #fafbfc;
-  cursor: pointer;
-}
-.guide-section-head:hover { color: #374151; }
-.guide-section-outline {
-  padding: 2px 12px 5px;
-  font-size: 11px;
-  color: #6b7280;
-  line-height: 1.4;
-  font-style: italic;
-}
-/* Guide: entries */
-.guide-entry {
-  padding: 5px 12px;
-  border-bottom: 1px solid #f9fafb;
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.guide-entry:hover { background: #eff6ff; }
-.guide-entry .guide-label {
-  font-weight: 600;
-  color: #1e40af;
-}
-.guide-entry .guide-type-dot {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-.guide-entry .guide-desc {
-  display: none;
-}
-.guide-entry.filtered-out { display: none; }
-
-#tab-glossary { background: #fff; }
-#glossary-search {
-  width: 100%;
-  padding: 5px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 12px;
-  font-family: inherit;
-  margin: 6px 12px;
-  box-sizing: border-box;
-}
-#glossary-search:focus { outline: none; border-color: #93c5fd; }
-.glossary-type-filters {
-  display: flex;
-  gap: 3px;
-  flex-wrap: wrap;
-  padding: 0 12px 6px;
-}
-.glossary-type-filter {
-  font-size: 9px;
-  padding: 1px 5px;
-  border: 1px solid #d1d5db;
-  border-radius: 3px;
-  background: #fff;
-  cursor: pointer;
-  color: #4b5563;
-  line-height: 1.3;
-}
-.glossary-type-filter:hover { background: #f3f4f6; }
-.glossary-type-filter.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
-#glossary-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-}
-.glossary-letter-group {
-  border-bottom: 1px solid #e5e7eb;
-}
-.glossary-letter-head {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e40af;
-  padding: 6px 12px 2px;
-  background: #f9fafb;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-.glossary-term {
-  padding: 5px 12px 5px 20px;
-  border-bottom: 1px solid #f9fafb;
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.glossary-term:hover { background: #eff6ff; }
-.glossary-term .glossary-term-name {
-  font-weight: 600;
-  color: #111;
-}
-.glossary-term .glossary-term-ref {
-  color: #6b7280;
-  font-size: 11px;
-  margin-left: 4px;
-}
-.glossary-term .glossary-term-type-dot {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-.glossary-term .glossary-term-desc {
-  display: none;
-}
-.glossary-term.filtered-out { display: none; }
-
 p { margin: 0.5rem 0; }
 .display-math { margin: 0.8rem 0; text-align: center; }
 .important-convention { background: #fefce8; border: 1px solid #fbbf24; border-radius: 0; padding: 0.8rem 1rem; margin: 1rem 0; }
-
-/* ── Panel Tab System ── */
-.panel-tabs { display: flex; gap: 2px; flex: 1; justify-content: center; }
-.panel-tab {
-  font-size: 11px; padding: 3px 10px; border: 1px solid #d1d5db; border-radius: 4px;
-  background: #fff; cursor: pointer; color: #6b7280; font-weight: 500; transition: all 0.15s;
-}
-.panel-tab:hover { background: #f3f4f6; color: #374151; }
-.panel-tab.active { background: #dbeafe; color: #1e40af; border-color: #93c5fd; font-weight: 600; }
-.panel-tab-content { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
-.panel-tab-content.active { display: flex; }
-#nav-label-bar { padding: 5px 10px; font-size: 12px; font-weight: 600; color: #1f2937; border-bottom: 1px solid #e5e7eb; background: #f9fafb; flex-shrink: 0; }
 
 /* ── Sidebar Controls ── */
 .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 0 0.3rem; margin-bottom: 0.4rem; }
@@ -722,29 +702,83 @@ p { margin: 0.5rem 0; }
 .sidebar-controls button:hover { background: #f3f4f6; color: #111; }
 #sidebar .toc-section-head.current { background: #eff6ff; color: #1e40af; }
 
-/* ── Expandable Entries ── */
-.entry-chevron { display: inline-block; font-size: 8px; margin-right: 3px; transition: transform 0.15s; color: #9ca3af; width: 10px; flex-shrink: 0; }
-.guide-entry.expanded .entry-chevron, .glossary-term.expanded .entry-chevron { transform: rotate(90deg); color: #374151; }
-.guide-entry-detail, .glossary-term-detail {
-  display: none; margin-top: 4px; padding: 6px 10px; background: #fafbfc; border-radius: 4px;
-  border: 1px solid #f3f4f6; font-size: 13px; line-height: 1.5;
-}
-.guide-entry.expanded .guide-entry-detail, .glossary-term.expanded .glossary-term-detail { display: block; }
-.entry-math-content .env { margin: 0; padding: 4px 0; border: none; background: transparent; }
-.entry-math-content .env-head { font-size: 12px; }
-.entry-math-content p { font-size: 13px; line-height: 1.45; }
-.entry-desc-text { font-size: 11.5px; color: #4b5563; margin-top: 4px; padding-top: 4px; border-top: 1px solid #e5e7eb; font-style: italic; }
-
 /* ── Stacked Item Description Toggle ── */
-.stacked-desc-toggle { font-size: 10px; color: #6b7280; cursor: pointer; padding: 2px 10px 4px 22px; user-select: none; }
-.stacked-desc-toggle:hover { color: #1e40af; }
-.stacked-summary.hidden { display: none; }
+.stacked-summary {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+.stacked-summary.collapsed { max-height: 0; padding-top: 0; padding-bottom: 0; }
+
+/* ── Accessibility ── */
+.skip-link { position: absolute; top: -100px; left: 0; background: #1e40af; color: #fff; padding: 8px 16px; z-index: 200; font-size: 14px; text-decoration: none; }
+.skip-link:focus { top: 0; }
+
+/* ── Responsive / Mobile ── */
+@media (max-width: 768px) {
+  body { grid-template-columns: 1fr; grid-template-rows: 100vh; }
+  #sidebar { display: none; position: fixed; left: 0; top: 0; width: 280px; height: 100vh; z-index: 50; transform: translateX(-100%); transition: transform 0.3s ease; background: #fff; }
+  #sidebar.mobile-open { display: flex; transform: translateX(0); }
+  #ref-panel { display: none; position: fixed; right: 0; top: 0; width: 320px; height: 100vh; z-index: 50; transform: translateX(100%); transition: transform 0.3s ease; background: #fff; grid-column: 1; }
+  #ref-panel.mobile-open { display: flex; transform: translateX(0); }
+  #content { grid-column: 1; padding: 1rem 1rem 4rem; }
+  #sidebar-resize, #resize-handle { display: none; }
+  .mobile-toggle { display: flex; }
+  .mobile-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 40; }
+  .mobile-backdrop.visible { display: block; }
+}
+@media (min-width: 769px) {
+  .mobile-toggle { display: none !important; }
+  .mobile-backdrop { display: none !important; }
+}
+.mobile-toggle {
+  display: none;
+  position: fixed; top: 8px; z-index: 45;
+  background: #fff; border: 1px solid #d1d5db; border-radius: 4px;
+  width: 32px; height: 32px; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; color: #4b5563; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.mobile-toggle:hover { background: #f3f4f6; color: #111; }
+#mobile-sidebar-toggle { left: 8px; }
+#mobile-panel-toggle { right: 8px; }
+
+/* Loading state */
+body.loading #content { opacity: 0; transition: opacity 0.3s; }
+body.loading #sidebar { opacity: 0; transition: opacity 0.3s; }
+body.loading #ref-panel { opacity: 0; transition: opacity 0.3s; }
+.loading-spinner {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 32px; height: 32px; border: 3px solid #e5e7eb; border-top-color: #1e40af;
+  border-radius: 50%; animation: spin 0.8s linear infinite; z-index: 200;
+}
+@keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+/* Back to courses link */
+.back-to-courses {
+  position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+  z-index: 100; font-size: 12px; color: #6b7280; text-decoration: none;
+  background: rgba(255,255,255,0.95); padding: 4px 14px; border-radius: 4px;
+  border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-family: "Computer Modern Sans", system-ui, sans-serif;
+  transition: all 0.15s;
+}
+.back-to-courses:hover { color: #1e40af; border-color: #93c5fd; background: #fff; }
+@media (max-width: 768px) { .back-to-courses { display: none; } }
 </style>
 </head>
-<body>
+<body class="loading">
+<a href="#content" class="skip-link">Skip to content</a>
+<a href="../../../index.html" class="back-to-courses">← All Courses</a>
+<div class="loading-spinner" id="loading-spinner"></div>
+<button class="mobile-toggle" id="mobile-sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+<button class="mobile-toggle" id="mobile-panel-toggle" aria-label="Toggle panel">&#9783;</button>
+<div class="mobile-backdrop" id="mobile-backdrop"></div>
 
-<!-- Sidebar Table of Contents — collapsible sections -->
+<!-- Sidebar Table of Contents -->
 <nav id="sidebar">
+<div id="sidebar-search-wrap">
+  <input type="text" id="sidebar-search" placeholder="Search items..." autocomplete="off">
+</div>
+<div id="sidebar-search-results"></div>
 <div id="sidebar-filters">
   <div class="filter-tabs" id="filter-tabs"></div>
 </div>
@@ -771,6 +805,7 @@ p { margin: 0.5rem 0; }
     <li><a href="#def-1.9" data-id="def-1.9">Def. 1.9</a></li>
     <li><a href="#rmk-1.10" data-id="rmk-1.10">Rmk. 1.10</a></li>
     <li><a href="#ex-1.11" data-id="ex-1.11">Ex. 1.11</a></li>
+    <li><a href="#warn-1.11a" data-id="warn-1.11a">Warn. 1.11a</a></li>
     <li><a href="#def-1.12" data-id="def-1.12">Def. 1.12</a></li>
     <li><a href="#def-1.13" data-id="def-1.13">Def. 1.13</a></li>
     <li><a href="#def-1.14" data-id="def-1.14">Def. 1.14</a></li>
@@ -824,6 +859,7 @@ p { margin: 0.5rem 0; }
     <li><a href="#prop-3.12" data-id="prop-3.12">Prop. 3.12</a></li>
     <li><a href="#cor-3.13" data-id="cor-3.13">Cor. 3.13</a></li>
     <li><a href="#lem-3.14" data-id="lem-3.14">Lem. 3.14</a></li>
+    <li><a href="#warn-3.14a" data-id="warn-3.14a">Warn. 3.14a</a></li>
     <li><a href="#def-3.15" data-id="def-3.15">Def. 3.15</a></li>
     <li><a href="#prop-3.16" data-id="prop-3.16">Prop. 3.16</a></li>
     <li><a href="#thm-3.17" data-id="thm-3.17">Thm. 3.17 (Artin-Wedderburn)</a></li>
@@ -2289,38 +2325,21 @@ We may assume \(\alpha, \beta \geq 1\). By <a class="ref" data-ref="thm-7.11">Sy
 
 </main>
 
-<!-- Right Context Panel -->
+<!-- Right Context Panel (Context Inspector) -->
 <aside id="ref-panel">
 <div id="resize-handle"></div>
 <div id="panel-nav">
   <button id="nav-back" disabled title="Back">&#9664;</button>
   <button id="nav-forward" disabled title="Forward">&#9654;</button>
-  <div class="panel-tabs">
-    <button class="panel-tab active" data-tab="deps">Deps</button>
-    <button class="panel-tab" data-tab="guide">Guide</button>
-    <button class="panel-tab" data-tab="glossary">Glossary</button>
-  </div>
-  <button class="btn-map" id="btn-map" title="Toggle overview map">Map</button>
+  <span id="nav-label" class="nav-label"></span>
+  <input type="text" id="inspector-search" placeholder="Search all items..." autocomplete="off">
   <button class="btn-close-panel" id="btn-close-panel" title="Close panel">&times;</button>
 </div>
-<div id="minimap-container"></div>
-<div id="tab-deps" class="panel-tab-content active">
-  <div id="nav-label-bar"><span id="nav-label"></span></div>
-  <div id="graph-container"></div>
-  <div id="panel-content"></div>
-</div>
-<div id="tab-guide" class="panel-tab-content">
-  <input type="text" id="guide-search" placeholder="Search guide...">
-  <div id="guide-body"></div>
-</div>
-<div id="tab-glossary" class="panel-tab-content">
-  <input type="text" id="glossary-search" placeholder="Search glossary...">
-  <div class="glossary-type-filters" id="glossary-type-filters"></div>
-  <div id="glossary-body"></div>
-</div>
+<div id="graph-container" style="display:none;"></div>
+<div id="inspector-content"></div>
 </aside>
 
-<!-- Floating peek popover (positioned near hovered reference) -->
+<!-- Floating peek popover -->
 <div id="peek-popover">
   <div id="peek-popover-header">
     <span id="peek-label"></span>
@@ -2335,314 +2354,215 @@ We may assume \(\alpha, \beta \geq 1\). By <a class="ref" data-ref="thm-7.11">Sy
   <div id="peek-resize-handle"></div>
 </div>
 
-
 <!-- JavaScript -->
 <script>
+// ==========================================================================
+// B2.1 Introduction to Representation Theory — Context Inspector Engine
+// Replaces old tabbed panel + minimap with unified Context Inspector
+// ==========================================================================
+
+// -- State variables --
 var graph = {}, labelMap = {};
 var navHistory = [], navIndex = -1, currentPanelId = null;
-var peekTimeout = null, minimapBuilt = false, currentScrollId = null;
-var peekWidth = 380, peekHeight = 420, peekZoom = 100;
+var peekTimeout = null, currentScrollId = null;
 var MAX_DEPTH = 2, MAX_PER_COL = 8;
+var peekWidth = 380, peekHeight = 420, peekZoom = 100;
+var inspectorMode = 'index', inspectorFilter = 'all';
 
-var ENV_NAMES = {
-  // Section 1: Representations of finite groups
-  "not-1.1": "Standing notation",
-  "def-1.2": "Representation and degree",
-  "ex-1.3": "Geometric representation examples",
-  "def-1.4": "Free vector space",
-  "def-1.5": "Permutation representation",
-  "ex-1.6": "Galois representation example",
-  "def-1.7": "Faithful representation",
-  "def-1.8": "Matrix representation",
-  "def-1.9": "Matrix of a linear map",
-  "rmk-1.10": "Representations vs matrix representations",
-  "ex-1.11": "Permutation matrices for S3",
-  "warn-1.11a": "Permutation multiplication convention",
-  "def-1.12": "Homomorphism and intertwining operator",
-  "def-1.13": "Equivalent matrix representations",
-  "def-1.14": "G-stable subspace and subrepresentation",
-  "lem-1.15": "Kernel and image stability",
-  "def-1.16": "Trivial representation",
-  "ex-1.17": "Non-trivial with trivial sub/quotient",
-  "def-1.18": "Irreducible representation",
-  "def-1.19": "G-stable complement",
-  "ex-1.20": "Standard representation of S3",
-  "thm-1.21": "Maschke's theorem",
-  "rmk-1.22": "Maschke fails in char p",
-  "def-1.23": "Completely reducible representation",
-  "cor-1.24": "Complete reducibility corollary",
-
-  // Section 2: The group ring
-  "def-2.1": "Ring",
-  "def-2.2": "Group ring",
-  "ex-2.3": "Cyclic group ring structure",
-  "def-2.4": "Module over a ring",
-  "prop-2.5": "Representations as kG-modules",
-  "rmk-2.6": "Isomorphism theorems for representations",
-  "ex-2.7": "Free module and left ideals",
-  "def-2.8": "Left regular representation",
-  "def-2.9": "Semisimple ring",
-  "ex-2.10": "Group ring is semisimple",
-  "def-2.11": "Cyclic module and annihilator",
-  "lem-2.12": "Cyclic module quotient isomorphism",
-  "lem-2.13": "Simple module homomorphism lemma",
-  "prop-2.14": "Finitely many simple modules",
-  "thm-2.15": "Finitely many irreducible representations",
-  "def-2.16": "Rank of a group",
-
-  // Section 3: Structure of semisimple algebras
-  "def-3.1": "Centre of a ring",
-  "def-3.2": "Endomorphism ring",
-  "def-3.3": "k-algebra and semisimple algebra",
-  "thm-3.4": "Schur's lemma",
-  "def-3.5": "Central character",
-  "not-3.6": "Semisimple decomposition notation",
-  "prop-3.7": "Centre dimension upper bound",
-  "lem-3.8": "Two-sided ideal decomposition",
-  "lem-3.9": "Centre dimension lower bound",
-  "thm-3.10": "Simple modules count centre dimension",
-  "def-3.11": "Number of conjugacy classes",
-  "prop-3.12": "Conjugacy class sum basis",
-  "cor-3.13": "Rank equals conjugacy class count",
-  "lem-3.14": "Block decomposition of semisimple ring",
-  "warn-3.14a": "Block identity element warning",
-  "def-3.15": "Opposite ring",
-  "prop-3.16": "Semisimple block as matrix ring",
-  "thm-3.17": "Artin-Wedderburn theorem",
-  "cor-3.18": "Group ring dimension formula",
-
-  // Section 4: Multilinear algebra
-  "lem-4.1": "Linear action criterion",
-  "def-4.2": "Direct sum of representations",
-  "def-4.3": "Dual representation",
-  "def-4.4": "Hom representation",
-  "lem-4.5": "Biduality isomorphism",
-  "def-4.6": "Tensor product of vector spaces",
-  "rmk-4.7": "Tensor product remarks",
-  "lem-4.8": "Tensor product basis independence",
-  "lem-4.9": "Universal property of tensor product",
-  "def-4.10": "Tensor product representation",
-  "lem-4.11": "Dual tensor equals Hom",
-  "def-4.12": "Symmetric and alternating square",
-  "lem-4.13": "Tensor square decomposition",
-
-  // Section 5: Character theory
-  "def-5.1": "Character of a representation",
-  "def-5.2": "Class function",
-  "lem-5.3": "Characters are class functions",
-  "def-5.4": "Character table",
-  "lem-5.5": "Basic character properties",
-  "ex-5.6": "Character tables of C3 and S3",
-  "prop-5.7": "Sum of squares formula",
-  "def-5.8": "Inflated representation",
-  "def-5.9": "Derived subgroup",
-  "lem-5.10": "Linear characters count",
-  "ex-5.11": "Derived subgroup of A4",
-  "def-5.12": "Inner product on class functions",
-  "thm-5.13": "Row orthogonality",
-  "cor-5.14": "Characters determine isomorphism",
-  "cor-5.15": "Irreducible characters form basis",
-  "def-5.16": "Conjugacy class and centraliser",
-  "lem-5.17": "Orbit-stabiliser for conjugacy",
-  "ex-5.18": "Character table of A4",
-  "def-5.19": "Invariant submodule",
-  "prop-5.20": "Fixed point formula",
-  "prop-5.21": "Characters of multilinear constructions",
-  "prop-5.22": "Inner product via Hom dimension",
-  "thm-5.23": "Column orthogonality",
-  "ex-5.24": "Character table of S4",
-
-  // Section 6: Induced representations
-  "def-6.1": "H-coinvariants",
-  "lem-6.2": "Left G-action and right H-action",
-  "cor-6.3": "Coinvariants form a G-module",
-  "def-6.4": "Induced module and representation",
-  "lem-6.5": "Coset tensor relations",
-  "lem-6.6": "Coset component isomorphism",
-  "prop-6.7": "Induced module coset decomposition",
-  "ex-6.8": "Permutation module as induced module",
-  "def-6.9": "Restricted representation",
-  "prop-6.10": "Frobenius adjunction isomorphism",
-  "def-6.11": "Restricted and induced characters",
-  "cor-6.12": "Frobenius reciprocity",
-  "ex-6.13": "Regular representation via induction",
-  "lem-6.14": "Induced character trace formula",
-  "def-6.15": "Extension by zero",
-  "thm-6.16": "Induced character formula",
-  "rmk-6.17": "Vanishing of induced character",
-  "cor-6.18": "Induction adjoint to restriction",
-  "cor-6.19": "Induced character via class splitting",
-  "def-6.20": "Twist of a character",
-  "prop-6.21": "Restriction of induced from normal",
-  "cor-6.22": "Induction from normal gives irreducible",
-  "ex-6.23": "Characters of odd dihedral groups",
-
-  // Section 7: Algebraic integers and Burnside's theorem
-  "def-7.1": "Algebraic number and integer",
-  "ex-7.2": "Algebraic integer examples",
-  "thm-7.3": "Algebraic integers form a ring",
-  "prop-7.4": "Finitely generated subgroup criterion",
-  "lem-7.5": "Character values are algebraic integers",
-  "lem-7.6": "Class sum subring of centre",
-  "thm-7.7": "Central character is algebraic integer",
-  "cor-7.8": "Dimension divides group order",
-  "thm-7.9": "Burnside's p^a q^b theorem",
-  "def-7.10": "Sylow p-subgroup",
-  "thm-7.11": "Sylow's theorems",
-  "lem-7.12": "Conjugacy class size in p^a q^b",
-  "thm-7.13": "Prime power class implies non-simple",
-  "lem-7.14": "Root of unity average lemma"
-};
-var GUIDE_DESCS = {
-  "not-1.1": "Standing notation: throughout the course, k denotes a field and all vector spaces are k-vector spaces. GL(V) is the group of invertible k-linear maps V to V.",
-  "def-1.2": "A representation of a finite group G on a finite-dimensional vector space V is a group homomorphism rho: G -> GL(V). The degree of the representation is dim V.",
-  "ex-1.3": "Basic geometric examples of representations: the cyclic group C_2 acting on k by negation (degree 1), the dihedral group D_6 acting on R^2 by rotations and reflections (degree 2), symmetries of a regular n-gon, and the rotation group of a cube giving a degree 3 representation of S_4.",
-  "def-1.4": "The free vector space kX on a finite set X consists of all formal k-linear combinations of elements of X. The set X naturally forms a basis for kX.",
-  "def-1.5": "Given a left action of G on a finite set X, the permutation representation extends this action linearly to kX: each g in G permutes basis vectors and extends to an invertible linear map on kX.",
-  "ex-1.6": "A Galois theory example: for a finite extension F/Q, the Galois group G = Aut(F) gives a representation G -> GL(F) by viewing field automorphisms as Q-linear maps. For example, the splitting field of x^3 - 2 gives a degree 6 representation of S_3.",
-  "def-1.7": "A representation rho: G -> GL(V) is faithful if ker(rho) = {1}, meaning distinct group elements act as distinct linear maps. If not faithful, G/ker(rho) embeds into GL(V).",
-  "def-1.8": "A matrix representation is a group homomorphism rho: G -> GL_n(k), where GL_n(k) is the group of invertible n x n matrices over k.",
-  "def-1.9": "The matrix of a linear map phi: V -> V with respect to a basis B = {v_1,...,v_n} is the n x n matrix (a_{ij}) where phi(v_j) = sum_i a_{ij} v_i.",
-  "rmk-1.10": "Choosing a basis B for V sets up an isomorphism GL(V) -> GL_n(k), so every representation gives a matrix representation (and vice versa). The two viewpoints are interchangeable.",
-  "ex-1.11": "Concrete matrix calculation: for the permutation representation of S_3 on k{e_1,e_2,e_3}, the 3-cycle (123) maps to the permutation matrix cycling basis vectors, and (12) maps to the matrix swapping the first two basis vectors.",
-  "warn-1.11a": "Convention warning: permutations in S_n are multiplied right to left in this course (opposite of Prelims M1), so that the natural action sigma . n = sigma(n) is a left action.",
-  "def-1.12": "A homomorphism (or intertwining operator) between representations rho: G -> GL(V) and sigma: G -> GL(W) is a linear map phi: V -> W satisfying sigma(g) o phi = phi o rho(g) for all g in G. It is an isomorphism if bijective.",
-  "def-1.13": "Two matrix representations rho_1, rho_2: G -> GL_n(k) are equivalent if rho_2(g) = A rho_1(g) A^{-1} for some fixed invertible matrix A and all g in G. This corresponds to a change of basis.",
-  "def-1.14": "A subspace U of V is G-stable if rho(g)(U) is contained in U for all g. A G-stable subspace gives rise to a subrepresentation on U and a quotient representation on V/U.",
-  "lem-1.15": "For a homomorphism phi between representations: (a) ker(phi) is G-stable in V, (b) im(phi) is G-stable in W, and (c) V/ker(phi) is isomorphic to im(phi) as representations (First Isomorphism Theorem).",
-  "def-1.16": "The trivial representation sends every group element g to the identity map on V: every vector is fixed by every group element.",
-  "ex-1.17": "Over F_p with G = C_p, the upper-triangular unipotent representation rho(g^i) = [[1,i],[0,1]] has a G-stable line U = <v_1> with trivial sub- and quotient representations, yet rho itself is not trivial. This shows Maschke fails when char(k) divides |G|.",
-  "def-1.18": "A representation is irreducible (or simple) if V is nonzero and the only G-stable subspaces are {0} and V itself. These are the fundamental building blocks of representation theory.",
-  "def-1.19": "A G-stable complement for a G-stable subspace U in V is another G-stable subspace W such that V = U + W (direct sum). If such a complement exists, the representation splits.",
-  "ex-1.20": "For the permutation representation of S_3 on k{e_1,e_2,e_3}: the span of e_1+e_2+e_3 is a trivial subrepresentation, and W = {a_1 e_1 + a_2 e_2 + a_3 e_3 : a_1+a_2+a_3=0} is a G-stable complement (when char(k) != 3), giving an irreducible degree 2 subrepresentation.",
-  "thm-1.21": "Maschke's theorem: if G is finite and |G| is nonzero in k (i.e., char(k) does not divide |G|), then every G-stable subspace of a finite-dimensional representation has a G-stable complement. The proof uses an averaging trick over the group.",
-  "rmk-1.22": "Maschke's theorem fails when char(k) divides |G|, as shown by the upper-triangular example of C_p over F_p.",
-  "def-1.23": "A representation V is completely reducible if V decomposes as a direct sum V = U_1 + ... + U_m of irreducible G-stable subspaces, or if V = {0}.",
-  "cor-1.24": "When char(k) does not divide |G|, every finite-dimensional representation of G is completely reducible. This follows from Maschke's theorem by induction on dimension.",
-  "def-2.1": "A ring is an abelian group R with an associative multiplication satisfying the distributive laws and admitting an identity element 1.",
-  "def-2.2": "The group ring kG is the free vector space on G with convolution multiplication: the product of two formal sums uses the group multiplication to combine coefficients. It is an associative ring with identity 1_G.",
-  "ex-2.3": "For a cyclic group G = <x> of order n, the group ring kG is isomorphic to k[T]/(T^n - 1). If k contains a primitive n-th root of unity, the Chinese Remainder Theorem gives kG isomorphic to k x k x ... x k (n copies).",
-  "def-2.4": "An R-module is an abelian group M with a left R-action satisfying the expected distributivity, associativity, and identity axioms. This generalises vector spaces (where R = k) to arbitrary rings.",
-  "prop-2.5": "There is a natural bijection between representations rho: G -> GL(V) and kG-module structures on V. A representation makes V into a kG-module by extending the G-action linearly, and conversely. This lets us use module theory to study representations.",
-  "rmk-2.6": "The correspondence between G-representations and kG-modules means all general module-theoretic results (isomorphism theorems, correspondence theorem) apply automatically to representations.",
-  "ex-2.7": "The free A-module of rank 1 is A itself with left multiplication. Its submodules are the left ideals of A.",
-  "def-2.8": "The left regular representation of G is the representation on kG corresponding to left multiplication. It is the permutation representation of G acting on itself.",
-  "def-2.9": "A ring A is semisimple if its free module of rank 1 (i.e., A itself as a left A-module) is completely reducible, meaning it decomposes as a direct sum of simple submodules.",
-  "ex-2.10": "When |G| is nonzero in k, the group ring kG is semisimple. This is a direct consequence of Maschke's theorem.",
-  "def-2.11": "An A-module V is cyclic if V = A . v for some element v. The annihilator ann_A(v) = {a in A : av = 0} is a left ideal. Every simple module is cyclic.",
-  "lem-2.12": "Every cyclic A-module V = A . v is isomorphic to the quotient A/ann_A(v). This follows from the First Isomorphism Theorem applied to the surjection a -> a . v.",
-  "lem-2.13": "Every nonzero A-linear map between simple modules is an isomorphism. The kernel must be zero (since the source is simple and the map is nonzero) and the image must be the whole target (since the target is simple).",
-  "prop-2.14": "A semisimple ring has only finitely many simple modules up to isomorphism. Every simple module is isomorphic to one of the direct summands appearing in the decomposition of A as an A-module.",
-  "thm-2.15": "If G is finite and |G| != 0 in k, then G has only finitely many irreducible representations up to isomorphism. This follows from semisimplicity of kG and the finiteness result for semisimple rings.",
-  "def-2.16": "rank(G) denotes the number of isomorphism classes of irreducible k-representations of the finite group G.",
-  "def-3.1": "The centre Z(A) of a ring A consists of all elements that commute with every element of A. It is always a commutative subring.",
-  "def-3.2": "The endomorphism ring End_A(V) of an A-module V is the ring of all A-module homomorphisms V -> V, with addition and composition as operations.",
-  "def-3.3": "A k-algebra is a ring containing k as a central subfield. A semisimple k-algebra is a k-algebra that is also semisimple as a ring.",
-  "thm-3.4": "Schur's lemma: if k is algebraically closed and V is a simple module over a finite-dimensional k-algebra A, then End_A(V) = k . 1_V. Every A-endomorphism of V is multiplication by a scalar.",
-  "def-3.5": "The central character of a simple module V (with End_A(V) = k) is the ring homomorphism Z(A) -> k sending each central element z to the scalar z_V by which it acts on V.",
-  "not-3.6": "Standing notation for section 3: A is a fixed semisimple ring, V_1,...,V_r is a complete list of simple modules up to isomorphism, and A = direct sum of simple left ideals L_{i,j} where L_{i,j} is isomorphic to V_i.",
-  "prop-3.7": "For a finite-dimensional semisimple k-algebra over an algebraically closed field, dim Z(A) >= r (the number of simple modules up to isomorphism). The proof uses the injectivity of the map z -> (z_{V_1},...,z_{V_r}).",
-  "lem-3.8": "Each B_i = direct sum of L_{i,j} over j is a two-sided ideal of A, and A = B_1 + ... + B_r (direct sum). The proof uses the fact that maps between non-isomorphic simple modules must be zero.",
-  "lem-3.9": "If a k-algebra R decomposes as a direct sum of nonzero two-sided ideals S_1,...,S_r, then dim Z(R) >= r. The identity elements e_i of the summands are central pairwise orthogonal idempotents forming a linearly independent set.",
-  "thm-3.10": "For a finite-dimensional semisimple k-algebra over an algebraically closed field, the number of simple modules up to isomorphism equals dim Z(A). This combines the upper bound from Proposition 3.7 with the lower bound from Lemma 3.9.",
-  "def-3.11": "s(G) denotes the number of conjugacy classes of a finite group G.",
-  "prop-3.12": "The conjugacy class sums {c_hat_{C_1},...,c_hat_{C_s}}, where c_hat_{C_i} = sum of all elements in C_i, form a basis for the centre Z(kG). Hence dim Z(kG) = s(G), the number of conjugacy classes.",
-  "cor-3.13": "Over an algebraically closed field with char(k) not dividing |G|, the number of irreducible representations of G equals the number of conjugacy classes: rank(G) = s(G). This combines Theorem 3.10 with Proposition 3.12.",
-  "lem-3.14": "Each two-sided ideal B_i is itself a ring (with identity e_i), A is isomorphic to the product B_1 x ... x B_r, and each B_i is a semisimple ring with a unique simple module V_i.",
-  "warn-3.14a": "Even though each B_i is closed under multiplication, it is not a unital subring of A when r >= 2, because its identity element e_i differs from 1_A.",
-  "def-3.15": "The opposite ring A^op has the same underlying abelian group as A but with reversed multiplication: a * b := ba. This is needed to relate endomorphism rings to matrix rings.",
-  "prop-3.16": "If B is a semisimple ring with exactly one simple module V and B is isomorphic to V^n as a left module, then B is isomorphic to M_n(D^op) where D = End_B(V).",
-  "thm-3.17": "Artin-Wedderburn theorem: if k is algebraically closed, every finite-dimensional semisimple k-algebra is isomorphic to a product of matrix algebras M_{n_1}(k) x ... x M_{n_r}(k). This completely classifies semisimple algebras over algebraically closed fields.",
-  "cor-3.18": "Over an algebraically closed field with char(k) not dividing |G|: (a) kG decomposes as V_1^{dim V_1} + ... + V_r^{dim V_r} as a kG-module, and (b) |G| = sum of (dim V_i)^2. Each irreducible representation V_i appears in the regular representation exactly dim(V_i) times.",
-  "lem-4.1": "A group action of G on a vector space V extends to a kG-module structure if and only if each g in G acts by a linear map: g . (v + lambda w) = g.v + lambda (g.w).",
-  "def-4.2": "The external direct sum V + W of two G-representations is the Cartesian product V x W with diagonal G-action: g . (v,w) = (g.v, g.w).",
-  "def-4.3": "The dual representation V* is the space of linear functionals f: V -> k with G-action (g.f)(v) = f(g^{-1}.v). The inverse is essential to make the group axiom work. V* has the same dimension as V.",
-  "def-4.4": "Hom(V,W) is a G-representation via (g.f)(v) = g.f(g^{-1}.v). When W = k (trivial), this recovers the dual V*. This construction generalises the dual representation.",
-  "lem-4.5": "The natural biduality isomorphism tau: V -> (V*)* given by tau(v)(f) = f(v) is an isomorphism of G-representations, not just vector spaces.",
-  "def-4.6": "The tensor product V tensor W is the free vector space on formal symbols v_i tensor w_j (basis vectors), with elementary tensors v tensor w defined by bilinear extension. Its dimension is (dim V)(dim W).",
-  "rmk-4.7": "Key facts about tensor products: dim(V tensor W) = dim(V) . dim(W), elementary tensors span V tensor W, but not every element of V tensor W is an elementary tensor.",
-  "lem-4.8": "The tensor product is independent of the choice of bases: if {v'_i} and {w'_j} are different bases for V and W, the elementary tensors v'_i tensor w'_j also form a basis for V tensor W.",
-  "lem-4.9": "Universal property of tensor products: every bilinear map b: V x W -> U factors uniquely through V tensor W. That is, there exists a unique linear map b_tilde: V tensor W -> U with b(v,w) = b_tilde(v tensor w).",
-  "def-4.10": "The tensor product representation V tensor W has G-action g.(v tensor w) = (g.v) tensor (g.w), extended linearly. This makes V tensor W into a G-representation of dimension (dim V)(dim W).",
-  "lem-4.11": "There is a natural isomorphism V* tensor W -> Hom(V,W) of kG-modules, sending f tensor w to the linear map v -> f(v)w. This relates the tensor product and Hom constructions.",
-  "def-4.12": "The symmetric square S^2(V) and alternating square Lambda^2(V) are subspaces of V tensor V. S^2(V) is spanned by symmetrised tensors v.w = (v tensor w + w tensor v)/2, and Lambda^2(V) by antisymmetrised tensors v wedge w = (v tensor w - w tensor v)/2. Requires char(k) != 2.",
-  "lem-4.13": "When char(k) != 2: (a) V tensor V = S^2(V) + Lambda^2(V) (direct sum), (b) dim S^2(V) = n(n+1)/2 and dim Lambda^2(V) = n(n-1)/2 where n = dim V, and (c) both S^2(V) and Lambda^2(V) are G-subrepresentations of V tensor V.",
-  "def-5.1": "The character of a complex representation rho: G -> GL(V) is the function chi_rho: G -> C given by chi_rho(g) = tr(rho(g)), the trace of the matrix representing g. The degree of the character is dim V.",
-  "def-5.2": "A class function on G is a function f: G -> C that is constant on conjugacy classes: f(xgx^{-1}) = f(g) for all g, x in G. The space of all class functions is denoted C(G).",
-  "lem-5.3": "Every character is a class function, because conjugate matrices have equal traces: tr(ABA^{-1}) = tr(B).",
-  "def-5.4": "The character table of G is the square matrix whose rows are indexed by irreducible representations V_1,...,V_r and columns by conjugacy class representatives g_1,...,g_s, with entry (i,j) = chi_{V_i}(g_j).",
-  "lem-5.5": "Basic properties of characters: (a) chi_V(1) = dim V, (b) chi_V(g) = dim V iff g acts trivially, (c) degree 1 characters are group homomorphisms, (d) irreducible representations of abelian groups are 1-dimensional.",
-  "ex-5.6": "Character tables of C_3 and S_3. C_3 has three degree 1 characters using cube roots of unity. S_3 has the trivial character, the sign character epsilon, and one degree 2 character from the standard representation W, confirmed by 1^2 + 1^2 + 2^2 = 6.",
-  "prop-5.7": "The sum of squares of the degrees of all irreducible characters equals the order of the group: chi_1(1)^2 + ... + chi_r(1)^2 = |G|. This is a consequence of the Artin-Wedderburn theorem.",
-  "def-5.8": "Given a normal subgroup N of G and a representation of G/N, the inflated representation is the composition G -> G/N -> GL(V). It is a representation of G where N acts trivially.",
-  "def-5.9": "The derived subgroup G' is generated by all commutators [x,y] = xyx^{-1}y^{-1}. It is the smallest normal subgroup such that G/G' is abelian.",
-  "lem-5.10": "The number of distinct complex linear characters (degree 1) of G equals the index |G : G'|. They are exactly the characters inflated from the abelian quotient G/G'.",
-  "ex-5.11": "For A_4: the derived subgroup is V_4 (the Klein four-group), so A_4 has |A_4/V_4| = 3 linear characters. These are inflated from the cyclic group C_3 = A_4/V_4.",
-  "def-5.12": "The inner product on class functions is <phi, psi> = (1/|G|) sum_{g in G} phi(g) conjugate(psi(g)). This is a Hermitian inner product on the space C(G).",
-  "thm-5.13": "Row orthogonality: the irreducible characters are orthonormal with respect to the inner product on class functions. That is, <phi, psi> = 1 if phi = psi and 0 otherwise.",
-  "cor-5.14": "Two CG-modules V and W are isomorphic if and only if they have the same character: chi_V = chi_W. Characters completely determine representations up to isomorphism (over C).",
-  "cor-5.15": "The irreducible characters chi_1,...,chi_r form an orthonormal basis for the space of class functions C(G). Since dim C(G) = s(G) = r, they span the entire space.",
-  "def-5.16": "Notation for conjugacy classes and centralisers: g^G = {x^{-1}gx : x in G} is the conjugacy class of g, and C_G(g) = {x in G : gx = xg} is the centraliser of g.",
-  "lem-5.17": "The orbit-stabiliser theorem applied to conjugation gives |g^G| . |C_G(g)| = |G|. The conjugacy class size times the centraliser order equals the group order.",
-  "ex-5.18": "Full character table computation for A_4: four conjugacy classes, three linear characters from inflation, and one degree 3 irreducible (since 1+1+1+9=12). Row orthogonality determines all remaining entries.",
-  "def-5.19": "The invariant submodule V^G = {v in V : g.v = v for all g in G} is the largest subspace on which G acts trivially.",
-  "prop-5.20": "Fixed point formula: dim V^G = (1/|G|) sum_{g in G} chi_V(g) = <1, chi_V>. The dimension of the G-fixed subspace equals the average value of the character, which is the inner product with the trivial character.",
-  "prop-5.21": "Character formulas for constructions: (a) chi_{V*} = conjugate(chi_V), (b) chi_{V+W} = chi_V + chi_W, (c) chi_{V tensor W} = chi_V . chi_W (pointwise product), (d) chi_{Hom(V,W)} = conjugate(chi_V) . chi_W, (e) chi_{S^2 V}(g) = (chi_V(g)^2 + chi_V(g^2))/2, (f) chi_{Lambda^2 V}(g) = (chi_V(g)^2 - chi_V(g^2))/2.",
-  "prop-5.22": "The space of G-equivariant maps equals the G-fixed points of Hom: Hom_{CG}(V,W) = Hom(V,W)^G. Consequently, <chi_V, chi_W> = dim Hom_{CG}(V,W), connecting the inner product to the dimension of the intertwining space.",
-  "thm-5.23": "Column orthogonality: sum_{i=1}^r chi_i(g) . conjugate(chi_i(h)) equals |C_G(g)| if g and h are conjugate, and 0 otherwise. This is a dual form of row orthogonality, derived from the unitarity of the character table.",
-  "ex-5.24": "Full character table computation for S_4: five conjugacy classes, three characters from inflation via S_4/V_4 = S_3, then 1+1+4+d^2+d'^2 = 24 forces d = d' = 3. Column orthogonality completes the table.",
-  "def-6.1": "The space of H-coinvariants V_H = V / k{h.v - v : h in H, v in V} is the largest quotient of V on which H acts trivially. It is the dual notion to invariants.",
-  "lem-6.2": "The vector space kG tensor W carries two commuting actions: a left G-action g.(x tensor w) = gx tensor w, and a right H-action h * (x tensor w) = xh^{-1} tensor h.w. These actions commute pointwise.",
-  "cor-6.3": "The space of H-coinvariants (kG tensor W)_H under the right H-action inherits a kG-module structure from the left G-action, because the G-action preserves the subspace of H-relations.",
-  "def-6.4": "The induced module Ind_H^G(W) = (kG tensor W)_H is the kG-module obtained by taking H-coinvariants of kG tensor W. Elements are written g otimes-bar w, and g.(x otimes-bar w) = gx otimes-bar w.",
-  "lem-6.5": "In the induced module: (a) gh otimes-bar w = g otimes-bar h.w for all h in H (the H-coset relation), and (b) g.(x otimes-bar w) = gx otimes-bar w (the G-action formula).",
-  "lem-6.6": "Each coset summand xkH tensor W has H-coinvariant space isomorphic to W via the map w -> x otimes-bar w. This establishes the building blocks of the induced module.",
-  "prop-6.7": "If {x_1,...,x_m} are left coset representatives for H in G, then Ind_H^G(W) = (x_1 otimes-bar W) + ... + (x_m otimes-bar W) (direct sum), so dim Ind_H^G(W) = |G:H| . dim(W).",
-  "ex-6.8": "Inducing the trivial representation from H to G gives the permutation module k(G/H). This is because the induced module Ind_H^G(1) is isomorphic to the free vector space on the left cosets G/H.",
-  "def-6.9": "The restricted module Res_H^G(V) is obtained by viewing a kG-module V as a kH-module, simply restricting the action from G to the subgroup H.",
-  "prop-6.10": "Frobenius reciprocity at the module level: Hom_{kG}(Ind_H^G W, U) is naturally isomorphic to Hom_{kH}(W, Res_H^G U). Induction is left adjoint to restriction.",
-  "def-6.11": "The restricted character Res_H^G(psi) is the character of a G-representation viewed as an H-representation. The induced character Ind_H^G(phi) is the character of the induced CG-module Ind_H^G(W).",
-  "cor-6.12": "Frobenius reciprocity for characters: <Ind_H^G phi, psi>_G = <phi, Res_H^G psi>_H. The multiplicity of an irreducible G-character in an induced character equals the multiplicity of the corresponding restricted character in the original H-character.",
-  "ex-6.13": "Inducing the trivial character from {1} to G recovers the regular representation. Frobenius reciprocity shows each irreducible U appears in CG exactly dim(U) times, confirming Corollary 3.18(a).",
-  "lem-6.14": "Explicit formula for the induced character: if g permutes the cosets x_i H, then the induced character value is the sum of chi_W(x_i^{-1} g x_i) over all fixed cosets (those with g.i = i).",
-  "def-6.15": "The extension by zero of a function phi: H -> C is the function phi^o: G -> C that agrees with phi on H and is zero outside H.",
-  "thm-6.16": "The induced character formula: (Ind_H^G chi_W)(g) = (1/|H|) sum_{x in G} chi_W^o(x^{-1}gx). This sums the extended-by-zero character over all conjugates of g, weighted by 1/|H|.",
-  "rmk-6.17": "If the conjugacy class of g in G does not intersect H at all, then the induced character value at g is zero.",
-  "cor-6.18": "Frobenius reciprocity extends to all class functions (not just characters): defining Ind_H^G(phi) by the same formula as Theorem 6.16, the adjunction <Ind_H^G phi, psi>_G = <phi, Res_H^G psi>_H holds for any phi in C(H) and psi in C(G).",
-  "cor-6.19": "Alternative formula for the induced character: (Ind_H^G chi_W)(g) = (|G|/|H|) sum_i (|h_i^H|/|g^G|) chi_W(h_i), where the sum is over representatives h_i of the H-conjugacy classes contained in g^G intersect H.",
-  "def-6.20": "The x-twist of a class function phi on a normal subgroup N is phi^x(h) = phi(x^{-1}hx). Conjugation by elements of G permutes the conjugacy classes of N, giving a G/N-action on C(N).",
-  "prop-6.21": "If phi is a character of a normal subgroup N of G, then: (a) each twist phi^x is also a character, and (b) restricting Ind_N^G(phi) back to N gives the sum of all distinct twists phi^{x_1} + ... + phi^{x_m} over coset representatives.",
-  "cor-6.22": "If phi is an irreducible character of N that is not fixed by any nontrivial twist (phi^x != phi for all x outside N), then Ind_N^G(phi) is irreducible. The proof uses Frobenius reciprocity to show ||Ind phi||^2 = 1.",
-  "ex-6.23": "Character table of the odd dihedral group D_{4m+2}: the cyclic normal subgroup N = <r> of order 2m+1 has 2m+1 linear characters, which pair up into m orbits of size 2 under conjugation by s. Each orbit yields an irreducible induced character of degree 2. With two inflated linear characters from D_{4m+2}/N = C_2, the sum 2(1^2) + m(2^2) = 4m+2 accounts for all characters.",
-  "def-7.1": "An algebraic number satisfies a polynomial with rational coefficients. An algebraic integer satisfies a monic polynomial with integer coefficients. The set of algebraic integers is denoted A.",
-  "ex-7.2": "Examples of algebraic integers: all ordinary integers, all roots of unity, and (crucially) rational algebraic integers must be ordinary integers. If r/s in lowest terms is an algebraic integer, then s divides r^n, forcing s = 1.",
-  "thm-7.3": "The algebraic integers form a subring of C: the sum and product of algebraic integers are again algebraic integers. The proof constructs a finitely generated abelian subgroup of C stable under multiplication.",
-  "prop-7.4": "If M is a finitely generated subgroup of (C,+) and z.M is contained in M, then z is an algebraic integer. The proof writes z's action on generators as an integer matrix and observes z is an eigenvalue of this matrix.",
-  "lem-7.5": "Character values are algebraic integers: chi(g) is a sum of roots of unity (the eigenvalues of rho(g)), and sums of algebraic integers are algebraic integers.",
-  "lem-7.6": "The Z-span S of the conjugacy class sums c_hat_{C_1},...,c_hat_{C_r} is a subring of Z(CG). The structure constants a_{ijk} counting how class sums multiply are non-negative integers.",
-  "thm-7.7": "For a simple CG-module V and g in G: (a) the conjugacy class sum c_hat_{g^G} acts on V by the scalar |g^G| chi_V(g) / chi_V(1), and (b) this scalar is an algebraic integer. The proof uses the fact that conjugacy class sums form an integer subring of the centre.",
-  "cor-7.8": "The dimension of every simple CG-module divides |G|. The proof shows |G|/dim(V) is both a rational number and an algebraic integer (using row orthogonality and Theorem 7.7), hence an integer.",
-  "thm-7.9": "Burnside's p^a q^b theorem: every non-abelian group of order p^alpha q^beta (for primes p, q) is not simple. This is a purely group-theoretic result proved using character theory.",
-  "def-7.10": "A Sylow p-subgroup of G is a subgroup of order p^alpha where |G| = p^alpha m and p does not divide m. It is a maximal p-subgroup.",
-  "thm-7.11": "Sylow's theorems: (a) Sylow p-subgroups exist, (b) any two are conjugate, (c) their number is congruent to 1 mod p and divides |G|/p^alpha.",
-  "lem-7.12": "In a group of order p^alpha q^beta, if g is central in a Sylow p-subgroup P, then |g^G| is a power of q. This is because P is contained in C_G(g), so the conjugacy class size divides q^beta.",
-  "thm-7.13": "If a finite group G has a non-central element whose conjugacy class size is a prime power q^k, then G is not simple. The proof uses column orthogonality and Lemma 7.14 to find a non-trivial character that maps g to a scalar.",
-  "lem-7.14": "If zeta_1,...,zeta_n are roots of unity and alpha = (zeta_1 + ... + zeta_n)/n is an algebraic integer, then either alpha = 0 or all zeta_i are equal to alpha. The proof uses the Galois-theoretic norm to bound |alpha| and deduce the result."
-};
-var GUIDE_OUTLINE = {
-  "sec1": "This section introduces the basic language of representation theory. We define representations, matrix representations, homomorphisms, subrepresentations, and irreducibility, establishing the foundational vocabulary needed for all subsequent development. The section culminates in Maschke's Theorem, which guarantees that every finite-dimensional representation is completely reducible when the characteristic of the field does not divide the group order.",
-  "sec2": "The group ring kG is introduced as an algebraic framework that unifies the actions of G and the ground field k into a single module-theoretic language. The equivalence between G-representations and kG-modules is established, allowing classical results from ring and module theory — such as the isomorphism theorems — to be applied directly. Key concepts include the left regular representation, semisimplicity, and the finiteness of irreducible representations for semisimple rings.",
-  "sec3": "This section determines the internal structure of semisimple algebras over algebraically closed fields. Schur's Lemma shows that endomorphism rings of simple modules reduce to scalars, and the centre of the algebra is linked to the number of simple modules. The Artin–Wedderburn Theorem provides the definitive structural result: every such algebra is isomorphic to a product of matrix algebras, yielding the dimension formula |G| = sum of squares of irreducible representation dimensions.",
-  "sec4": "Building on the basics, this section develops the multilinear constructions that produce new representations from old ones: direct sums, dual spaces, Hom spaces, and tensor products. The universal property of the tensor product is established, and the natural isomorphism between Hom(V, W) and the tensor product of the dual with W is proved. The section concludes with the symmetric and alternating square decomposition of tensor squares, and a brief mention of Schur functors.",
-  "sec5": "Character theory is developed as the principal computational tool of representation theory over the complex numbers. Characters are defined as traces of representation matrices and shown to be class functions; the inner product on class functions is introduced. The Row Orthogonality Theorem, proved via the Fixed Point Formula, shows that irreducible characters form an orthonormal basis for the space of class functions. Column Orthogonality provides a complementary relation, and both are applied to compute the character tables of groups including S3, A4, and S4.",
-  "sec6": "Induction is introduced as a powerful method for constructing representations of a group G from representations of its subgroups. The induced module is defined via coinvariants of the tensor product kG tensor W, and Frobenius Reciprocity is proved, establishing that induction is left-adjoint to restriction. An explicit character formula for induced representations is derived, and the theory is applied to construct all irreducible characters of odd-order dihedral groups by inducing from a cyclic normal subgroup.",
-  "sec7": "The final section ventures into algebraic number theory to prove Burnside's p^alpha q^beta theorem, a purely group-theoretic result whose only known proof uses representation theory. Algebraic integers are shown to form a subring of the complex numbers, and character values and central character scalars are shown to be algebraic integers. These arithmetic constraints, combined with Column Orthogonality and a Galois-theoretic lemma on roots of unity, yield the result that no group of order p^alpha q^beta can be simple and non-abelian."
-};
-
+// -- Type colors --
 var TYPE_COLORS = {
   definition:'#93c5fd', theorem:'#fca5a5', lemma:'#86efac', proposition:'#d8b4fe',
   corollary:'#fdba74', example:'#d1d5db', remark:'#e5e7eb', notation:'#e5e7eb', warning:'#fde68a'
 };
+
+// -- Course manifest --
+var COURSE = {
+  key: 'b21',
+  code: 'B2.1',
+  title: 'Introduction to Representation Theory',
+  instructor: 'Konstantin Ardakov',
+  term: 'Michaelmas',
+  year: 2024,
+  structure: 'sections',
+  items: 134
+};
+
+var COURSE_PATHS = {
+  b21: '',
+  b23: '../../Part_B/Hilary/B2.3_Lie_Algebras/index.html',
+  a11: '../../Part_A/Michaelmas/A11_Quantum_Theory/index.html',
+  a3:  '../../Part_A/Hilary/A3_Rings_and_Modules/index.html',
+  a0:  '../../Part_A/Michaelmas/A0_Linear_Algebra/index.html',
+  a21: '../../Part_A/Michaelmas/A2.1_Metric_Spaces/index.html'
+};
+
+// ==========================================================================
+// KNOWLEDGE_GRAPH — unified data object
+// Merges ENV_NAMES + GUIDE_DESCS + GUIDE_OUTLINE into single structure
+// ==========================================================================
+
+var KNOWLEDGE_GRAPH = {
+  // ── Sections ──
+  'sec1': { type:'section', name:'1. Representations of finite groups', desc:'This section introduces the basic language of representation theory. We define representations, matrix representations, homomorphisms, subrepresentations, and irreducibility, establishing the foundational vocabulary needed for all subsequent development. The section culminates in Maschke\u2019s Theorem, which guarantees that every finite-dimensional representation is completely reducible when the characteristic of the field does not divide the group order.', uses:[], usedBy:[] },
+  'sec2': { type:'section', name:'2. The group ring', desc:'The group ring kG is introduced as an algebraic framework that unifies the actions of G and the ground field k into a single module-theoretic language. The equivalence between G-representations and kG-modules is established, allowing classical results from ring and module theory \u2014 such as the isomorphism theorems \u2014 to be applied directly. Key concepts include the left regular representation, semisimplicity, and the finiteness of irreducible representations for semisimple rings.', uses:[], usedBy:[] },
+  'sec3': { type:'section', name:'3. Structure of semisimple algebras', desc:'This section determines the internal structure of semisimple algebras over algebraically closed fields. Schur\u2019s Lemma shows that endomorphism rings of simple modules reduce to scalars, and the centre of the algebra is linked to the number of simple modules. The Artin\u2013Wedderburn Theorem provides the definitive structural result: every such algebra is isomorphic to a product of matrix algebras, yielding the dimension formula |G| = sum of squares of irreducible representation dimensions.', uses:[], usedBy:[] },
+  'sec4': { type:'section', name:'4. Multilinear algebra', desc:'Building on the basics, this section develops the multilinear constructions that produce new representations from old ones: direct sums, dual spaces, Hom spaces, and tensor products. The universal property of the tensor product is established, and the natural isomorphism between Hom(V, W) and the tensor product of the dual with W is proved. The section concludes with the symmetric and alternating square decomposition of tensor squares, and a brief mention of Schur functors.', uses:[], usedBy:[] },
+  'sec5': { type:'section', name:'5. Character theory', desc:'Character theory is developed as the principal computational tool of representation theory over the complex numbers. Characters are defined as traces of representation matrices and shown to be class functions; the inner product on class functions is introduced. The Row Orthogonality Theorem, proved via the Fixed Point Formula, shows that irreducible characters form an orthonormal basis for the space of class functions. Column Orthogonality provides a complementary relation, and both are applied to compute the character tables of groups including S3, A4, and S4.', uses:[], usedBy:[] },
+  'sec6': { type:'section', name:'6. Induced representations', desc:'Induction is introduced as a powerful method for constructing representations of a group G from representations of its subgroups. The induced module is defined via coinvariants of the tensor product kG tensor W, and Frobenius Reciprocity is proved, establishing that induction is left-adjoint to restriction. An explicit character formula for induced representations is derived, and the theory is applied to construct all irreducible characters of odd-order dihedral groups by inducing from a cyclic normal subgroup.', uses:[], usedBy:[] },
+  'sec7': { type:'section', name:'7. Algebraic integers and Burnside\u2019s theorem', desc:'The final section ventures into algebraic number theory to prove Burnside\u2019s p^\u03B1 q^\u03B2 theorem, a purely group-theoretic result whose only known proof uses representation theory. Algebraic integers are shown to form a subring of the complex numbers, and character values and central character scalars are shown to be algebraic integers. These arithmetic constraints, combined with Column Orthogonality and a Galois-theoretic lemma on roots of unity, yield the result that no group of order p^\u03B1 q^\u03B2 can be simple and non-abelian.', uses:[], usedBy:[] },
+
+  // ── Section 1: Representations of finite groups ──
+  'not-1.1': { type:'notation', name:'Standing notation', desc:'Standing notation: throughout the course, k denotes a field and all vector spaces are k-vector spaces. GL(V) is the group of invertible k-linear maps V to V.', uses:[], usedBy:[] },
+  'def-1.2': { type:'definition', name:'Representation and degree', desc:'A representation of a finite group G on a finite-dimensional vector space V is a group homomorphism rho: G -> GL(V). The degree of the representation is dim V.', uses:[], usedBy:[] },
+  'ex-1.3': { type:'example', name:'Geometric representation examples', desc:'Basic geometric examples of representations: the cyclic group C_2 acting on k by negation (degree 1), the dihedral group D_6 acting on R^2 by rotations and reflections (degree 2), symmetries of a regular n-gon, and the rotation group of a cube giving a degree 3 representation of S_4.', uses:[], usedBy:[] },
+  'def-1.4': { type:'definition', name:'Free vector space', desc:'The free vector space kX on a finite set X consists of all formal k-linear combinations of elements of X. The set X naturally forms a basis for kX.', uses:[], usedBy:[] },
+  'def-1.5': { type:'definition', name:'Permutation representation', desc:'Given a left action of G on a finite set X, the permutation representation extends this action linearly to kX: each g in G permutes basis vectors and extends to an invertible linear map on kX.', uses:[], usedBy:[] },
+  'ex-1.6': { type:'example', name:'Galois representation example', desc:'A Galois theory example: for a finite extension F/Q, the Galois group G = Aut(F) gives a representation G -> GL(F) by viewing field automorphisms as Q-linear maps. For example, the splitting field of x^3 - 2 gives a degree 6 representation of S_3.', uses:[], usedBy:[] },
+  'def-1.7': { type:'definition', name:'Faithful representation', desc:'A representation rho: G -> GL(V) is faithful if ker(rho) = {1}, meaning distinct group elements act as distinct linear maps. If not faithful, G/ker(rho) embeds into GL(V).', uses:[], usedBy:[] },
+  'def-1.8': { type:'definition', name:'Matrix representation', desc:'A matrix representation is a group homomorphism rho: G -> GL_n(k), where GL_n(k) is the group of invertible n x n matrices over k.', uses:[], usedBy:[] },
+  'def-1.9': { type:'definition', name:'Matrix of a linear map', desc:'The matrix of a linear map phi: V -> V with respect to a basis B = {v_1,...,v_n} is the n x n matrix (a_{ij}) where phi(v_j) = sum_i a_{ij} v_i.', uses:[], usedBy:[] },
+  'rmk-1.10': { type:'remark', name:'Representations vs matrix representations', desc:'Choosing a basis B for V sets up an isomorphism GL(V) -> GL_n(k), so every representation gives a matrix representation (and vice versa). The two viewpoints are interchangeable.', uses:[], usedBy:[] },
+  'ex-1.11': { type:'example', name:'Permutation matrices for S3', desc:'Concrete matrix calculation: for the permutation representation of S_3 on k{e_1,e_2,e_3}, the 3-cycle (123) maps to the permutation matrix cycling basis vectors, and (12) maps to the matrix swapping the first two basis vectors.', uses:[], usedBy:[] },
+  'warn-1.11a': { type:'warning', name:'Permutation multiplication convention', desc:'Convention warning: permutations in S_n are multiplied right to left in this course (opposite of Prelims M1), so that the natural action sigma . n = sigma(n) is a left action.', uses:[], usedBy:[] },
+  'def-1.12': { type:'definition', name:'Homomorphism and intertwining operator', desc:'A homomorphism (or intertwining operator) between representations rho: G -> GL(V) and sigma: G -> GL(W) is a linear map phi: V -> W satisfying sigma(g) o phi = phi o rho(g) for all g in G. It is an isomorphism if bijective.', uses:[], usedBy:[] },
+  'def-1.13': { type:'definition', name:'Equivalent matrix representations', desc:'Two matrix representations rho_1, rho_2: G -> GL_n(k) are equivalent if rho_2(g) = A rho_1(g) A^{-1} for some fixed invertible matrix A and all g in G. This corresponds to a change of basis.', uses:[], usedBy:[] },
+  'def-1.14': { type:'definition', name:'G-stable subspace and subrepresentation', desc:'A subspace U of V is G-stable if rho(g)(U) is contained in U for all g. A G-stable subspace gives rise to a subrepresentation on U and a quotient representation on V/U.', uses:[], usedBy:[] },
+  'lem-1.15': { type:'lemma', name:'Kernel and image stability', desc:'For a homomorphism phi between representations: (a) ker(phi) is G-stable in V, (b) im(phi) is G-stable in W, and (c) V/ker(phi) is isomorphic to im(phi) as representations (First Isomorphism Theorem).', uses:[], usedBy:[] },
+  'def-1.16': { type:'definition', name:'Trivial representation', desc:'The trivial representation sends every group element g to the identity map on V: every vector is fixed by every group element.', uses:[], usedBy:[] },
+  'ex-1.17': { type:'example', name:'Non-trivial with trivial sub/quotient', desc:'Over F_p with G = C_p, the upper-triangular unipotent representation rho(g^i) = [[1,i],[0,1]] has a G-stable line U = <v_1> with trivial sub- and quotient representations, yet rho itself is not trivial. This shows Maschke fails when char(k) divides |G|.', uses:[], usedBy:[] },
+  'def-1.18': { type:'definition', name:'Irreducible representation', desc:'A representation is irreducible (or simple) if V is nonzero and the only G-stable subspaces are {0} and V itself. These are the fundamental building blocks of representation theory.', uses:[], usedBy:[] },
+  'def-1.19': { type:'definition', name:'G-stable complement', desc:'A G-stable complement for a G-stable subspace U in V is another G-stable subspace W such that V = U + W (direct sum). If such a complement exists, the representation splits.', uses:[], usedBy:[] },
+  'ex-1.20': { type:'example', name:'Standard representation of S3', desc:'For the permutation representation of S_3 on k{e_1,e_2,e_3}: the span of e_1+e_2+e_3 is a trivial subrepresentation, and W = {a_1 e_1 + a_2 e_2 + a_3 e_3 : a_1+a_2+a_3=0} is a G-stable complement (when char(k) != 3), giving an irreducible degree 2 subrepresentation.', uses:[], usedBy:[] },
+  'thm-1.21': { type:'theorem', name:'Maschke\u2019s theorem', desc:'Maschke\u2019s theorem: if G is finite and |G| is nonzero in k (i.e., char(k) does not divide |G|), then every G-stable subspace of a finite-dimensional representation has a G-stable complement. The proof uses an averaging trick over the group.', uses:[], usedBy:[] },
+  'rmk-1.22': { type:'remark', name:'Maschke fails in char p', desc:'Maschke\u2019s theorem fails when char(k) divides |G|, as shown by the upper-triangular example of C_p over F_p.', uses:[], usedBy:[] },
+  'def-1.23': { type:'definition', name:'Completely reducible representation', desc:'A representation V is completely reducible if V decomposes as a direct sum V = U_1 + ... + U_m of irreducible G-stable subspaces, or if V = {0}.', uses:[], usedBy:[] },
+  'cor-1.24': { type:'corollary', name:'Complete reducibility corollary', desc:'When char(k) does not divide |G|, every finite-dimensional representation of G is completely reducible. This follows from Maschke\u2019s theorem by induction on dimension.', uses:[], usedBy:[] },
+
+  // ── Section 2: The group ring ──
+  'def-2.1': { type:'definition', name:'Ring', desc:'A ring is an abelian group R with an associative multiplication satisfying the distributive laws and admitting an identity element 1.', uses:[], usedBy:[] },
+  'def-2.2': { type:'definition', name:'Group ring', desc:'The group ring kG is the free vector space on G with convolution multiplication: the product of two formal sums uses the group multiplication to combine coefficients. It is an associative ring with identity 1_G.', uses:[], usedBy:[] },
+  'ex-2.3': { type:'example', name:'Cyclic group ring structure', desc:'For a cyclic group G = <x> of order n, the group ring kG is isomorphic to k[T]/(T^n - 1). If k contains a primitive n-th root of unity, the Chinese Remainder Theorem gives kG isomorphic to k x k x ... x k (n copies).', uses:[], usedBy:[] },
+  'def-2.4': { type:'definition', name:'Module over a ring', desc:'An R-module is an abelian group M with a left R-action satisfying the expected distributivity, associativity, and identity axioms. This generalises vector spaces (where R = k) to arbitrary rings.', uses:[], usedBy:[] },
+  'prop-2.5': { type:'proposition', name:'Representations as kG-modules', desc:'There is a natural bijection between representations rho: G -> GL(V) and kG-module structures on V. A representation makes V into a kG-module by extending the G-action linearly, and conversely. This lets us use module theory to study representations.', uses:[], usedBy:[] },
+  'rmk-2.6': { type:'remark', name:'Isomorphism theorems for representations', desc:'The correspondence between G-representations and kG-modules means all general module-theoretic results (isomorphism theorems, correspondence theorem) apply automatically to representations.', uses:[], usedBy:[] },
+  'ex-2.7': { type:'example', name:'Free module and left ideals', desc:'The free A-module of rank 1 is A itself with left multiplication. Its submodules are the left ideals of A.', uses:[], usedBy:[] },
+  'def-2.8': { type:'definition', name:'Left regular representation', desc:'The left regular representation of G is the representation on kG corresponding to left multiplication. It is the permutation representation of G acting on itself.', uses:[], usedBy:[] },
+  'def-2.9': { type:'definition', name:'Semisimple ring', desc:'A ring A is semisimple if its free module of rank 1 (i.e., A itself as a left A-module) is completely reducible, meaning it decomposes as a direct sum of simple submodules.', uses:[], usedBy:[] },
+  'ex-2.10': { type:'example', name:'Group ring is semisimple', desc:'When |G| is nonzero in k, the group ring kG is semisimple. This is a direct consequence of Maschke\u2019s theorem.', uses:[], usedBy:[] },
+  'def-2.11': { type:'definition', name:'Cyclic module and annihilator', desc:'An A-module V is cyclic if V = A . v for some element v. The annihilator ann_A(v) = {a in A : av = 0} is a left ideal. Every simple module is cyclic.', uses:[], usedBy:[] },
+  'lem-2.12': { type:'lemma', name:'Cyclic module quotient isomorphism', desc:'Every cyclic A-module V = A . v is isomorphic to the quotient A/ann_A(v). This follows from the First Isomorphism Theorem applied to the surjection a -> a . v.', uses:[], usedBy:[] },
+  'lem-2.13': { type:'lemma', name:'Simple module homomorphism lemma', desc:'Every nonzero A-linear map between simple modules is an isomorphism. The kernel must be zero (since the source is simple and the map is nonzero) and the image must be the whole target (since the target is simple).', uses:[], usedBy:[] },
+  'prop-2.14': { type:'proposition', name:'Finitely many simple modules', desc:'A semisimple ring has only finitely many simple modules up to isomorphism. Every simple module is isomorphic to one of the direct summands appearing in the decomposition of A as an A-module.', uses:[], usedBy:[] },
+  'thm-2.15': { type:'theorem', name:'Finitely many irreducible representations', desc:'If G is finite and |G| != 0 in k, then G has only finitely many irreducible representations up to isomorphism. This follows from semisimplicity of kG and the finiteness result for semisimple rings.', uses:[], usedBy:[] },
+  'def-2.16': { type:'definition', name:'Rank of a group', desc:'rank(G) denotes the number of isomorphism classes of irreducible k-representations of the finite group G.', uses:[], usedBy:[] },
+
+  // ── Section 3: Structure of semisimple algebras ──
+  'def-3.1': { type:'definition', name:'Centre of a ring', desc:'The centre Z(A) of a ring A consists of all elements that commute with every element of A. It is always a commutative subring.', uses:[], usedBy:[] },
+  'def-3.2': { type:'definition', name:'Endomorphism ring', desc:'The endomorphism ring End_A(V) of an A-module V is the ring of all A-module homomorphisms V -> V, with addition and composition as operations.', uses:[], usedBy:[] },
+  'def-3.3': { type:'definition', name:'k-algebra and semisimple algebra', desc:'A k-algebra is a ring containing k as a central subfield. A semisimple k-algebra is a k-algebra that is also semisimple as a ring.', uses:[], usedBy:[] },
+  'thm-3.4': { type:'theorem', name:'Schur\u2019s lemma', desc:'Schur\u2019s lemma: if k is algebraically closed and V is a simple module over a finite-dimensional k-algebra A, then End_A(V) = k . 1_V. Every A-endomorphism of V is multiplication by a scalar.', uses:[], usedBy:[] },
+  'def-3.5': { type:'definition', name:'Central character', desc:'The central character of a simple module V (with End_A(V) = k) is the ring homomorphism Z(A) -> k sending each central element z to the scalar z_V by which it acts on V.', uses:[], usedBy:[] },
+  'not-3.6': { type:'notation', name:'Semisimple decomposition notation', desc:'Standing notation for section 3: A is a fixed semisimple ring, V_1,...,V_r is a complete list of simple modules up to isomorphism, and A = direct sum of simple left ideals L_{i,j} where L_{i,j} is isomorphic to V_i.', uses:[], usedBy:[] },
+  'prop-3.7': { type:'proposition', name:'Centre dimension upper bound', desc:'For a finite-dimensional semisimple k-algebra over an algebraically closed field, dim Z(A) >= r (the number of simple modules up to isomorphism). The proof uses the injectivity of the map z -> (z_{V_1},...,z_{V_r}).', uses:[], usedBy:[] },
+  'lem-3.8': { type:'lemma', name:'Two-sided ideal decomposition', desc:'Each B_i = direct sum of L_{i,j} over j is a two-sided ideal of A, and A = B_1 + ... + B_r (direct sum). The proof uses the fact that maps between non-isomorphic simple modules must be zero.', uses:[], usedBy:[] },
+  'lem-3.9': { type:'lemma', name:'Centre dimension lower bound', desc:'If a k-algebra R decomposes as a direct sum of nonzero two-sided ideals S_1,...,S_r, then dim Z(R) >= r. The identity elements e_i of the summands are central pairwise orthogonal idempotents forming a linearly independent set.', uses:[], usedBy:[] },
+  'thm-3.10': { type:'theorem', name:'Simple modules count centre dimension', desc:'For a finite-dimensional semisimple k-algebra over an algebraically closed field, the number of simple modules up to isomorphism equals dim Z(A). This combines the upper bound from Proposition 3.7 with the lower bound from Lemma 3.9.', uses:[], usedBy:[] },
+  'def-3.11': { type:'definition', name:'Number of conjugacy classes', desc:'s(G) denotes the number of conjugacy classes of a finite group G.', uses:[], usedBy:[] },
+  'prop-3.12': { type:'proposition', name:'Conjugacy class sum basis', desc:'The conjugacy class sums {c_hat_{C_1},...,c_hat_{C_s}}, where c_hat_{C_i} = sum of all elements in C_i, form a basis for the centre Z(kG). Hence dim Z(kG) = s(G), the number of conjugacy classes.', uses:[], usedBy:[] },
+  'cor-3.13': { type:'corollary', name:'Rank equals conjugacy class count', desc:'Over an algebraically closed field with char(k) not dividing |G|, the number of irreducible representations of G equals the number of conjugacy classes: rank(G) = s(G). This combines Theorem 3.10 with Proposition 3.12.', uses:[], usedBy:[] },
+  'lem-3.14': { type:'lemma', name:'Block decomposition of semisimple ring', desc:'Each two-sided ideal B_i is itself a ring (with identity e_i), A is isomorphic to the product B_1 x ... x B_r, and each B_i is a semisimple ring with a unique simple module V_i.', uses:[], usedBy:[] },
+  'warn-3.14a': { type:'warning', name:'Block identity element warning', desc:'Even though each B_i is closed under multiplication, it is not a unital subring of A when r >= 2, because its identity element e_i differs from 1_A.', uses:[], usedBy:[] },
+  'def-3.15': { type:'definition', name:'Opposite ring', desc:'The opposite ring A^op has the same underlying abelian group as A but with reversed multiplication: a * b := ba. This is needed to relate endomorphism rings to matrix rings.', uses:[], usedBy:[] },
+  'prop-3.16': { type:'proposition', name:'Semisimple block as matrix ring', desc:'If B is a semisimple ring with exactly one simple module V and B is isomorphic to V^n as a left module, then B is isomorphic to M_n(D^op) where D = End_B(V).', uses:[], usedBy:[] },
+  'thm-3.17': { type:'theorem', name:'Artin-Wedderburn theorem', desc:'Artin-Wedderburn theorem: if k is algebraically closed, every finite-dimensional semisimple k-algebra is isomorphic to a product of matrix algebras M_{n_1}(k) x ... x M_{n_r}(k). This completely classifies semisimple algebras over algebraically closed fields.', uses:[], usedBy:[] },
+  'cor-3.18': { type:'corollary', name:'Group ring dimension formula', desc:'Over an algebraically closed field with char(k) not dividing |G|: (a) kG decomposes as V_1^{dim V_1} + ... + V_r^{dim V_r} as a kG-module, and (b) |G| = sum of (dim V_i)^2. Each irreducible representation V_i appears in the regular representation exactly dim(V_i) times.', uses:[], usedBy:[] },
+
+  // ── Section 4: Multilinear algebra ──
+  'lem-4.1': { type:'lemma', name:'Linear action criterion', desc:'A group action of G on a vector space V extends to a kG-module structure if and only if each g in G acts by a linear map: g . (v + lambda w) = g.v + lambda (g.w).', uses:[], usedBy:[] },
+  'def-4.2': { type:'definition', name:'Direct sum of representations', desc:'The external direct sum V + W of two G-representations is the Cartesian product V x W with diagonal G-action: g . (v,w) = (g.v, g.w).', uses:[], usedBy:[] },
+  'def-4.3': { type:'definition', name:'Dual representation', desc:'The dual representation V* is the space of linear functionals f: V -> k with G-action (g.f)(v) = f(g^{-1}.v). The inverse is essential to make the group axiom work. V* has the same dimension as V.', uses:[], usedBy:[] },
+  'def-4.4': { type:'definition', name:'Hom representation', desc:'Hom(V,W) is a G-representation via (g.f)(v) = g.f(g^{-1}.v). When W = k (trivial), this recovers the dual V*. This construction generalises the dual representation.', uses:[], usedBy:[] },
+  'lem-4.5': { type:'lemma', name:'Biduality isomorphism', desc:'The natural biduality isomorphism tau: V -> (V*)* given by tau(v)(f) = f(v) is an isomorphism of G-representations, not just vector spaces.', uses:[], usedBy:[] },
+  'def-4.6': { type:'definition', name:'Tensor product of vector spaces', desc:'The tensor product V tensor W is the free vector space on formal symbols v_i tensor w_j (basis vectors), with elementary tensors v tensor w defined by bilinear extension. Its dimension is (dim V)(dim W).', uses:[], usedBy:[] },
+  'rmk-4.7': { type:'remark', name:'Tensor product remarks', desc:'Key facts about tensor products: dim(V tensor W) = dim(V) . dim(W), elementary tensors span V tensor W, but not every element of V tensor W is an elementary tensor.', uses:[], usedBy:[] },
+  'lem-4.8': { type:'lemma', name:'Tensor product basis independence', desc:'The tensor product is independent of the choice of bases: if {v\'_i} and {w\'_j} are different bases for V and W, the elementary tensors v\'_i tensor w\'_j also form a basis for V tensor W.', uses:[], usedBy:[] },
+  'lem-4.9': { type:'lemma', name:'Universal property of tensor product', desc:'Universal property of tensor products: every bilinear map b: V x W -> U factors uniquely through V tensor W. That is, there exists a unique linear map b_tilde: V tensor W -> U with b(v,w) = b_tilde(v tensor w).', uses:[], usedBy:[] },
+  'def-4.10': { type:'definition', name:'Tensor product representation', desc:'The tensor product representation V tensor W has G-action g.(v tensor w) = (g.v) tensor (g.w), extended linearly. This makes V tensor W into a G-representation of dimension (dim V)(dim W).', uses:[], usedBy:[] },
+  'lem-4.11': { type:'lemma', name:'Dual tensor equals Hom', desc:'There is a natural isomorphism V* tensor W -> Hom(V,W) of kG-modules, sending f tensor w to the linear map v -> f(v)w. This relates the tensor product and Hom constructions.', uses:[], usedBy:[] },
+  'def-4.12': { type:'definition', name:'Symmetric and alternating square', desc:'The symmetric square S^2(V) and alternating square Lambda^2(V) are subspaces of V tensor V. S^2(V) is spanned by symmetrised tensors v.w = (v tensor w + w tensor v)/2, and Lambda^2(V) by antisymmetrised tensors v wedge w = (v tensor w - w tensor v)/2. Requires char(k) != 2.', uses:[], usedBy:[] },
+  'lem-4.13': { type:'lemma', name:'Tensor square decomposition', desc:'When char(k) != 2: (a) V tensor V = S^2(V) + Lambda^2(V) (direct sum), (b) dim S^2(V) = n(n+1)/2 and dim Lambda^2(V) = n(n-1)/2 where n = dim V, and (c) both S^2(V) and Lambda^2(V) are G-subrepresentations of V tensor V.', uses:[], usedBy:[] },
+
+  // ── Section 5: Character theory ──
+  'def-5.1': { type:'definition', name:'Character of a representation', desc:'The character of a complex representation rho: G -> GL(V) is the function chi_rho: G -> C given by chi_rho(g) = tr(rho(g)), the trace of the matrix representing g. The degree of the character is dim V.', uses:[], usedBy:[] },
+  'def-5.2': { type:'definition', name:'Class function', desc:'A class function on G is a function f: G -> C that is constant on conjugacy classes: f(xgx^{-1}) = f(g) for all g, x in G. The space of all class functions is denoted C(G).', uses:[], usedBy:[] },
+  'lem-5.3': { type:'lemma', name:'Characters are class functions', desc:'Every character is a class function, because conjugate matrices have equal traces: tr(ABA^{-1}) = tr(B).', uses:[], usedBy:[] },
+  'def-5.4': { type:'definition', name:'Character table', desc:'The character table of G is the square matrix whose rows are indexed by irreducible representations V_1,...,V_r and columns by conjugacy class representatives g_1,...,g_s, with entry (i,j) = chi_{V_i}(g_j).', uses:[], usedBy:[] },
+  'lem-5.5': { type:'lemma', name:'Basic character properties', desc:'Basic properties of characters: (a) chi_V(1) = dim V, (b) chi_V(g) = dim V iff g acts trivially, (c) degree 1 characters are group homomorphisms, (d) irreducible representations of abelian groups are 1-dimensional.', uses:[], usedBy:[] },
+  'ex-5.6': { type:'example', name:'Character tables of C3 and S3', desc:'Character tables of C_3 and S_3. C_3 has three degree 1 characters using cube roots of unity. S_3 has the trivial character, the sign character epsilon, and one degree 2 character from the standard representation W, confirmed by 1^2 + 1^2 + 2^2 = 6.', uses:[], usedBy:[] },
+  'prop-5.7': { type:'proposition', name:'Sum of squares formula', desc:'The sum of squares of the degrees of all irreducible characters equals the order of the group: chi_1(1)^2 + ... + chi_r(1)^2 = |G|. This is a consequence of the Artin-Wedderburn theorem.', uses:[], usedBy:[] },
+  'def-5.8': { type:'definition', name:'Inflated representation', desc:'Given a normal subgroup N of G and a representation of G/N, the inflated representation is the composition G -> G/N -> GL(V). It is a representation of G where N acts trivially.', uses:[], usedBy:[] },
+  'def-5.9': { type:'definition', name:'Derived subgroup', desc:'The derived subgroup G\' is generated by all commutators [x,y] = xyx^{-1}y^{-1}. It is the smallest normal subgroup such that G/G\' is abelian.', uses:[], usedBy:[] },
+  'lem-5.10': { type:'lemma', name:'Linear characters count', desc:'The number of distinct complex linear characters (degree 1) of G equals the index |G : G\'|. They are exactly the characters inflated from the abelian quotient G/G\'.', uses:[], usedBy:[] },
+  'ex-5.11': { type:'example', name:'Derived subgroup of A4', desc:'For A_4: the derived subgroup is V_4 (the Klein four-group), so A_4 has |A_4/V_4| = 3 linear characters. These are inflated from the cyclic group C_3 = A_4/V_4.', uses:[], usedBy:[] },
+  'def-5.12': { type:'definition', name:'Inner product on class functions', desc:'The inner product on class functions is <phi, psi> = (1/|G|) sum_{g in G} phi(g) conjugate(psi(g)). This is a Hermitian inner product on the space C(G).', uses:[], usedBy:[] },
+  'thm-5.13': { type:'theorem', name:'Row orthogonality', desc:'Row orthogonality: the irreducible characters are orthonormal with respect to the inner product on class functions. That is, <phi, psi> = 1 if phi = psi and 0 otherwise.', uses:[], usedBy:[] },
+  'cor-5.14': { type:'corollary', name:'Characters determine isomorphism', desc:'Two CG-modules V and W are isomorphic if and only if they have the same character: chi_V = chi_W. Characters completely determine representations up to isomorphism (over C).', uses:[], usedBy:[] },
+  'cor-5.15': { type:'corollary', name:'Irreducible characters form basis', desc:'The irreducible characters chi_1,...,chi_r form an orthonormal basis for the space of class functions C(G). Since dim C(G) = s(G) = r, they span the entire space.', uses:[], usedBy:[] },
+  'def-5.16': { type:'definition', name:'Conjugacy class and centraliser', desc:'Notation for conjugacy classes and centralisers: g^G = {x^{-1}gx : x in G} is the conjugacy class of g, and C_G(g) = {x in G : gx = xg} is the centraliser of g.', uses:[], usedBy:[] },
+  'lem-5.17': { type:'lemma', name:'Orbit-stabiliser for conjugacy', desc:'The orbit-stabiliser theorem applied to conjugation gives |g^G| . |C_G(g)| = |G|. The conjugacy class size times the centraliser order equals the group order.', uses:[], usedBy:[] },
+  'ex-5.18': { type:'example', name:'Character table of A4', desc:'Full character table computation for A_4: four conjugacy classes, three linear characters from inflation, and one degree 3 irreducible (since 1+1+1+9=12). Row orthogonality determines all remaining entries.', uses:[], usedBy:[] },
+  'def-5.19': { type:'definition', name:'Invariant submodule', desc:'The invariant submodule V^G = {v in V : g.v = v for all g in G} is the largest subspace on which G acts trivially.', uses:[], usedBy:[] },
+  'prop-5.20': { type:'proposition', name:'Fixed point formula', desc:'Fixed point formula: dim V^G = (1/|G|) sum_{g in G} chi_V(g) = <1, chi_V>. The dimension of the G-fixed subspace equals the average value of the character, which is the inner product with the trivial character.', uses:[], usedBy:[] },
+  'prop-5.21': { type:'proposition', name:'Characters of multilinear constructions', desc:'Character formulas for constructions: (a) chi_{V*} = conjugate(chi_V), (b) chi_{V+W} = chi_V + chi_W, (c) chi_{V tensor W} = chi_V . chi_W (pointwise product), (d) chi_{Hom(V,W)} = conjugate(chi_V) . chi_W, (e) chi_{S^2 V}(g) = (chi_V(g)^2 + chi_V(g^2))/2, (f) chi_{Lambda^2 V}(g) = (chi_V(g)^2 - chi_V(g^2))/2.', uses:[], usedBy:[] },
+  'prop-5.22': { type:'proposition', name:'Inner product via Hom dimension', desc:'The space of G-equivariant maps equals the G-fixed points of Hom: Hom_{CG}(V,W) = Hom(V,W)^G. Consequently, <chi_V, chi_W> = dim Hom_{CG}(V,W), connecting the inner product to the dimension of the intertwining space.', uses:[], usedBy:[] },
+  'thm-5.23': { type:'theorem', name:'Column orthogonality', desc:'Column orthogonality: sum_{i=1}^r chi_i(g) . conjugate(chi_i(h)) equals |C_G(g)| if g and h are conjugate, and 0 otherwise. This is a dual form of row orthogonality, derived from the unitarity of the character table.', uses:[], usedBy:[] },
+  'ex-5.24': { type:'example', name:'Character table of S4', desc:'Full character table computation for S_4: five conjugacy classes, three characters from inflation via S_4/V_4 = S_3, then 1+1+4+d^2+d\'^2 = 24 forces d = d\' = 3. Column orthogonality completes the table.', uses:[], usedBy:[] },
+
+  // ── Section 6: Induced representations ──
+  'def-6.1': { type:'definition', name:'H-coinvariants', desc:'The space of H-coinvariants V_H = V / k{h.v - v : h in H, v in V} is the largest quotient of V on which H acts trivially. It is the dual notion to invariants.', uses:[], usedBy:[] },
+  'lem-6.2': { type:'lemma', name:'Left G-action and right H-action', desc:'The vector space kG tensor W carries two commuting actions: a left G-action g.(x tensor w) = gx tensor w, and a right H-action h * (x tensor w) = xh^{-1} tensor h.w. These actions commute pointwise.', uses:[], usedBy:[] },
+  'cor-6.3': { type:'corollary', name:'Coinvariants form a G-module', desc:'The space of H-coinvariants (kG tensor W)_H under the right H-action inherits a kG-module structure from the left G-action, because the G-action preserves the subspace of H-relations.', uses:[], usedBy:[] },
+  'def-6.4': { type:'definition', name:'Induced module and representation', desc:'The induced module Ind_H^G(W) = (kG tensor W)_H is the kG-module obtained by taking H-coinvariants of kG tensor W. Elements are written g otimes-bar w, and g.(x otimes-bar w) = gx otimes-bar w.', uses:[], usedBy:[] },
+  'lem-6.5': { type:'lemma', name:'Coset tensor relations', desc:'In the induced module: (a) gh otimes-bar w = g otimes-bar h.w for all h in H (the H-coset relation), and (b) g.(x otimes-bar w) = gx otimes-bar w (the G-action formula).', uses:[], usedBy:[] },
+  'lem-6.6': { type:'lemma', name:'Coset component isomorphism', desc:'Each coset summand xkH tensor W has H-coinvariant space isomorphic to W via the map w -> x otimes-bar w. This establishes the building blocks of the induced module.', uses:[], usedBy:[] },
+  'prop-6.7': { type:'proposition', name:'Induced module coset decomposition', desc:'If {x_1,...,x_m} are left coset representatives for H in G, then Ind_H^G(W) = (x_1 otimes-bar W) + ... + (x_m otimes-bar W) (direct sum), so dim Ind_H^G(W) = |G:H| . dim(W).', uses:[], usedBy:[] },
+  'ex-6.8': { type:'example', name:'Permutation module as induced module', desc:'Inducing the trivial representation from H to G gives the permutation module k(G/H). This is because the induced module Ind_H^G(1) is isomorphic to the free vector space on the left cosets G/H.', uses:[], usedBy:[] },
+  'def-6.9': { type:'definition', name:'Restricted representation', desc:'The restricted module Res_H^G(V) is obtained by viewing a kG-module V as a kH-module, simply restricting the action from G to the subgroup H.', uses:[], usedBy:[] },
+  'prop-6.10': { type:'proposition', name:'Frobenius adjunction isomorphism', desc:'Frobenius reciprocity at the module level: Hom_{kG}(Ind_H^G W, U) is naturally isomorphic to Hom_{kH}(W, Res_H^G U). Induction is left adjoint to restriction.', uses:[], usedBy:[] },
+  'def-6.11': { type:'definition', name:'Restricted and induced characters', desc:'The restricted character Res_H^G(psi) is the character of a G-representation viewed as an H-representation. The induced character Ind_H^G(phi) is the character of the induced CG-module Ind_H^G(W).', uses:[], usedBy:[] },
+  'cor-6.12': { type:'corollary', name:'Frobenius reciprocity', desc:'Frobenius reciprocity for characters: <Ind_H^G phi, psi>_G = <phi, Res_H^G psi>_H. The multiplicity of an irreducible G-character in an induced character equals the multiplicity of the corresponding restricted character in the original H-character.', uses:[], usedBy:[] },
+  'ex-6.13': { type:'example', name:'Regular representation via induction', desc:'Inducing the trivial character from {1} to G recovers the regular representation. Frobenius reciprocity shows each irreducible U appears in CG exactly dim(U) times, confirming Corollary 3.18(a).', uses:[], usedBy:[] },
+  'lem-6.14': { type:'lemma', name:'Induced character trace formula', desc:'Explicit formula for the induced character: if g permutes the cosets x_i H, then the induced character value is the sum of chi_W(x_i^{-1} g x_i) over all fixed cosets (those with g.i = i).', uses:[], usedBy:[] },
+  'def-6.15': { type:'definition', name:'Extension by zero', desc:'The extension by zero of a function phi: H -> C is the function phi^o: G -> C that agrees with phi on H and is zero outside H.', uses:[], usedBy:[] },
+  'thm-6.16': { type:'theorem', name:'Induced character formula', desc:'The induced character formula: (Ind_H^G chi_W)(g) = (1/|H|) sum_{x in G} chi_W^o(x^{-1}gx). This sums the extended-by-zero character over all conjugates of g, weighted by 1/|H|.', uses:[], usedBy:[] },
+  'rmk-6.17': { type:'remark', name:'Vanishing of induced character', desc:'If the conjugacy class of g in G does not intersect H at all, then the induced character value at g is zero.', uses:[], usedBy:[] },
+  'cor-6.18': { type:'corollary', name:'Induction adjoint to restriction', desc:'Frobenius reciprocity extends to all class functions (not just characters): defining Ind_H^G(phi) by the same formula as Theorem 6.16, the adjunction <Ind_H^G phi, psi>_G = <phi, Res_H^G psi>_H holds for any phi in C(H) and psi in C(G).', uses:[], usedBy:[] },
+  'cor-6.19': { type:'corollary', name:'Induced character via class splitting', desc:'Alternative formula for the induced character: (Ind_H^G chi_W)(g) = (|G|/|H|) sum_i (|h_i^H|/|g^G|) chi_W(h_i), where the sum is over representatives h_i of the H-conjugacy classes contained in g^G intersect H.', uses:[], usedBy:[] },
+  'def-6.20': { type:'definition', name:'Twist of a character', desc:'The x-twist of a class function phi on a normal subgroup N is phi^x(h) = phi(x^{-1}hx). Conjugation by elements of G permutes the conjugacy classes of N, giving a G/N-action on C(N).', uses:[], usedBy:[] },
+  'prop-6.21': { type:'proposition', name:'Restriction of induced from normal', desc:'If phi is a character of a normal subgroup N of G, then: (a) each twist phi^x is also a character, and (b) restricting Ind_N^G(phi) back to N gives the sum of all distinct twists phi^{x_1} + ... + phi^{x_m} over coset representatives.', uses:[], usedBy:[] },
+  'cor-6.22': { type:'corollary', name:'Induction from normal gives irreducible', desc:'If phi is an irreducible character of N that is not fixed by any nontrivial twist (phi^x != phi for all x outside N), then Ind_N^G(phi) is irreducible. The proof uses Frobenius reciprocity to show ||Ind phi||^2 = 1.', uses:[], usedBy:[] },
+  'ex-6.23': { type:'example', name:'Characters of odd dihedral groups', desc:'Character table of the odd dihedral group D_{4m+2}: the cyclic normal subgroup N = <r> of order 2m+1 has 2m+1 linear characters, which pair up into m orbits of size 2 under conjugation by s. Each orbit yields an irreducible induced character of degree 2. With two inflated linear characters from D_{4m+2}/N = C_2, the sum 2(1^2) + m(2^2) = 4m+2 accounts for all characters.', uses:[], usedBy:[] },
+
+  // ── Section 7: Algebraic integers and Burnside's theorem ──
+  'def-7.1': { type:'definition', name:'Algebraic number and integer', desc:'An algebraic number satisfies a polynomial with rational coefficients. An algebraic integer satisfies a monic polynomial with integer coefficients. The set of algebraic integers is denoted A.', uses:[], usedBy:[] },
+  'ex-7.2': { type:'example', name:'Algebraic integer examples', desc:'Examples of algebraic integers: all ordinary integers, all roots of unity, and (crucially) rational algebraic integers must be ordinary integers. If r/s in lowest terms is an algebraic integer, then s divides r^n, forcing s = 1.', uses:[], usedBy:[] },
+  'thm-7.3': { type:'theorem', name:'Algebraic integers form a ring', desc:'The algebraic integers form a subring of C: the sum and product of algebraic integers are again algebraic integers. The proof constructs a finitely generated abelian subgroup of C stable under multiplication.', uses:[], usedBy:[] },
+  'prop-7.4': { type:'proposition', name:'Finitely generated subgroup criterion', desc:'If M is a finitely generated subgroup of (C,+) and z.M is contained in M, then z is an algebraic integer. The proof writes z\'s action on generators as an integer matrix and observes z is an eigenvalue of this matrix.', uses:[], usedBy:[] },
+  'lem-7.5': { type:'lemma', name:'Character values are algebraic integers', desc:'Character values are algebraic integers: chi(g) is a sum of roots of unity (the eigenvalues of rho(g)), and sums of algebraic integers are algebraic integers.', uses:[], usedBy:[] },
+  'lem-7.6': { type:'lemma', name:'Class sum subring of centre', desc:'The Z-span S of the conjugacy class sums c_hat_{C_1},...,c_hat_{C_r} is a subring of Z(CG). The structure constants a_{ijk} counting how class sums multiply are non-negative integers.', uses:[], usedBy:[] },
+  'thm-7.7': { type:'theorem', name:'Central character is algebraic integer', desc:'For a simple CG-module V and g in G: (a) the conjugacy class sum c_hat_{g^G} acts on V by the scalar |g^G| chi_V(g) / chi_V(1), and (b) this scalar is an algebraic integer. The proof uses the fact that conjugacy class sums form an integer subring of the centre.', uses:[], usedBy:[] },
+  'cor-7.8': { type:'corollary', name:'Dimension divides group order', desc:'The dimension of every simple CG-module divides |G|. The proof shows |G|/dim(V) is both a rational number and an algebraic integer (using row orthogonality and Theorem 7.7), hence an integer.', uses:[], usedBy:[] },
+  'thm-7.9': { type:'theorem', name:'Burnside\u2019s p^a q^b theorem', desc:'Burnside\u2019s p^a q^b theorem: every non-abelian group of order p^alpha q^beta (for primes p, q) is not simple. This is a purely group-theoretic result proved using character theory.', uses:[], usedBy:[] },
+  'def-7.10': { type:'definition', name:'Sylow p-subgroup', desc:'A Sylow p-subgroup of G is a subgroup of order p^alpha where |G| = p^alpha m and p does not divide m. It is a maximal p-subgroup.', uses:[], usedBy:[] },
+  'thm-7.11': { type:'theorem', name:'Sylow\u2019s theorems', desc:'Sylow\u2019s theorems: (a) Sylow p-subgroups exist, (b) any two are conjugate, (c) their number is congruent to 1 mod p and divides |G|/p^alpha.', uses:[], usedBy:[] },
+  'lem-7.12': { type:'lemma', name:'Conjugacy class size in p^a q^b', desc:'In a group of order p^alpha q^beta, if g is central in a Sylow p-subgroup P, then |g^G| is a power of q. This is because P is contained in C_G(g), so the conjugacy class size divides q^beta.', uses:[], usedBy:[] },
+  'thm-7.13': { type:'theorem', name:'Prime power class implies non-simple', desc:'If a finite group G has a non-central element whose conjugacy class size is a prime power q^k, then G is not simple. The proof uses column orthogonality and Lemma 7.14 to find a non-trivial character that maps g to a scalar.', uses:[], usedBy:[] },
+  'lem-7.14': { type:'lemma', name:'Root of unity average lemma', desc:'If zeta_1,...,zeta_n are roots of unity and alpha = (zeta_1 + ... + zeta_n)/n is an algebraic integer, then either alpha = 0 or all zeta_i are equal to alpha. The proof uses the Galois-theoretic norm to bound |alpha| and deduce the result.', uses:[], usedBy:[] }
+};
+
+// ==========================================================================
+// Core utility functions
+// ==========================================================================
 
 function getType(id) {
   if (id.indexOf('def-')===0) return 'definition';
@@ -2658,6 +2578,12 @@ function getType(id) {
 }
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function stripLatex(s) { return s.replace(/\\\(([^)]*)\\\)/g, '$1').replace(/\\[a-zA-Z]+/g, '').replace(/[{}\\]/g, ''); }
+
+// ==========================================================================
+// Build dependency graph from content cross-references
+// ==========================================================================
 
 function buildGraph() {
   document.querySelectorAll('.env[id]').forEach(function(env) {
@@ -2677,19 +2603,28 @@ function buildGraph() {
   });
 }
 
+// ==========================================================================
+// Label functions (using KNOWLEDGE_GRAPH)
+// ==========================================================================
+
 function shortLabel(id) {
   if (!labelMap[id]) return id;
   return labelMap[id].replace(/^Definition\s/,'Def ').replace(/^Theorem\s/,'Thm ')
     .replace(/^Lemma\s/,'Lem ').replace(/^Proposition\s/,'Prop ').replace(/^Corollary\s/,'Cor ')
     .replace(/^Examples?\s/,'Ex ').replace(/^Remarks?\s/,'Rmk ').replace(/^Notation\s/,'Not ').replace(/^Warning/,'Warn');
 }
+
 function fullLabel(id) {
   var s = shortLabel(id);
-  if (ENV_NAMES[id]) s += ' \u2014 ' + ENV_NAMES[id];
+  var kgEntry = KNOWLEDGE_GRAPH[id];
+  if (kgEntry && kgEntry.name) s += ' \u2014 ' + kgEntry.name;
   return s;
 }
 
-// ── BFS multi-level collection ──
+// ==========================================================================
+// BFS multi-level dependency collection
+// ==========================================================================
+
 function collectMultiLevel(centerId) {
   var dL={}, uL={}, dE=[], uE=[];
   function bfs(startId, edgeKey, levels, edges) {
@@ -2717,156 +2652,502 @@ function collectMultiLevel(centerId) {
   return { depsLevels:dL, usedByLevels:uL, depsEdges:dE, usedByEdges:uE };
 }
 
-// ── Per-item dependency graph SVG ──
+// ==========================================================================
+// Per-item dependency graph SVG rendering
+// ==========================================================================
+
 function renderGraph(centerId) {
   var ml = collectMultiLevel(centerId), dl = ml.depsLevels, ul = ml.usedByLevels;
-  var columns = [], maxDL = 0, maxUL = 0;
+  var columns = [], colDepths = [], maxDL = 0, maxUL = 0, overflows = {};
   for (var k in dl) if (+k > maxDL) maxDL = +k;
-  for (var dd = maxDL; dd >= 1; dd--) { var it = (dl[dd]||[]).slice(0,MAX_PER_COL); if (it.length||dd===1) columns.push(it); }
+  for (var dd = maxDL; dd >= 1; dd--) {
+    var full = dl[dd] || [], shown = full.slice(0, MAX_PER_COL);
+    if (full.length > MAX_PER_COL) overflows[columns.length] = full.length - MAX_PER_COL;
+    if (shown.length || dd === 1) { columns.push(shown); colDepths.push(dd); }
+  }
   var cci = columns.length;
-  columns.push([centerId]);
+  columns.push([centerId]); colDepths.push(0);
   for (var k2 in ul) if (+k2 > maxUL) maxUL = +k2;
-  for (var uu = 1; uu <= maxUL; uu++) { var it2 = (ul[uu]||[]).slice(0,MAX_PER_COL); if (it2.length||uu===maxUL) columns.push(it2); }
-  var filt=[], nc=0;
-  for (var ci=0; ci<columns.length; ci++) { if (columns[ci].length||ci===cci) { if (ci===cci) nc=filt.length; filt.push(columns[ci]); } }
-  columns=filt; cci=nc;
-  var nW=72, nH=24, pX=12, pY=8, gp=36, numC=columns.length;
-  if (numC<=3){nW=85;gp=44;} else if(numC>=5){nW=62;gp=24;}
-  var mx=1; columns.forEach(function(c){if(c.length>mx)mx=c.length;});
-  var tW=numC*nW+(numC-1)*gp+pX*2, tH=Math.max(mx*(nH+pY)-pY+40,70);
-  var np={};
-  for(var c=0;c<columns.length;c++){var col=columns[c],cx=pX+c*(nW+gp)+nW/2,bH=col.length*(nH+pY)-pY,sY=(tH-16)/2-bH/2;
-    for(var n=0;n<col.length;n++) np[col[n]]={x:cx,y:sY+n*(nH+pY)+nH/2};}
-  var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+tW+'" height="'+tH+'">';
-  function edge(a,b){var p1=np[a],p2=np[b];if(!p1||!p2)return;var x1=p1.x+nW/2,y1=p1.y,x2=p2.x-nW/2,y2=p2.y,mx2=(x1+x2)/2;
-    s+='<path d="M'+x1+','+y1+' C'+mx2+','+y1+' '+mx2+','+y2+' '+x2+','+y2+'" fill="none" stroke="#c4c8cf" stroke-width="1.2"/>';
-    s+='<polygon points="'+x2+','+y2+' '+(x2-5)+','+(y2-3)+' '+(x2-5)+','+(y2+3)+'" fill="#c4c8cf"/>';}
-  ml.depsEdges.forEach(function(e){edge(e[0],e[1]);}); ml.usedByEdges.forEach(function(e){edge(e[0],e[1]);});
-  for(var id in np){var p=np[id],cur=id===centerId;
-    s+='<g class="graph-node" data-id="'+id+'"><rect x="'+(p.x-nW/2)+'" y="'+(p.y-nH/2)+'" width="'+nW+'" height="'+nH+'" rx="4" fill="'+(cur?'#dbeafe':'#f8f9fa')+'" stroke="'+(cur?'#1e40af':'#d1d5db')+'" stroke-width="'+(cur?2:1)+'"/>';
-    s+='<text x="'+p.x+'" y="'+(p.y+4)+'" text-anchor="middle" fill="#111" font-weight="'+(cur?'bold':'normal')+'">'+esc(shortLabel(id))+'</text></g>';}
-  for(var li=0;li<columns.length;li++){var lbl=li<cci?(cci-li===1?'deps':'depth '+(cci-li)):li===cci?'current':(li-cci===1?'used by':'depth '+(li-cci));
-    s+='<text class="graph-label" x="'+(pX+li*(nW+gp)+nW/2)+'" y="'+(tH-3)+'" text-anchor="middle" fill="#9ca3af" font-size="8.5" font-style="italic">'+lbl+'</text>';}
-  s+='</svg>'; return s;
+  for (var uu = 1; uu <= maxUL; uu++) {
+    var full2 = ul[uu] || [], shown2 = full2.slice(0, MAX_PER_COL);
+    if (full2.length > MAX_PER_COL) overflows[columns.length] = full2.length - MAX_PER_COL;
+    if (shown2.length || uu === maxUL) { columns.push(shown2); colDepths.push(uu); }
+  }
+  var filt = [], filtD = [], nc = 0;
+  for (var ci = 0; ci < columns.length; ci++) {
+    if (columns[ci].length || ci === cci) {
+      if (ci === cci) nc = filt.length;
+      filt.push(columns[ci]); filtD.push(colDepths[ci]);
+      if (overflows[ci]) overflows[filt.length - 1] = overflows[ci];
+    }
+  }
+  columns = filt; colDepths = filtD; cci = nc;
+  var nW = 72, nH = 24, pX = 12, pY = 8, gp = 36, numC = columns.length;
+  if (numC <= 3) { nW = 85; gp = 44; } else if (numC >= 5) { nW = 62; gp = 24; }
+  var mx = 1; columns.forEach(function(c, ci2) {
+    var h = c.length + (overflows[ci2] ? 1 : 0);
+    if (h > mx) mx = h;
+  });
+  var tW = numC * nW + (numC - 1) * gp + pX * 2, tH = Math.max(mx * (nH + pY) - pY + 40, 70);
+  var np = {};
+  for (var c = 0; c < columns.length; c++) {
+    var col = columns[c], extra = overflows[c] ? 1 : 0;
+    var cx = pX + c * (nW + gp) + nW / 2;
+    var bH = (col.length + extra) * (nH + pY) - pY;
+    var sY = (tH - 16) / 2 - bH / 2;
+    for (var n = 0; n < col.length; n++) np[col[n]] = { x: cx, y: sY + n * (nH + pY) + nH / 2, depth: colDepths[c] };
+    if (overflows[c]) np['_overflow_' + c] = { x: cx, y: sY + col.length * (nH + pY) + nH / 2, overflow: overflows[c] };
+  }
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + tW + '" height="' + tH + '">';
+  function edge(a, b) {
+    var p1 = np[a], p2 = np[b]; if (!p1 || !p2) return;
+    var x1 = p1.x + nW / 2, y1 = p1.y, x2 = p2.x - nW / 2, y2 = p2.y, mx2 = (x1 + x2) / 2;
+    s += '<path d="M' + x1 + ',' + y1 + ' C' + mx2 + ',' + y1 + ' ' + mx2 + ',' + y2 + ' ' + x2 + ',' + y2 + '" fill="none" stroke="#c4c8cf" stroke-width="1.2"/>';
+    s += '<polygon points="' + x2 + ',' + y2 + ' ' + (x2 - 5) + ',' + (y2 - 3) + ' ' + (x2 - 5) + ',' + (y2 + 3) + '" fill="#c4c8cf"/>';
+  }
+  ml.depsEdges.forEach(function(e) { edge(e[0], e[1]); });
+  ml.usedByEdges.forEach(function(e) { edge(e[0], e[1]); });
+  for (var id in np) {
+    var p = np[id];
+    if (p.overflow) {
+      s += '<g><rect x="' + (p.x - nW / 2) + '" y="' + (p.y - nH / 2) + '" width="' + nW + '" height="' + nH + '" rx="4" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" stroke-dasharray="3,2"/>';
+      s += '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" fill="#9ca3af" font-size="10" font-style="italic">+' + p.overflow + ' more</text></g>';
+      continue;
+    }
+    var cur = id === centerId;
+    var kgE = KNOWLEDGE_GRAPH[id] || {};
+    var typeColor = TYPE_COLORS[kgE.type] || '#f8f9fa';
+    var depth = p.depth || 0;
+    var isDirect = (depth <= 1);
+    var fill = cur ? '#dbeafe' : typeColor + '30';
+    var stroke = cur ? '#1e40af' : (isDirect ? '#94a3b8' : '#d1d5db');
+    var strokeW = cur ? 2 : 1;
+    var dash = isDirect ? '' : ' stroke-dasharray="4,2"';
+    var tooltip = esc(stripLatex(fullLabel(id)));
+    s += '<g class="graph-node" data-id="' + id + '">';
+    s += '<title>' + tooltip + '</title>';
+    s += '<rect x="' + (p.x - nW / 2) + '" y="' + (p.y - nH / 2) + '" width="' + nW + '" height="' + nH + '" rx="4" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + strokeW + '"' + dash + '/>';
+    s += '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" fill="#111" font-weight="' + (cur ? 'bold' : 'normal') + '">' + esc(shortLabel(id)) + '</text></g>';
+  }
+  for (var li = 0; li < columns.length; li++) {
+    var lbl = li < cci ? (cci - li === 1 ? 'deps' : 'depth ' + (cci - li)) : li === cci ? 'current' : (li - cci === 1 ? 'used by' : 'depth ' + (li - cci));
+    s += '<text class="graph-label" x="' + (pX + li * (nW + gp) + nW / 2) + '" y="' + (tH - 3) + '" text-anchor="middle" fill="#9ca3af" font-size="8.5" font-style="italic">' + lbl + '</text>';
+  }
+  s += '</svg>'; return s;
 }
 
-// ── Navigation ──
+// ==========================================================================
+// Navigation functions
+// ==========================================================================
+
 function navigateTo(id, addHist) {
   if (!graph[id]) return;
   if (addHist !== false) { navHistory = navHistory.slice(0, navIndex+1); navHistory.push(id); navIndex = navHistory.length-1; }
   currentPanelId = id;
-  switchTab('deps');
-  showPanel(); updatePanel(id); updateNavButtons(); updateMinimapActive(id);
+  showPanel(); updateInspector(id); updateNavButtons();
 }
-function navBack() { if(navIndex>0){navIndex--;currentPanelId=navHistory[navIndex];updatePanel(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);updateMinimapActive(currentPanelId);} }
-function navForward() { if(navIndex<navHistory.length-1){navIndex++;currentPanelId=navHistory[navIndex];updatePanel(currentPanelId);updateNavButtons();scrollToEnv(currentPanelId);updateMinimapActive(currentPanelId);} }
+
+function navBack() {
+  if (navIndex > 0) {
+    navIndex--;
+    currentPanelId = navHistory[navIndex];
+    updateInspector(currentPanelId);
+    updateNavButtons();
+    scrollToEnv(currentPanelId);
+  }
+}
+
+function navForward() {
+  if (navIndex < navHistory.length - 1) {
+    navIndex++;
+    currentPanelId = navHistory[navIndex];
+    updateInspector(currentPanelId);
+    updateNavButtons();
+    scrollToEnv(currentPanelId);
+  }
+}
+
 function updateNavButtons() {
-  var b=document.getElementById('nav-back'),f=document.getElementById('nav-forward'),l=document.getElementById('nav-label');
-  if(b)b.disabled=(navIndex<=0); if(f)f.disabled=(navIndex>=navHistory.length-1); if(l)l.textContent=shortLabel(currentPanelId);
+  var b = document.getElementById('nav-back'),
+      f = document.getElementById('nav-forward'),
+      l = document.getElementById('nav-label');
+  if (b) b.disabled = (navIndex <= 0);
+  if (f) f.disabled = (navIndex >= navHistory.length - 1);
+  if (l) l.textContent = currentPanelId ? fullLabel(currentPanelId) : '';
 }
-function scrollToEnv(id) { var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
+function scrollToEnv(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
 
 function showPanel() {
-  var p=document.getElementById('ref-panel'); p.style.display='';
-  document.getElementById('panel-nav').style.display='flex';
-  document.body.style.setProperty('--panel-width', (parseInt(getComputedStyle(document.body).getPropertyValue('--panel-width'))||450)+'px');
+  var p = document.getElementById('ref-panel');
+  p.style.display = '';
+  document.getElementById('panel-nav').style.display = 'flex';
+  document.body.style.setProperty('--panel-width', (parseInt(getComputedStyle(document.body).getPropertyValue('--panel-width')) || 450) + 'px');
 }
+
 function hidePanel() {
-  document.getElementById('ref-panel').style.display='none';
-  document.body.style.setProperty('--panel-width','0px');
+  document.getElementById('ref-panel').style.display = 'none';
+  document.body.style.setProperty('--panel-width', '0px');
 }
 
-// ── Panel content (collapsible items) ──
-function updatePanel(id) {
-  var gC=document.getElementById('graph-container'),
-      cC=document.getElementById('panel-content');
-  gC.innerHTML = renderGraph(id);
-  gC.querySelectorAll('.graph-node').forEach(function(n){n.addEventListener('click',function(){var nid=n.getAttribute('data-id');if(nid){navigateTo(nid);scrollToEnv(nid);}});});
+// ==========================================================================
+// Course Index (default inspector state)
+// Adapted for B2.1 flat section structure (no chapters)
+// ==========================================================================
 
-  var ml=collectMultiLevel(id), html='';
+function showCourseIndex() {
+  inspectorMode = 'index';
+  currentPanelId = null;
+  document.getElementById('graph-container').style.display = 'none';
+  document.getElementById('nav-label').textContent = '';
+  buildCourseIndex();
+}
+
+function buildCourseIndex() {
+  var ic = document.getElementById('inspector-content');
+
+  // 1. Collect sections (B2.1 uses h2.section-heading, no chapters)
+  var sections = [];
+  var secMap = {};
+  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
+    var sec = { id: h.id, label: h.textContent.trim(), items: [] };
+    secMap[h.id] = sec;
+    sections.push(sec);
+  });
+
+  // 2. Assign items to sections
+  var curSec = null;
+  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
+    if (el.tagName === 'H2') curSec = secMap[el.id];
+    else if (curSec && graph[el.id]) curSec.items.push(el.id);
+  });
+
+  // 3. Count types
+  var typeCounts = { all: 0 };
+  var typeOrder = ['definition','theorem','lemma','proposition','corollary','example','remark','notation','warning'];
+  var typeShort = { definition:'Def', theorem:'Thm', lemma:'Lem', proposition:'Prop', corollary:'Cor', example:'Ex', remark:'Rmk', notation:'Not', warning:'Warn' };
+  typeOrder.forEach(function(t) { typeCounts[t] = 0; });
+  sections.forEach(function(sec) {
+    sec.items.forEach(function(id) {
+      typeCounts.all++;
+      var t = getType(id);
+      if (typeCounts[t] !== undefined) typeCounts[t]++;
+    });
+  });
+
+  // 4. Render
+  var html = '';
+
+  // Type filter tabs
+  html += '<div class="inspector-filter-tabs">';
+  html += '<button class="inspector-filter-tab' + (inspectorFilter === 'all' ? ' active' : '') + '" data-ifilter="all">All</button>';
+  typeOrder.forEach(function(t) {
+    if (typeCounts[t] > 0) {
+      html += '<button class="inspector-filter-tab' + (inspectorFilter === t ? ' active' : '') + '" data-ifilter="' + t + '">' + typeShort[t] + '</button>';
+    }
+  });
+  html += '</div>';
+
+  // Description controls
+  html += '<div class="inspector-desc-controls">';
+  html += '<button id="idx-show-descs">Show descs</button>';
+  html += '<button id="idx-hide-descs">Hide descs</button>';
+  html += '</div>';
+
+  // Section groups (flat — no chapters)
+  sections.forEach(function(sec) {
+    if (sec.items.length === 0) return;
+    var kgSec = KNOWLEDGE_GRAPH[sec.id];
+    var secDesc = kgSec ? kgSec.desc : '';
+    html += '<div class="idx-section" data-sec="' + sec.id + '">';
+    html += '<div class="idx-section-head" data-sec-click="' + sec.id + '">' + esc(sec.label) + '</div>';
+    if (secDesc) html += '<div class="idx-section-desc">' + esc(secDesc) + '</div>';
+
+    sec.items.forEach(function(id) {
+      var typ = getType(id);
+      var color = TYPE_COLORS[typ] || '#e5e7eb';
+      var kgItem = KNOWLEDGE_GRAPH[id];
+      var name = kgItem ? kgItem.name : '';
+      var desc = kgItem ? kgItem.desc : '';
+      html += '<div class="inspector-item" data-id="' + id + '" data-type="' + typ + '">';
+      html += '<div class="ii-row">';
+      html += '<span class="ii-dot" style="background:' + color + '"></span>';
+      html += '<span class="ii-label">' + esc(shortLabel(id)) + '</span>';
+      if (name) html += '<span class="ii-name"> \u2014 ' + esc(name) + '</span>';
+      html += '</div>';
+      if (desc) html += '<div class="ii-desc">' + esc(desc) + '</div>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+  });
+
+  ic.innerHTML = html;
+
+  // Wire up type filter tabs
+  ic.querySelectorAll('.inspector-filter-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      ic.querySelectorAll('.inspector-filter-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      inspectorFilter = tab.getAttribute('data-ifilter');
+      applyInspectorFilters();
+    });
+  });
+
+  // Wire up desc controls
+  var idxShowDescs = document.getElementById('idx-show-descs');
+  var idxHideDescs = document.getElementById('idx-hide-descs');
+  if (idxShowDescs) idxShowDescs.addEventListener('click', function() {
+    ic.querySelectorAll('.ii-desc').forEach(function(d) { d.classList.remove('hidden'); });
+  });
+  if (idxHideDescs) idxHideDescs.addEventListener('click', function() {
+    ic.querySelectorAll('.ii-desc').forEach(function(d) { d.classList.add('hidden'); });
+  });
+
+  // Wire up section heads — click scrolls to section in content
+  ic.querySelectorAll('.idx-section-head').forEach(function(head) {
+    head.addEventListener('click', function() {
+      var secId = head.getAttribute('data-sec-click');
+      if (secId) {
+        var el = document.getElementById(secId);
+        if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  });
+
+  // Wire up item clicks
+  ic.querySelectorAll('.inspector-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var id = item.getAttribute('data-id');
+      if (id) { navigateTo(id); scrollToEnv(id); }
+    });
+    item.addEventListener('dblclick', function(e) {
+      e.stopPropagation();
+      var desc = item.querySelector('.ii-desc');
+      if (desc) desc.classList.toggle('hidden');
+    });
+  });
+}
+
+// ==========================================================================
+// Inspector filter
+// ==========================================================================
+
+function applyInspectorFilters() {
+  var query = (document.getElementById('inspector-search').value || '').toLowerCase();
+  document.querySelectorAll('#inspector-content .inspector-item').forEach(function(item) {
+    var type = item.getAttribute('data-type');
+    var matchType = (inspectorFilter === 'all' || type === inspectorFilter);
+    var matchSearch = true;
+    if (query) {
+      var text = (item.textContent || '').toLowerCase();
+      matchSearch = text.indexOf(query) >= 0;
+    }
+    item.classList.toggle('filtered-out', !(matchType && matchSearch));
+  });
+}
+
+// ==========================================================================
+// Active Item Inspector (dependency view)
+// ==========================================================================
+
+function updateInspector(id) {
+  inspectorMode = 'active';
+  var gc = document.getElementById('graph-container');
+  var ic = document.getElementById('inspector-content');
+
+  // Render graph
+  gc.innerHTML = renderGraph(id);
+  gc.style.display = '';
+  gc.querySelectorAll('.graph-node').forEach(function(n) {
+    n.addEventListener('click', function() {
+      var nid = n.getAttribute('data-id');
+      if (nid) { navigateTo(nid); scrollToEnv(nid); }
+    });
+  });
+
+  // Build detail HTML
+  var ml = collectMultiLevel(id);
+  var kgEntry = KNOWLEDGE_GRAPH[id] || {};
+  var html = '';
+
+  // Header with back button + name + desc
+  html += '<div class="inspector-active-header">';
+  html += '<div class="inspector-back-btn" id="inspector-back">&larr; Course Index</div>';
+  html += '<div class="inspector-active-name">' + esc(fullLabel(id)) + '</div>';
+  if (kgEntry.desc) html += '<div class="inspector-active-desc">' + esc(kgEntry.desc) + '</div>';
+  html += '</div>';
+
+  // Collect deps and used-by
+  var allDeps = [], allUB = [];
+  var maxDL = 0;
+  for (var k in ml.depsLevels) if (+k > maxDL) maxDL = +k;
+  for (var dd = maxDL; dd >= 1; dd--) (ml.depsLevels[dd] || []).forEach(function(x) { allDeps.push(x); });
+  var maxUL = 0;
+  for (var k2 in ml.usedByLevels) if (+k2 > maxUL) maxUL = +k2;
+  for (var uu = 1; uu <= maxUL; uu++) (ml.usedByLevels[uu] || []).forEach(function(x) { allUB.push(x); });
+
+  // Render prerequisites and referenced-by sections
   function renderSection(label, items) {
-    html+='<div class="panel-section"><div class="panel-section-label"><span>'+label+' ('+items.length+')</span>';
-    if(items.length>0) html+='<span class="panel-section-controls"><button data-action="expand-all">expand all</button><button data-action="collapse-all">collapse all</button></span>';
-    html+='</div>';
-    if(items.length===0) { html+='<div class="panel-section-empty">None.</div>'; }
-    else { items.forEach(function(itemId){ var env=document.getElementById(itemId); if(!env)return;
-      var itemDesc = GUIDE_DESCS[itemId] || '';
-      html+='<div class="stacked-item" data-item-id="'+itemId+'"><div class="stacked-header" data-id="'+itemId+'"><span class="toggle-icon">&#9656;</span>'+esc(fullLabel(itemId))+'</div>';
-      html+='<div class="stacked-body">'+env.outerHTML+'</div>';
-      if (itemDesc) html+='<div class="stacked-desc-toggle">describe &#9662;</div><div class="stacked-summary hidden">'+esc(itemDesc)+'</div>';
-      html+='</div>'; }); }
-    html+='</div>';
+    html += '<div class="panel-section"><div class="panel-section-label"><span>' + label + ' (' + items.length + ')</span>';
+    if (items.length > 0) {
+      html += '<span class="panel-section-controls">';
+      html += '<button data-action="show-descs">show descs</button>';
+      html += '<button data-action="hide-descs">hide descs</button>';
+      html += '<button data-action="expand-all">expand all</button>';
+      html += '<button data-action="collapse-all">collapse all</button>';
+      html += '</span>';
+    }
+    html += '</div>';
+    if (items.length === 0) {
+      html += '<div class="panel-section-empty">None.</div>';
+    } else {
+      items.forEach(function(itemId) {
+        var env = document.getElementById(itemId);
+        if (!env) return;
+        var itemKG = KNOWLEDGE_GRAPH[itemId] || {};
+        html += '<div class="stacked-item" data-item-id="' + itemId + '">';
+        html += '<div class="stacked-header" data-id="' + itemId + '"><span class="toggle-icon">&#9656;</span>' + esc(fullLabel(itemId)) + '</div>';
+        html += '<div class="stacked-body">' + env.outerHTML + '</div>';
+        if (itemKG.desc) html += '<div class="stacked-summary">' + esc(itemKG.desc) + '</div>';
+        html += '</div>';
+      });
+    }
+    html += '</div>';
   }
-  var allDeps=[], allUB=[];
-  var maxDL=0; for(var k in ml.depsLevels) if(+k>maxDL) maxDL=+k;
-  for(var dd=maxDL;dd>=1;dd--)(ml.depsLevels[dd]||[]).forEach(function(x){allDeps.push(x);});
-  var maxUL=0; for(var k2 in ml.usedByLevels) if(+k2>maxUL) maxUL=+k2;
-  for(var uu=1;uu<=maxUL;uu++)(ml.usedByLevels[uu]||[]).forEach(function(x){allUB.push(x);});
+
   renderSection('Prerequisites', allDeps);
   renderSection('Referenced by', allUB);
-  cC.innerHTML = html;
 
-  // Wire up collapsible items
-  cC.querySelectorAll('.stacked-header').forEach(function(hdr){
-    hdr.addEventListener('click', function(e){ e.stopPropagation();
-      var item=hdr.closest('.stacked-item'); if(!item)return; item.classList.toggle('expanded');
-      if(item.classList.contains('expanded')&&!item.dataset.typeset){ item.dataset.typeset='1';
-        var body=item.querySelector('.stacked-body'); if(body&&typeof MathJax!=='undefined'&&MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){}); }
-    });
-    hdr.addEventListener('dblclick', function(){var hid=hdr.getAttribute('data-id');if(hid){navigateTo(hid);scrollToEnv(hid);}});
-  });
-  cC.querySelectorAll('.panel-section-controls button').forEach(function(btn){
-    btn.addEventListener('click',function(e){e.stopPropagation();var sec=btn.closest('.panel-section'),act=btn.getAttribute('data-action');
-      sec.querySelectorAll('.stacked-item').forEach(function(item){
-        if(act==='expand-all'){item.classList.add('expanded');if(!item.dataset.typeset){item.dataset.typeset='1';var b=item.querySelector('.stacked-body');if(b&&typeof MathJax!=='undefined'&&MathJax.typesetPromise)MathJax.typesetPromise([b]).catch(function(){});}}
-        else item.classList.remove('expanded');});});
-  });
-  cC.querySelectorAll('a.ref').forEach(function(ref){
-    ref.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var tid=ref.getAttribute('data-ref');if(tid){if(graph[tid])navigateTo(tid);scrollToEnv(tid);}});
-  });
-  cC.querySelectorAll('.stacked-desc-toggle').forEach(function(toggle){
-    toggle.addEventListener('click', function(e){
+  ic.innerHTML = html;
+
+  // Wire up back button
+  var backBtn = document.getElementById('inspector-back');
+  if (backBtn) backBtn.addEventListener('click', showCourseIndex);
+
+  // Wire up stacked items (expand/collapse)
+  ic.querySelectorAll('.stacked-header').forEach(function(hdr) {
+    hdr.addEventListener('click', function(e) {
       e.stopPropagation();
-      var summary = toggle.nextElementSibling;
-      if(summary) summary.classList.toggle('hidden');
-      toggle.innerHTML = summary && !summary.classList.contains('hidden') ? 'hide &#9652;' : 'describe &#9662;';
+      var item = hdr.closest('.stacked-item');
+      if (!item) return;
+      item.classList.toggle('expanded');
+      if (item.classList.contains('expanded') && !item.dataset.typeset) {
+        item.dataset.typeset = '1';
+        var body = item.querySelector('.stacked-body');
+        if (body && typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
+      }
+    });
+    hdr.addEventListener('dblclick', function() {
+      var hid = hdr.getAttribute('data-id');
+      if (hid) { navigateTo(hid); scrollToEnv(hid); }
     });
   });
-  document.querySelectorAll('.env.panel-active').forEach(function(el){el.classList.remove('panel-active');});
-  var ae=document.getElementById(id); if(ae) ae.classList.add('panel-active');
+
+  // Wire up section controls
+  ic.querySelectorAll('.panel-section-controls button').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var sec = btn.closest('.panel-section');
+      var act = btn.getAttribute('data-action');
+      if (act === 'expand-all') {
+        sec.querySelectorAll('.stacked-item').forEach(function(item) {
+          item.classList.add('expanded');
+          if (!item.dataset.typeset) { item.dataset.typeset = '1'; var b = item.querySelector('.stacked-body'); if (b && typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([b]).catch(function(){}); }
+        });
+      } else if (act === 'collapse-all') {
+        sec.querySelectorAll('.stacked-item').forEach(function(item) { item.classList.remove('expanded'); });
+      } else if (act === 'show-descs') {
+        sec.querySelectorAll('.stacked-summary').forEach(function(s) { s.classList.remove('collapsed'); });
+      } else if (act === 'hide-descs') {
+        sec.querySelectorAll('.stacked-summary').forEach(function(s) { s.classList.add('collapsed'); });
+      }
+    });
+  });
+
+  // Wire up cross-references in panel
+  ic.querySelectorAll('a.ref').forEach(function(ref) {
+    ref.addEventListener('click', function(e) {
+      e.preventDefault(); e.stopPropagation();
+      var tid = ref.getAttribute('data-ref');
+      if (tid) { if (graph[tid]) navigateTo(tid); scrollToEnv(tid); }
+    });
+  });
+
+  // Highlight active env
+  document.querySelectorAll('.env.panel-active').forEach(function(el) { el.classList.remove('panel-active'); });
+  var ae = document.getElementById(id);
+  if (ae) ae.classList.add('panel-active');
 }
 
-// ── Floating peek popover ──
+// ==========================================================================
+// Peek popover
+// ==========================================================================
+
 function showPeek(refId, anchor) {
-  var pop=document.getElementById('peek-popover'), lbl=document.getElementById('peek-label'),
-      body=document.getElementById('peek-popover-body'), env=document.getElementById(refId);
-  if(!env||!pop) return;
+  var pop = document.getElementById('peek-popover'), lbl = document.getElementById('peek-label'),
+      body = document.getElementById('peek-popover-body'), env = document.getElementById(refId);
+  if (!env || !pop) return;
   clearTimeout(peekTimeout);
   lbl.textContent = fullLabel(refId);
   body.innerHTML = env.outerHTML;
+  pop.style.width = peekWidth + 'px';
+  pop.style.maxHeight = peekHeight + 'px';
+  pop.style.height = '';
   pop.classList.add('visible');
-  pop.style.width = peekWidth+'px';
-  pop.style.maxHeight = peekHeight+'px';
-  var r=anchor.getBoundingClientRect(), pW=peekWidth, pH=peekHeight, wW=window.innerWidth, wH=window.innerHeight;
-  var left=r.right+12, top=r.top-20;
-  if(left+pW>wW-20) left=r.left-pW-12;
-  if(left<10) left=Math.max(10,(r.left+r.right)/2-pW/2);
-  if(top+pH>wH-10) top=wH-pH-10; if(top<10) top=10;
-  pop.style.left=left+'px'; pop.style.top=top+'px';
-  if(typeof MathJax!=='undefined'&&MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
+  var r = anchor.getBoundingClientRect(), pW = peekWidth, pH = peekHeight, wW = window.innerWidth, wH = window.innerHeight;
+  var left = r.right + 12, top = r.top - 20;
+  if (left + pW > wW - 20) left = r.left - pW - 12;
+  if (left < 10) left = Math.max(10, (r.left + r.right) / 2 - pW / 2);
+  if (top + pH > wH - 10) top = wH - pH - 10; if (top < 10) top = 10;
+  pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
 }
-function hidePeek() { clearTimeout(peekTimeout); peekTimeout=setTimeout(function(){document.getElementById('peek-popover').classList.remove('visible');},400); }
+
+function hidePeek() {
+  clearTimeout(peekTimeout);
+  peekTimeout = setTimeout(function() {
+    document.getElementById('peek-popover').classList.remove('visible');
+  }, 400);
+}
 
 function initPeek() {
-  var pop=document.getElementById('peek-popover');
-  pop.addEventListener('mouseenter',function(){clearTimeout(peekTimeout);});
+  var pop = document.getElementById('peek-popover');
+  pop.addEventListener('mouseenter', function() { clearTimeout(peekTimeout); });
   pop.addEventListener('mouseleave', hidePeek);
-  document.getElementById('peek-close').addEventListener('click',function(){clearTimeout(peekTimeout);pop.classList.remove('visible');});
-  document.getElementById('content').addEventListener('mouseover',function(e){var ref=e.target.closest('a.ref');if(ref&&ref.dataset.ref)showPeek(ref.dataset.ref,ref);});
-  document.getElementById('content').addEventListener('mouseout',function(e){if(e.target.closest('a.ref'))hidePeek();});
+  document.getElementById('peek-close').addEventListener('click', function() { clearTimeout(peekTimeout); pop.classList.remove('visible'); });
+  document.getElementById('content').addEventListener('mouseover', function(e) { var ref = e.target.closest('a.ref'); if (ref && ref.dataset.ref) showPeek(ref.dataset.ref, ref); });
+  document.getElementById('content').addEventListener('mouseout', function(e) { if (e.target.closest('a.ref')) hidePeek(); });
 }
 
-// ── Peek resize and zoom ──
+// ==========================================================================
+// Resize handles
+// ==========================================================================
+
+function initResize() {
+  function makeDrag(handle, getWidth, setWidth) {
+    var dragging = false;
+    handle.addEventListener('mousedown', function(e) { e.preventDefault(); dragging = true; handle.classList.add('dragging'); document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; });
+    document.addEventListener('mousemove', function(e) { if (!dragging) return; setWidth(e); });
+    document.addEventListener('mouseup', function() { if (dragging) { dragging = false; handle.classList.remove('dragging'); document.body.style.cursor = ''; document.body.style.userSelect = ''; } });
+  }
+  makeDrag(document.getElementById('resize-handle'), null, function(e) {
+    var w = window.innerWidth - e.clientX; w = Math.max(200, Math.min(w, window.innerWidth - 400));
+    document.body.style.setProperty('--panel-width', w + 'px');
+  });
+  makeDrag(document.getElementById('sidebar-resize'), null, function(e) {
+    var w = e.clientX; w = Math.max(120, Math.min(w, 400));
+    document.body.style.setProperty('--sidebar-width', w + 'px');
+  });
+}
+
+// ==========================================================================
+// Peek resize and zoom
+// ==========================================================================
+
 function initPeekResize() {
   var pop = document.getElementById('peek-popover');
   var handle = document.getElementById('peek-resize-handle');
@@ -2897,6 +3178,7 @@ function initPeekResize() {
     e.stopPropagation(); peekZoom = 100; applyPeekZoom();
   });
 }
+
 function applyPeekZoom() {
   var body = document.getElementById('peek-popover-body');
   body.style.fontSize = (13.5 * peekZoom / 100) + 'px';
@@ -2904,241 +3186,131 @@ function applyPeekZoom() {
   if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
 }
 
-// ── Resize handles ──
-function initResize() {
-  function makeDrag(handle, getWidth, setWidth) {
-    var dragging=false;
-    handle.addEventListener('mousedown',function(e){e.preventDefault();dragging=true;handle.classList.add('dragging');document.body.style.cursor='col-resize';document.body.style.userSelect='none';});
-    document.addEventListener('mousemove',function(e){if(!dragging)return;setWidth(e);});
-    document.addEventListener('mouseup',function(){if(dragging){dragging=false;handle.classList.remove('dragging');document.body.style.cursor='';document.body.style.userSelect='';}});
-  }
-  makeDrag(document.getElementById('resize-handle'), null, function(e){
-    var w=window.innerWidth-e.clientX; w=Math.max(200,Math.min(w,window.innerWidth-400));
-    document.body.style.setProperty('--panel-width',w+'px');
-  });
-  makeDrag(document.getElementById('sidebar-resize'), null, function(e){
-    var w=e.clientX; w=Math.max(120,Math.min(w,400));
-    document.body.style.setProperty('--sidebar-width',w+'px');
-  });
-}
+// ==========================================================================
+// Add descriptive names to TOC links (using KNOWLEDGE_GRAPH)
+// ==========================================================================
 
-// ── Minimap (overview graph) ──
-var minimapPos = {};
-
-function renderMinimap() {
-  var container = document.getElementById('minimap-container');
-  var sections = [], secMap = {};
-  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
-    var lbl = h.textContent.trim();
-    if (lbl.length > 22) lbl = lbl.substring(0,20) + '\u2026';
-    secMap[h.id] = { id: h.id, label: lbl, items: [] };
-    sections.push(secMap[h.id]);
-  });
-  var curSec = null;
-  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
-    if (el.tagName === 'H2') curSec = secMap[el.id];
-    else if (curSec && graph[el.id]) curSec.items.push(el.id);
-  });
-
-  var cW=14, cH=14, gap=2, rowGap=6, lblW=95, pad=4;
-  var maxItems=0; sections.forEach(function(s){if(s.items.length>maxItems) maxItems=s.items.length;});
-  var tW = lblW + maxItems*(cW+gap) + pad*2;
-  var tH = sections.length*(cH+rowGap) - rowGap + pad*2;
-  minimapPos = {};
-
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+tW+'" height="'+tH+'" id="minimap-svg">';
-  // No edge lines - highlighting uses colored glows instead
-
-  for (var si=0; si<sections.length; si++) {
-    var sec=sections[si], ry=pad+si*(cH+rowGap);
-    svg += '<text x="'+pad+'" y="'+(ry+cH-3)+'" font-size="8.5" fill="#6b7280" font-weight="600" font-family="Computer Modern Sans,sans-serif">'+esc(sec.label)+'</text>';
-    for (var ii=0; ii<sec.items.length; ii++) {
-      var itemId=sec.items[ii], cx=lblW+ii*(cW+gap), color=TYPE_COLORS[getType(itemId)]||'#e5e7eb';
-      minimapPos[itemId] = {x:cx, y:ry, cx:cx+cW/2, cy:ry+cH/2};
-      svg += '<g class="minimap-node" data-id="'+itemId+'"><rect x="'+cx+'" y="'+ry+'" width="'+cW+'" height="'+cH+'" rx="2" fill="'+color+'"/></g>';
+function addTOCNames() {
+  document.querySelectorAll('.toc-items a[data-id]').forEach(function(a) {
+    var id = a.getAttribute('data-id');
+    var kgEntry = KNOWLEDGE_GRAPH[id];
+    if (kgEntry && kgEntry.name) {
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'toc-name';
+      nameSpan.textContent = ' \u2014 ' + kgEntry.name;
+      a.appendChild(nameSpan);
     }
-  }
-  svg += '</svg>';
+  });
+}
 
-  // Legend
-  var legend = '<div class="minimap-legend">';
-  var types = [['Def','definition'],['Thm','theorem'],['Lem','lemma'],['Prop','proposition'],['Cor','corollary'],['Ex','example'],['Rmk','remark']];
-  types.forEach(function(t) {
-    legend += '<span style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:1px;background:'+TYPE_COLORS[t[1]]+'"></span>'+t[0]+'</span>';
-  });
-  legend += '</div>';
+// ==========================================================================
+// Add descriptive names to inline cross-references (using KNOWLEDGE_GRAPH)
+// ==========================================================================
 
-  var zoomControls = '<div id="minimap-zoom-controls"><button id="minimap-zoom-in" title="Zoom in">+</button><button id="minimap-zoom-out" title="Zoom out">&minus;</button><button id="minimap-zoom-reset" title="Reset zoom">&#8634;</button></div>';
-  container.innerHTML = zoomControls + svg + legend;
-  minimapBuilt = true;
-
-  // Zoom
-  var svgEl = document.getElementById('minimap-svg');
-  var minimapScale = 1;
-  function applyMinimapZoom() {
-    svgEl.style.transform = 'scale('+minimapScale+')';
-    svgEl.style.width = (tW * minimapScale) + 'px';
-    svgEl.style.height = (tH * minimapScale) + 'px';
-  }
-  document.getElementById('minimap-zoom-in').addEventListener('click', function(e) {
-    e.stopPropagation(); minimapScale = Math.min(3, minimapScale * 1.25); applyMinimapZoom();
-  });
-  document.getElementById('minimap-zoom-out').addEventListener('click', function(e) {
-    e.stopPropagation(); minimapScale = Math.max(0.5, minimapScale / 1.25); applyMinimapZoom();
-  });
-  document.getElementById('minimap-zoom-reset').addEventListener('click', function(e) {
-    e.stopPropagation(); minimapScale = 1; applyMinimapZoom();
-  });
-  container.addEventListener('wheel', function(e) {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      if (e.deltaY < 0) minimapScale = Math.min(3, minimapScale * 1.1);
-      else minimapScale = Math.max(0.5, minimapScale / 1.1);
-      applyMinimapZoom();
+function addRefNames() {
+  document.querySelectorAll('#content a.ref[data-ref]').forEach(function(a) {
+    var id = a.getAttribute('data-ref');
+    var kgEntry = KNOWLEDGE_GRAPH[id];
+    if (kgEntry && kgEntry.name && !a.querySelector('.ref-name')) {
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'ref-name';
+      nameSpan.textContent = ' \u2014 ' + kgEntry.name;
+      a.appendChild(nameSpan);
     }
-  }, {passive: false});
-
-  // Interactions — hover shows label in nav bar instead of cluttering tooltip
-  var navLabel = document.getElementById('nav-label');
-  svgEl.querySelectorAll('.minimap-node').forEach(function(node) {
-    node.addEventListener('mouseenter', function() {
-      var id = node.getAttribute('data-id');
-      if (navLabel) { navLabel.textContent = shortLabel(id); navLabel.classList.add('minimap-hover'); }
-      highlightMinimapDeps(id);
-    });
-    node.addEventListener('mouseleave', function() {
-      if (navLabel) { navLabel.textContent = currentPanelId ? shortLabel(currentPanelId) : ''; navLabel.classList.remove('minimap-hover'); }
-      clearMinimapHighlights();
-    });
-    node.addEventListener('click', function() {
-      var id = node.getAttribute('data-id');
-      if (id) { navigateTo(id); scrollToEnv(id); }
-    });
   });
-
-  // Apply current scroll highlight
-  if (currentScrollId) updateMinimapScroll(currentScrollId);
 }
 
-function highlightMinimapDeps(centerId) {
-  var deps = graph[centerId] ? graph[centerId].uses : [];
-  var usedBy = graph[centerId] ? graph[centerId].usedBy : [];
-  var related = {}; related[centerId] = 'center';
-  deps.forEach(function(d){related[d]='dep';}); usedBy.forEach(function(u){related[u]='usedby';});
+// ==========================================================================
+// Sidebar filter tabs
+// ==========================================================================
 
-  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n) {
-    var nid = n.getAttribute('data-id');
-    n.classList.remove('active','dep-highlight','usedby-highlight','dimmed');
-    if (nid===centerId) n.classList.add('active');
-    else if (related[nid]==='dep') n.classList.add('dep-highlight');
-    else if (related[nid]==='usedby') n.classList.add('usedby-highlight');
-    else n.classList.add('dimmed');
-  });
-
-  // No edge arrows - colored glows on nodes are cleaner
-}
-
-function clearMinimapHighlights() {
-  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n){n.classList.remove('active','dep-highlight','usedby-highlight','dimmed');});
-  // Reset panel highlight only (no scroll tracking on minimap)
-  if (currentPanelId) updateMinimapActive(currentPanelId);
-}
-
-function updateMinimapScroll(id) {
-  document.querySelectorAll('#minimap-svg .minimap-node.scroll-active').forEach(function(n){n.classList.remove('scroll-active');});
-  var node = document.querySelector('#minimap-svg .minimap-node[data-id="'+id+'"]');
-  if (node) node.classList.add('scroll-active');
-}
-
-function updateMinimapActive(id) {
-  // Clear all highlight state to avoid stale glows
-  document.querySelectorAll('#minimap-svg .minimap-node').forEach(function(n){
-    n.classList.remove('panel-selected','active','dep-highlight','usedby-highlight','dimmed');
-  });
-  var node = document.querySelector('#minimap-svg .minimap-node[data-id="'+id+'"]');
-  if (node) node.classList.add('panel-selected');
-}
-
-function toggleMinimap() {
-  var mc = document.getElementById('minimap-container'), btn = document.getElementById('btn-map');
-  if (mc.classList.contains('hidden')) {
-    mc.classList.remove('hidden'); btn.classList.add('active');
-  } else {
-    mc.classList.add('hidden'); btn.classList.remove('active');
-  }
-}
-
-// ── Sidebar filter tabs ──
 var activeFilter = 'all';
 
 function buildFilters() {
-  var types = ['definition','theorem','lemma','proposition','corollary','example','remark','notation'];
-  var typeLabels = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not'};
+  var types = ['definition','theorem','lemma','proposition','corollary','example','remark','notation','warning'];
+  var typeLabels = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not',warning:'Warn'};
   var counts = {all:0};
-  types.forEach(function(t){counts[t]=0;});
-  document.querySelectorAll('.env[id]').forEach(function(env){
-    counts.all++; var t=getType(env.id); if(counts[t]!==undefined) counts[t]++;
+  types.forEach(function(t) { counts[t] = 0; });
+  document.querySelectorAll('.env[id]').forEach(function(env) {
+    counts.all++; var t = getType(env.id); if (counts[t] !== undefined) counts[t]++;
   });
   var tabsEl = document.getElementById('filter-tabs');
   var html = '<button class="filter-tab active" data-filter="all">All</button>';
-  types.forEach(function(t){ if(counts[t]>0) html+='<button class="filter-tab" data-filter="'+t+'">'+typeLabels[t]+'</button>'; });
+  types.forEach(function(t) { if (counts[t] > 0) html += '<button class="filter-tab" data-filter="' + t + '">' + typeLabels[t] + '</button>'; });
   tabsEl.innerHTML = html;
-  tabsEl.querySelectorAll('.filter-tab').forEach(function(tab){
-    tab.addEventListener('click',function(){
-      tabsEl.querySelectorAll('.filter-tab').forEach(function(t){t.classList.remove('active');});
+  tabsEl.querySelectorAll('.filter-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabsEl.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
       tab.classList.add('active');
       activeFilter = tab.getAttribute('data-filter');
       applyFilter();
     });
   });
   // Add peek on hover to TOC items
-  document.querySelectorAll('.toc-items a[data-id]').forEach(function(a){
-    a.addEventListener('mouseenter',function(){ var id=a.getAttribute('data-id'); if(id) showPeek(id, a); });
-    a.addEventListener('mouseleave',function(){ hidePeek(); });
+  document.querySelectorAll('.toc-items a[data-id]').forEach(function(a) {
+    a.addEventListener('mouseenter', function() { var id = a.getAttribute('data-id'); if (id) showPeek(id, a); });
+    a.addEventListener('mouseleave', function() { hidePeek(); });
   });
 }
 
 function applyFilter() {
-  document.querySelectorAll('.toc-items li').forEach(function(li){
+  document.querySelectorAll('.toc-items li').forEach(function(li) {
     var a = li.querySelector('a[data-id]');
     if (!a) return;
     var id = a.getAttribute('data-id'), type = getType(id);
-    if (activeFilter==='all' || type===activeFilter) li.classList.remove('filtered-out');
+    if (activeFilter === 'all' || type === activeFilter) li.classList.remove('filtered-out');
     else li.classList.add('filtered-out');
   });
 }
 
-// ── Event listeners ──
+// ==========================================================================
+// Event listeners
+// ==========================================================================
+
 document.addEventListener('click', function(e) {
   var ph = e.target.closest('.proof-head');
   if (ph) { e.stopPropagation(); ph.closest('.proof').classList.toggle('collapsed'); return; }
   var eh = e.target.closest('.env-head');
-  if (eh && !eh.closest('#panel-content') && !eh.closest('#peek-popover')) {
+  if (eh && !eh.closest('#inspector-content') && !eh.closest('#peek-popover')) {
     var env = eh.closest('.env[id]'); if (env) navigateTo(env.id); return;
   }
   var ref = e.target.closest('a.ref');
-  if (ref && !ref.closest('#panel-content') && !ref.closest('#peek-popover')) {
-    e.preventDefault(); var tid=ref.getAttribute('data-ref'); if(!tid) return;
+  if (ref && !ref.closest('#inspector-content') && !ref.closest('#peek-popover')) {
+    e.preventDefault(); var tid = ref.getAttribute('data-ref'); if (!tid) return;
     document.getElementById('peek-popover').classList.remove('visible');
-    if(graph[tid]) navigateTo(tid); scrollToEnv(tid);
+    if (graph[tid]) navigateTo(tid); scrollToEnv(tid);
+  }
+  var xref = e.target.closest('a.xref');
+  if (xref) {
+    e.preventDefault();
+    var course = xref.getAttribute('data-course');
+    var xid = xref.getAttribute('data-ref');
+    if (course && xid && COURSE_PATHS[course]) {
+      window.location.href = COURSE_PATHS[course] + '#' + xid;
+    }
   }
 });
 
-// ── TOC ──
+// ==========================================================================
+// Section TOC functions (flat — no chapters)
+// ==========================================================================
+
 function expandSection(sid) {
-  var head = document.querySelector('.toc-section-head[data-section="'+sid+'"]');
+  var head = document.querySelector('.toc-section-head[data-section="' + sid + '"]');
   if (!head) return;
   head.classList.add('expanded');
   var items = head.nextElementSibling;
   if (items && items.classList.contains('toc-items')) items.classList.add('visible');
 }
+
 function collapseSection(sid) {
-  var head = document.querySelector('.toc-section-head[data-section="'+sid+'"]');
+  var head = document.querySelector('.toc-section-head[data-section="' + sid + '"]');
   if (!head) return;
   head.classList.remove('expanded');
   var items = head.nextElementSibling;
   if (items && items.classList.contains('toc-items')) items.classList.remove('visible');
 }
+
 function expandAllSections() {
   document.querySelectorAll('.toc-section-head').forEach(function(head) {
     head.classList.add('expanded');
@@ -3146,6 +3318,7 @@ function expandAllSections() {
     if (items && items.classList.contains('toc-items')) items.classList.add('visible');
   });
 }
+
 function collapseAllSections() {
   document.querySelectorAll('.toc-section-head').forEach(function(head) {
     head.classList.remove('expanded');
@@ -3153,6 +3326,7 @@ function collapseAllSections() {
     if (items && items.classList.contains('toc-items')) items.classList.remove('visible');
   });
 }
+
 document.querySelectorAll('.toc-section-head').forEach(function(head) {
   head.addEventListener('click', function() {
     var sid = head.getAttribute('data-section');
@@ -3160,23 +3334,27 @@ document.querySelectorAll('.toc-section-head').forEach(function(head) {
     else expandSection(sid);
   });
 });
+
 document.querySelectorAll('.toc-items a').forEach(function(a) {
   a.addEventListener('click', function(e) { e.preventDefault();
-    var tid=a.getAttribute('data-id'), t=document.getElementById(tid);
-    if(t){t.scrollIntoView({behavior:'smooth',block:'start'});if(graph[tid])navigateTo(tid);}
+    var tid = a.getAttribute('data-id'), t = document.getElementById(tid);
+    if (t) { t.scrollIntoView({behavior:'smooth', block:'start'}); if (graph[tid]) navigateTo(tid); }
   });
 });
 
-// ── Scroll observer (TOC + minimap tracking) ──
+// ==========================================================================
+// Scroll observer (TOC auto-expand)
+// ==========================================================================
+
 function setupScrollObserver() {
   var content = document.getElementById('content');
   var secObs = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
-      if(entry.isIntersecting) {
+      if (entry.isIntersecting) {
         var sid = entry.target.id;
         expandSection(sid);
         document.querySelectorAll('.toc-section-head').forEach(function(h) { h.classList.remove('current'); });
-        var curHead = document.querySelector('.toc-section-head[data-section="'+sid+'"]');
+        var curHead = document.querySelector('.toc-section-head[data-section="' + sid + '"]');
         if (curHead) curHead.classList.add('current');
       }
     });
@@ -3187,304 +3365,161 @@ function setupScrollObserver() {
     new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (!entry.isIntersecting) return;
-        var tocLink = document.querySelector('.toc-items a[data-id="'+entry.target.id+'"]');
-        if (tocLink) { document.querySelectorAll('.toc-items a.active').forEach(function(a){a.classList.remove('active');}); tocLink.classList.add('active'); }
+        var tocLink = document.querySelector('.toc-items a[data-id="' + entry.target.id + '"]');
+        if (tocLink) { document.querySelectorAll('.toc-items a.active').forEach(function(a) { a.classList.remove('active'); }); tocLink.classList.add('active'); }
         currentScrollId = entry.target.id;
       });
     }, {root:content, rootMargin:'-10% 0px -70% 0px', threshold:0}).observe(env);
   });
 }
 
-// ── Add descriptive names to TOC items ──
-function addTOCNames() {
-  document.querySelectorAll('.toc-items a[data-id]').forEach(function(a) {
-    var id = a.getAttribute('data-id');
-    if (ENV_NAMES[id]) {
-      var nameSpan = document.createElement('span');
-      nameSpan.className = 'toc-name';
-      nameSpan.textContent = ' \u2014 ' + ENV_NAMES[id];
-      a.appendChild(nameSpan);
-    }
-  });
-}
+// ==========================================================================
+// Sidebar search (using KNOWLEDGE_GRAPH)
+// ==========================================================================
 
-// ── Add descriptive names to inline cross-references ──
-function addRefNames() {
-  document.querySelectorAll('#content a.ref[data-ref]').forEach(function(a) {
-    var id = a.getAttribute('data-ref');
-    if (ENV_NAMES[id] && !a.querySelector('.ref-name')) {
-      var nameSpan = document.createElement('span');
-      nameSpan.className = 'ref-name';
-      nameSpan.textContent = ' \u2014 ' + ENV_NAMES[id];
-      a.appendChild(nameSpan);
-    }
-  });
-}
-
-// ── Guide panel ──
-function buildGuide() {
-  var body = document.getElementById('guide-body');
-
-  // 1. Collect sections (B2.1 uses h2.section-heading, no chapter level)
-  var sections = [], secMap = {};
-  document.querySelectorAll('h2.section-heading[id]').forEach(function(h) {
-    var sec = { id: h.id, label: h.textContent.trim(), items: [] };
-    secMap[h.id] = sec;
-    sections.push(sec);
-  });
-
-  // 2. Assign items to sections
-  var curSec = null;
-  document.querySelectorAll('.env[id], h2.section-heading[id]').forEach(function(el) {
-    if (el.tagName === 'H2') curSec = secMap[el.id];
-    else if (curSec) curSec.items.push(el.id);
-  });
-
-  // 3. Render guide with section > item hierarchy
-  var html = '';
-  sections.forEach(function(sec) {
-    if (sec.items.length === 0) return;
-    var secOutline = GUIDE_OUTLINE[sec.id] || '';
-    html += '<div class="guide-section" data-sec="'+sec.id+'">';
-    html += '<div class="guide-section-head" data-sec-click="'+sec.id+'">'+esc(sec.label)+'</div>';
-    if (secOutline) html += '<div class="guide-section-outline">'+secOutline+'</div>';
-    sec.items.forEach(function(id) {
-      var typ = getType(id);
-      var color = TYPE_COLORS[typ] || '#e5e7eb';
-      var name = ENV_NAMES[id] || '';
-      var desc = GUIDE_DESCS[id] || '';
-      var env = document.getElementById(id);
-      html += '<div class="guide-entry" data-id="'+id+'" data-search="'+esc((shortLabel(id)+' '+name+' '+desc).toLowerCase())+'">';
-      html += '<span class="entry-chevron">&#9656;</span>';
-      html += '<span class="guide-type-dot" style="background:'+color+'"></span>';
-      html += '<span class="guide-label">'+esc(shortLabel(id))+'</span>';
-      if (name) html += ' <span style="color:#6b7280">\u2014 '+esc(name)+'</span>';
-      html += '<div class="guide-entry-detail">';
-      if (env) html += '<div class="entry-math-content">'+env.outerHTML+'</div>';
-      if (desc) html += '<div class="entry-desc-text">'+desc+'</div>';
-      html += '</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  body.innerHTML = html;
-  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
-
-  // 4. Section head click → scroll to section in content
-  body.querySelectorAll('.guide-section-head[data-sec-click]').forEach(function(sh) {
-    sh.addEventListener('click', function() {
-      var secEl = document.getElementById(sh.getAttribute('data-sec-click'));
-      if (secEl) secEl.scrollIntoView({behavior:'smooth',block:'start'});
-    });
-  });
-
-  // 5. Entry click → toggle expand; label click navigates
-  body.querySelectorAll('.guide-entry').forEach(function(entry) {
-    entry.addEventListener('click', function(e) {
-      if (e.target.closest('.guide-label')) {
-        var id = entry.getAttribute('data-id');
-        if (id) { scrollToEnv(id); navigateTo(id); }
-      } else {
-        entry.classList.toggle('expanded');
-        if (entry.classList.contains('expanded') && !entry.dataset.typeset) {
-          entry.dataset.typeset = '1';
-          var detail = entry.querySelector('.guide-entry-detail');
-          if (detail && typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([detail]).catch(function(){});
-        }
-      }
-    });
-  });
-}
-
-var activeTab = 'deps';
-function switchTab(tabName) {
-  activeTab = tabName;
-  document.querySelectorAll('.panel-tab').forEach(function(t) {
-    t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
-  });
-  document.querySelectorAll('.panel-tab-content').forEach(function(c) {
-    c.classList.toggle('active', c.id === 'tab-' + tabName);
-  });
-  if (tabName === 'guide') {
-    var gb = document.getElementById('guide-body');
-    if (!gb.dataset.built) { buildGuide(); gb.dataset.built = '1'; }
-  } else if (tabName === 'glossary') {
-    var glb = document.getElementById('glossary-body');
-    if (!glb.dataset.built) { buildGlossary(); glb.dataset.built = '1'; }
-  }
-}
-
-function toggleGuide() {
-  switchTab(activeTab === 'guide' ? 'deps' : 'guide');
-}
-
-function initGuideSearch() {
-  var input = document.getElementById('guide-search');
+function initSidebarSearch() {
+  var input = document.getElementById('sidebar-search');
+  var results = document.getElementById('sidebar-search-results');
+  if (!input || !results) return;
   input.addEventListener('input', function() {
-    var q = input.value.toLowerCase().trim();
-    document.querySelectorAll('.guide-entry').forEach(function(entry) {
-      var searchText = entry.getAttribute('data-search') || '';
-      if (!q || searchText.indexOf(q) >= 0) entry.classList.remove('filtered-out');
-      else entry.classList.add('filtered-out');
+    var q = input.value.trim().toLowerCase();
+    if (q.length < 2) { results.innerHTML = ''; results.classList.remove('visible'); return; }
+    var matches = [];
+    var plain = stripLatex(q);
+    Object.keys(KNOWLEDGE_GRAPH).forEach(function(id) {
+      var entry = KNOWLEDGE_GRAPH[id];
+      if (entry.type === 'section') return;
+      var nameMatch = entry.name && stripLatex(entry.name).toLowerCase().indexOf(plain) >= 0;
+      var descMatch = entry.desc && stripLatex(entry.desc).toLowerCase().indexOf(plain) >= 0;
+      if (nameMatch || descMatch) matches.push(id);
     });
-  });
-}
-
-// -- Glossary panel --
-var glossaryFilter = 'all';
-
-function buildGlossary() {
-  var body = document.getElementById('glossary-body');
-  var filtersEl = document.getElementById('glossary-type-filters');
-
-  // Collect all items with ENV_NAMES, sorted alphabetically by name
-  var items = [];
-  for (var id in ENV_NAMES) {
-    var name = ENV_NAMES[id];
-    if (!name) continue;
-    items.push({ id: id, name: name, type: getType(id), desc: GUIDE_DESCS[id] || '' });
-  }
-  items.sort(function(a, b) {
-    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-  });
-
-  // Build type filter buttons
-  var types = {};
-  items.forEach(function(it) { types[it.type] = (types[it.type] || 0) + 1; });
-  var filterHtml = '<span class="glossary-type-filter active" data-gtype="all">All (' + items.length + ')</span>';
-  var typeOrder = ['definition','theorem','lemma','proposition','corollary','example','remark','notation','warning'];
-  var typeShort = {definition:'Def',theorem:'Thm',lemma:'Lem',proposition:'Prop',corollary:'Cor',example:'Ex',remark:'Rmk',notation:'Not',warning:'Warn'};
-  typeOrder.forEach(function(t) {
-    if (types[t]) filterHtml += '<span class="glossary-type-filter" data-gtype="' + t + '">' + typeShort[t] + ' (' + types[t] + ')</span>';
-  });
-  filtersEl.innerHTML = filterHtml;
-
-  // Group by first letter
-  var groups = {};
-  items.forEach(function(it) {
-    var letter = it.name.charAt(0).toUpperCase();
-    if (!/[A-Z]/.test(letter)) letter = '#';
-    if (!groups[letter]) groups[letter] = [];
-    groups[letter].push(it);
-  });
-
-  var letters = Object.keys(groups).sort();
-  var html = '';
-  letters.forEach(function(letter) {
-    html += '<div class="glossary-letter-group" data-letter="' + letter + '">';
-    html += '<div class="glossary-letter-head">' + letter + '</div>';
-    groups[letter].forEach(function(it) {
-      var color = TYPE_COLORS[it.type] || '#e5e7eb';
-      var env = document.getElementById(it.id);
-      html += '<div class="glossary-term" data-id="' + it.id + '" data-gtype="' + it.type + '" data-search="' + esc((it.name + ' ' + shortLabel(it.id) + ' ' + it.desc).toLowerCase()) + '">';
-      html += '<span class="entry-chevron">&#9656;</span>';
-      html += '<span class="glossary-term-type-dot" style="background:' + color + '"></span>';
-      html += '<span class="glossary-term-name">' + esc(it.name) + '</span>';
-      html += '<span class="glossary-term-ref">' + esc(shortLabel(it.id)) + '</span>';
-      html += '<div class="glossary-term-detail">';
-      if (env) html += '<div class="entry-math-content">' + env.outerHTML + '</div>';
-      if (it.desc) html += '<div class="entry-desc-text">' + it.desc + '</div>';
-      html += '</div>';
+    if (matches.length === 0) { results.innerHTML = '<div style="padding:6px 8px;color:#9ca3af;font-style:italic">No matches</div>'; results.classList.add('visible'); return; }
+    var html = '';
+    matches.slice(0, 20).forEach(function(id) {
+      var entry = KNOWLEDGE_GRAPH[id];
+      var type = entry.type || getType(id);
+      var color = TYPE_COLORS[type] || '#e5e7eb';
+      html += '<div class="sidebar-search-item" data-id="' + id + '">';
+      html += '<span class="ss-dot" style="background:' + color + '"></span>';
+      html += '<span class="ss-label">' + esc(shortLabel(id)) + '</span>';
+      html += '<span class="ss-name">' + esc(entry.name || '') + '</span>';
       html += '</div>';
     });
-    html += '</div>';
-  });
-  body.innerHTML = html;
-  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([body]).catch(function(){});
-
-  // Click handlers for terms
-  body.querySelectorAll('.glossary-term').forEach(function(term) {
-    term.addEventListener('click', function(e) {
-      if (e.target.closest('.glossary-term-ref')) {
-        var id = term.getAttribute('data-id');
-        if (id) { scrollToEnv(id); navigateTo(id); }
-      } else {
-        term.classList.toggle('expanded');
-        if (term.classList.contains('expanded') && !term.dataset.typeset) {
-          term.dataset.typeset = '1';
-          var detail = term.querySelector('.glossary-term-detail');
-          if (detail && typeof MathJax !== 'undefined' && MathJax.typesetPromise) MathJax.typesetPromise([detail]).catch(function(){});
-        }
-      }
+    if (matches.length > 20) html += '<div style="padding:4px 8px;color:#9ca3af;font-size:10px">' + (matches.length - 20) + ' more...</div>';
+    results.innerHTML = html;
+    results.classList.add('visible');
+    results.querySelectorAll('.sidebar-search-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var id = item.getAttribute('data-id');
+        if (id) { scrollToEnv(id); if (graph[id]) navigateTo(id); }
+        input.value = ''; results.innerHTML = ''; results.classList.remove('visible');
+      });
     });
   });
-
-  // Click handlers for type filters
-  filtersEl.querySelectorAll('.glossary-type-filter').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      filtersEl.querySelectorAll('.glossary-type-filter').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      glossaryFilter = btn.getAttribute('data-gtype');
-      applyGlossaryFilters();
-    });
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#sidebar-search-wrap') && !e.target.closest('#sidebar-search-results')) {
+      results.classList.remove('visible');
+    }
   });
 }
 
-function applyGlossaryFilters() {
-  var q = (document.getElementById('glossary-search').value || '').toLowerCase().trim();
-  document.querySelectorAll('.glossary-term').forEach(function(term) {
-    var matchType = glossaryFilter === 'all' || term.getAttribute('data-gtype') === glossaryFilter;
-    var matchSearch = !q || (term.getAttribute('data-search') || '').indexOf(q) >= 0;
-    if (matchType && matchSearch) term.classList.remove('filtered-out');
-    else term.classList.add('filtered-out');
-  });
-  // Hide empty letter groups
-  document.querySelectorAll('.glossary-letter-group').forEach(function(grp) {
-    var visible = grp.querySelectorAll('.glossary-term:not(.filtered-out)').length > 0;
-    grp.style.display = visible ? '' : 'none';
+// ==========================================================================
+// Inspector search
+// ==========================================================================
+
+function initInspectorSearch() {
+  var input = document.getElementById('inspector-search');
+  if (!input) return;
+  input.addEventListener('input', function() {
+    if (inspectorMode === 'index') applyInspectorFilters();
   });
 }
 
-function toggleGlossary() {
-  switchTab(activeTab === 'glossary' ? 'deps' : 'glossary');
+// ==========================================================================
+// Toast notification
+// ==========================================================================
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e40af;color:#fff;padding:8px 16px;border-radius:4px;font-size:13px;z-index:200;opacity:0;transition:opacity 0.3s';
+  document.body.appendChild(t);
+  requestAnimationFrame(function() { t.style.opacity = '1'; });
+  setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 300); }, 2000);
 }
 
-function initGlossarySearch() {
-  document.getElementById('glossary-search').addEventListener('input', applyGlossaryFilters);
-}
+// ==========================================================================
+// Initialization
+// ==========================================================================
 
-// ── Init ──
 function initApp() {
+  document.body.classList.remove('loading');
+  var spinner = document.getElementById('loading-spinner');
+  if (spinner) spinner.style.display = 'none';
+
   buildGraph();
-  renderMinimap();
-  document.getElementById('btn-map').classList.add('active');
-  showPanel();
-  buildFilters();
   addTOCNames();
   addRefNames();
-  setupScrollObserver();
-  initResize();
+  buildFilters();
   initPeek();
+  initResize();
   initPeekResize();
+  initSidebarSearch();
+  initInspectorSearch();
+  buildCourseIndex();
+  setupScrollObserver();
   expandSection('sec1');
+
+  // Expand/collapse all buttons
+  var btnExpand = document.getElementById('btn-expand-all');
+  var btnCollapse = document.getElementById('btn-collapse-all');
+  if (btnExpand) btnExpand.addEventListener('click', expandAllSections);
+  if (btnCollapse) btnCollapse.addEventListener('click', collapseAllSections);
+
+  // Close panel button
+  var btnClose = document.getElementById('btn-close-panel');
+  if (btnClose) btnClose.addEventListener('click', function() { hidePanel(); showCourseIndex(); });
+
+  // Nav buttons
   document.getElementById('nav-back').addEventListener('click', navBack);
   document.getElementById('nav-forward').addEventListener('click', navForward);
-  document.getElementById('btn-map').addEventListener('click', toggleMinimap);
-  document.querySelectorAll('.panel-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() { switchTab(tab.getAttribute('data-tab')); });
-  });
-  initGuideSearch();
-  initGlossarySearch();
-  document.getElementById('btn-close-panel').addEventListener('click', hidePanel);
-  document.getElementById('btn-expand-all').addEventListener('click', expandAllSections);
-  document.getElementById('btn-collapse-all').addEventListener('click', collapseAllSections);
 
-  // Hash navigation: if URL has #item-id, navigate there
+  // Mobile toggles
+  var sidebarToggle = document.getElementById('mobile-sidebar-toggle');
+  var panelToggle = document.getElementById('mobile-panel-toggle');
+  var backdrop = document.getElementById('mobile-backdrop');
+  if (sidebarToggle) sidebarToggle.addEventListener('click', function() {
+    var sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('mobile-open');
+    document.getElementById('ref-panel').classList.remove('mobile-open');
+    if (backdrop) backdrop.classList.toggle('visible', sidebar.classList.contains('mobile-open'));
+  });
+  if (panelToggle) panelToggle.addEventListener('click', function() {
+    var panel = document.getElementById('ref-panel');
+    panel.classList.toggle('mobile-open');
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    if (backdrop) backdrop.classList.toggle('visible', panel.classList.contains('mobile-open'));
+  });
+  if (backdrop) backdrop.addEventListener('click', function() {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('ref-panel').classList.remove('mobile-open');
+    backdrop.classList.remove('visible');
+  });
+
+  // Hash navigation
   if (location.hash) {
-    var hashId = location.hash.slice(1);
+    var hashId = location.hash.substring(1);
     setTimeout(function() {
-      if (document.getElementById(hashId)) {
-        scrollToEnv(hashId);
-        if (graph[hashId]) navigateTo(hashId);
-      }
+      scrollToEnv(hashId);
+      if (graph[hashId]) navigateTo(hashId);
     }, 500);
   }
 
-  // Bidirectional parent shell communication
+  // Bidirectional parent shell communication (postMessage)
   var _parentMsg = false;
   var _origNav = navigateTo;
-  navigateTo = function(id) {
-    _origNav(id);
+  navigateTo = function(id, addHist) {
+    _origNav(id, addHist);
     if (!_parentMsg && window.parent !== window) {
       window.parent.postMessage({ type: 'viewer', action: 'itemClicked', course: 'b21', id: id }, '*');
     }
@@ -3498,15 +3533,19 @@ function initApp() {
       scrollToEnv(e.data.id);
       if (graph[e.data.id]) navigateTo(e.data.id);
     } else if (e.data.action === 'highlight' && e.data.id) {
-      scrollToEnv(e.data.id);
+      var el = document.getElementById(e.data.id);
+      if (el) { el.classList.add('panel-active'); setTimeout(function() { el.classList.remove('panel-active'); }, 2000); }
     }
     _parentMsg = false;
   });
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'viewer', action: 'ready', course: 'b21' }, '*');
   }
+
+  showToast('B2.1 Representation Theory \u2014 ' + COURSE.items + ' items loaded');
 }
 
+// Start on MathJax ready or after timeout
 if (typeof MathJax === 'undefined' || !MathJax.startup) {
   document.addEventListener('DOMContentLoaded', function() { setTimeout(initApp, 2000); });
 }
