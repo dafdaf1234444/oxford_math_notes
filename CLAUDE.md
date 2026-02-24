@@ -7,7 +7,7 @@ Self-contained HTML viewers for Oxford mathematics lecture notes. Each course is
 **Current courses:**
 - `Part_B/Michaelmas/B2.1_Representation_Theory/index.html` (fully converted, 134 items)
 - `Part_B/Hilary/B2.3_Lie_Algebras/index.html` (fully converted, 205 items)
-- `Part_A/Michaelmas/A11_Quantum_Theory/index.html` (fully converted, 91 items — KNOWLEDGE_GRAPH architecture)
+- `Part_A/Michaelmas/A11_Quantum_Theory/index.html` (fully converted, 427 items — KNOWLEDGE_GRAPH architecture)
 - `Part_B/Michaelmas/B2.1_Introduction_to_Representation_Theory/index.html` (original/legacy B2.1 — simpler viewer, committed)
 
 **Multi-course viewer:** `viewer/index.html` — iframe shell with combined glossary (see Multi-Course Viewer section below).
@@ -200,10 +200,10 @@ var TYPE_COLORS = {
 
 | Aspect | B2.1 Representation Theory | B2.3 Lie Algebras | A11 Quantum Theory |
 |--------|---------------------------|-------------------|--------------------|
-| Hierarchy | Flat: `h2.section-heading` only (7 sections) | Nested: `h2.chapter-heading` + `h3.section-heading` + `h4` subsections | Flat: `h2.section-heading` (11 sections) + `h3` subsections |
+| Hierarchy | Flat: `h2.section-heading` only (7 sections) | Nested: `h2.chapter-heading` + `h3.section-heading` + `h4` subsections | Flat: `h2.section-heading` (15 sections: sec0-sec11, secA-secC) + `h3` subsections |
 | Item IDs | `def-1.2`, `thm-3.4` (flat numbering) | `def-1.1.1`, `thm-3.4.2` (nested numbering) | `def-5.4`, `eq-2.8` (flat + equations) |
-| Items | 134 | 205 | 91 (52 formal + 39 equations) |
-| Sections | 7 (no chapters) | 6 chapters + background + appendices | 11 (sec0-sec10) |
+| Items | 134 | 205 | 427 (84 formal + 343 equations) |
+| Sections | 7 (no chapters) | 6 chapters + background + appendices | 15 (sec0-sec11 + secA-secC) |
 | Data model | ENV_NAMES + GUIDE_DESCS + GUIDE_OUTLINE | ENV_NAMES + GUIDE_DESCS + GUIDE_OUTLINE | **KNOWLEDGE_GRAPH** (unified) |
 | Right panel | Tabbed (Deps/Guide/Glossary) + Minimap | Tabbed (Deps/Guide/Glossary) + Minimap | **Context Inspector** (no tabs, no minimap) |
 | Equations as entities | No | No | Yes (`div.env.equation`, `eq-` prefix IDs) |
@@ -222,6 +222,10 @@ var KNOWLEDGE_GRAPH = {
 - **Default state (Course Index)**: All items grouped by section with type filter tabs. Descriptions shown by default under each item. Expand/collapse all descriptions. Double-click item row to toggle its description. Click navigates to item.
 - **Active state (Item Inspector)**: Dependency graph SVG + expandable Prerequisites/Referenced by sections. Each prerequisite/dependent shows its description by default, and can be expanded to show full mathematical content. Show/hide descs and expand/collapse all controls per section.
 - **No minimap, no guide tab, no glossary tab** — all consolidated.
+- **Mobile responsive**: Sidebar and panel slide in/out as overlays on narrow screens (<768px). Toggle buttons fixed at top corners.
+- **Loading spinner**: Body starts with `class="loading"`, panels hidden until MathJax ready.
+- **Accessibility**: Skip-to-content link, ARIA labels on mobile toggles.
+- **Starred content**: Non-examinable items marked with `class="starred"`, shown with asterisk prefix and reduced opacity.
 
 When adapting `buildGuide()` for flat-section courses (like B2.1), skip chapter grouping — sections ARE the top-level groups in the revision notes.
 
@@ -271,6 +275,7 @@ viewer/
   courses/
     b21.js                # B2.1 metadata: envNames, guideDescs, guideOutline, course info
     b23.js                # B2.3 metadata: same structure
+    a11.js                # A11 metadata: envNames, guideDescs, guideOutline (427 items)
     (future: b34.js, c31.js, etc.)
 ```
 
