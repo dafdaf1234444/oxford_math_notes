@@ -1,14 +1,17 @@
 # Project Status
 
-## Converted Courses (3 of 97)
+## Converted Courses (6 of 97)
 
 | Course | Code | Part | Term | Items | Architecture | Status |
 |--------|------|------|------|-------|-------------|--------|
 | Introduction to Representation Theory | B2.1 | B | Michaelmas | 134 | Gen 1 (separate objects) | Complete |
 | Lie Algebras | B2.3 | B | Hilary | 205 | Gen 1 (separate objects) | Complete |
 | Quantum Theory | A11 | A | Michaelmas | 427 | Gen 2 (KNOWLEDGE_GRAPH) | Complete |
+| Rings and Modules | A3 | A | Hilary | 173 | Gen 2 (KNOWLEDGE_GRAPH) | Complete |
+| Linear Algebra | A0 | A | Michaelmas | 118 | Gen 2 (KNOWLEDGE_GRAPH) | Complete |
+| Metric Spaces | A2.1 | A | Michaelmas | 141 | Gen 2 (KNOWLEDGE_GRAPH) | Complete |
 
-**Total converted items: 766**
+**Total converted items: 1198**
 
 ## Infrastructure (Complete)
 
@@ -157,3 +160,4 @@ Priority is based on: (1) foundational importance, (2) connection to existing co
 - [ ] **LaTeX source integration** — link back to original LaTeX for editing
 - [ ] **Spaced repetition** — integration with Anki or similar for revision
 - [ ] **Collaborative annotations** — user-added notes and highlights
+
